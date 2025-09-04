@@ -1,17 +1,20 @@
 import React from 'react';
-import { Text, TextProps, Pressable, Linking } from 'react-native';
+import { Text, TextProps, Linking } from 'react-native';
 
 import theme from '../styles/theme';
+
+import { navigationRef } from '../main';
 
 /**
  * @param {{
  *  children: String;
  * 	href: String;
+ * 	to: String;
  * } & TextProps} props
  * @returns {JSX.Element}
  */
 const Anchor = (props) => {
-	const { href, children, onPress, style, ...rest } = props;
+	const { href, children, onPress, style, to, ...rest } = props;
 
 	const [pressed, setPressed] = React.useState(false);
 
@@ -19,8 +22,15 @@ const Anchor = (props) => {
 		<Text
 			onPressIn={() => setPressed(true)}
 			onPressOut={() => setPressed(false)}
-			onPress={onPress ? onPress : () => Linking.openURL(href)}
+			onPress={onPress ? onPress : () => {
+				console.log('Navigating to:', to);
+				if (to)
+					navigationRef.current?.navigate(to);
+				else
+					Linking.openURL(href);
+			}}
 			style={[{ color: !pressed ? theme.brand_primary : theme.brand_primary_tap }, style]}
+			{...rest}
 		>
 			{children}
 		</Text>

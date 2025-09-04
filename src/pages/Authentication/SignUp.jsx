@@ -1,7 +1,8 @@
 import React from 'react';
+import { StatusBar } from 'expo-status-bar';
 import packageJson from '../../../package.json';
 
-import { Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { Keyboard } from 'react-native';
 import { Image } from 'expo-image';
 import { Flex, Text, Form, Input, Card } from '@ant-design/react-native';
 
@@ -13,7 +14,7 @@ import LogoBanner from '../../../assets/public/Logo Banner.png';
 import Logo from '../../../assets/public/Logo.png';
 
 import theme from '../../styles/theme';
-const SignIn = () => {
+const SignUp = () => {
 	const version = packageJson.version;
 
 	const [keyboardShown, setKeyboardShown] = React.useState(false);
@@ -29,7 +30,9 @@ const SignIn = () => {
 	}, []);
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+		<>
+			<StatusBar style='auto' translucent />
+
 			<Flex
 				direction='column'
 				justify='space-between'
@@ -42,17 +45,6 @@ const SignIn = () => {
 					backgroundColor: theme.fill_body
 				}}
 			>
-				{/***************************************** Banner *****************************************/}
-				<Image
-					source={LogoBanner}
-					style={{
-						width: '100%',
-						maxWidth: 512,
-						height: 128
-					}}
-					contentFit='contain'
-				/>
-
 				{/***************************************** Form *****************************************/}
 				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
 					<Flex direction='row' justify='center' align='center' gap={4} >
@@ -65,24 +57,26 @@ const SignIn = () => {
 					</Flex>
 
 					<Form
-						name='signIn'
+						name='signUp'
 						layout='vertical'
 						style={{ width: '100%', maxWidth: 512 }}
 						noStyle
 					>
 						<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
+							<Card><Form.Item noStyle><Input placeholder='Student ID' /></Form.Item></Card>
 							<Card><Form.Item noStyle><Input placeholder='Email Address' /></Form.Item></Card>
 							<Card><Form.Item noStyle><Input placeholder='Password' secureTextEntry /></Form.Item></Card>
+							<Card><Form.Item noStyle><Input placeholder='Confirm Password' secureTextEntry /></Form.Item></Card>
 							<Form.Item noStyle>
 								<Button type='primary' size='large'>
-									Sign In
+									Sign Up
 								</Button>
 							</Form.Item>
 						</Flex>
 					</Form>
 
 					<Text style={{ textAlign: 'center' }}>
-						<Anchor to='SignUp'>Sign Up</Anchor> or <Anchor href='/'>Recover your Account</Anchor>
+						<Anchor to='SignIn'>Sign In</Anchor> or <Anchor href='/'>Recover your Account</Anchor>
 					</Text>
 				</Flex>
 
@@ -101,13 +95,13 @@ const SignIn = () => {
 							style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
 						>
 							<Text style={{ fontSize: 8 }}>v{version}</Text>
-							<Text style={{ fontSize: 8 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com' style={{ fontSize: 8 }}>danieljohnbyns@gmail.com</Anchor></Text>
+							<Text style={{ fontSize: 8 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com'>danieljohnbyns@gmail.com</Anchor></Text>
 						</Flex>
 					</>
 				)}
 			</Flex>
-		</TouchableWithoutFeedback>
+		</>
 	);
 };
 
-export default SignIn;
+export default SignUp;
