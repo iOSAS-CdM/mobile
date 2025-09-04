@@ -30,7 +30,8 @@
 				"expo-asset",
 				{
 					"assets": [
-						"./assets/public/Logo Banner.png"
+						"./assets/public/Logo Banner.png",
+						"./assets/public/Logo.png"
 					]
 				}
 			]

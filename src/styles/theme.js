@@ -11,6 +11,14 @@ export default {
 	color_text_paragraph: '#333333',
 	color_link: brandPrimary,
 
+	// Custom Title Font Sizes
+	title_font_size_1: 32,
+	title_font_size_2: 28,
+	title_font_size_3: 24,
+	title_font_size_4: 20,
+	title_font_size_5: 16,
+	title_font_size_6: 12,
+
 	fill_base: '#ffffff',
 	fill_body: '#f5f5f9',
 	fill_tap: '#dddddd',
@@ -71,10 +79,10 @@ export default {
 	actionsheet_item_height: 50,
 	actionsheet_item_font_size: 18,
 
-	button_height: 47,
+	button_height: 32,
 	button_font_size: 18,
 
-	button_height_sm: 23,
+	button_height_sm: 24,
 	button_font_size_sm: 12,
 
 	primary_button_fill: brandPrimary,

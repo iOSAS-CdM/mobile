@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	Button as AntButton,
 	ButtonProps,
@@ -12,8 +11,8 @@ import theme from '../styles/theme';
 
 /**
  * @param {{
- *  children: String,
- *  icon: IconProps['name']
+ *  children: String;
+ *  icon: IconProps['name'];
  * } & ButtonProps} props
  * @returns {JSX.Element}
  */

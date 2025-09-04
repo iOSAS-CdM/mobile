@@ -1,72 +1,115 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import packageJson from '../../../package.json';
-import Constants from 'expo-constants';
-const statusBarHeight = Constants.statusBarHeight;
 
-import {
-	SafeAreaView,
-	ScrollView
-} from 'react-native';
+import { Keyboard } from 'react-native';
 import { Image } from 'expo-image';
-import { Flex, Text } from '@ant-design/react-native';
+import { Flex, Text, Form, Input, Card } from '@ant-design/react-native';
 
 import Button from '../../components/Button';
+import Title from '../../components/Title';
+import Anchor from '../../components/Anchor';
 
 import LogoBanner from '../../../assets/public/Logo Banner.png';
+import Logo from '../../../assets/public/Logo.png';
 
+import theme from '../../styles/theme';
 const SignIn = () => {
 	const version = packageJson.version;
 
+	const [keyboardShown, setKeyboardShown] = React.useState(false);
+
+	React.useEffect(() => {
+		const showListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardShown(true));
+		const hideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardShown(false));
+
+		return () => {
+			showListener.remove();
+			hideListener.remove();
+		};
+	}, []);
+
 	return (
-		<SafeAreaView style={{ flex: 1, paddingTop: statusBarHeight }}>
-			<StatusBar style='auto' />
+		<>
+			<StatusBar style='auto' translucent />
 
-			<ScrollView>
-				<Flex
-					direction='column'
-					justify='space-between'
-					gap={32}
+			<Flex
+				direction='column'
+				justify='space-between'
+				gap={32}
+				style={{
+					position: 'relative',
+					width: '100%',
+					minHeight: '100%',
+					padding: 32,
+					backgroundColor: theme.fill_body
+				}}
+			>
+				{/***************************************** Banner *****************************************/}
+				<Image
+					source={LogoBanner}
 					style={{
-						position: 'relative',
 						width: '100%',
-						minHeight: '100%',
-						padding: 32
+						maxWidth: 512,
+						height: 128
 					}}
-				>
-					{/***************************************** Banner *****************************************/}
-					<Image
-						source={LogoBanner}
-						style={{
-							width: '100%',
-							maxWidth: 512,
-							height: 128,
-							objectFit: 'contain'
-						}}
-						contentFit='contain'
-					/>
+					contentFit='contain'
+				/>
 
-					{/***************************************** Forms *****************************************/}
-					<Flex direction='column' justify='center' align='center' gap={16} style={{ flex: 1 }}>
+				{/***************************************** Form *****************************************/}
+				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
+					<Flex direction='row' justify='center' align='center' gap={4} >
+						<Title level={4}>Welcome to</Title>
+						<Image
+							source={Logo}
+							style={{ width: 64, height: 32 }}
+							contentFit='contain'
+						/>
 					</Flex>
 
-					<Button type='default' size='large' icon='google' style={{ width: '100%' }}>
-						Sign In with Google
-					</Button>
-
-					{/***************************************** Footer *****************************************/}
-					<Text>Copyright © Colegio de Montalban 2025</Text>
-					<Flex
-						direction='column'
-						justify='space-between'
-						align='start'
-						style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
+					<Form
+						name='signIn'
+						layout='vertical'
+						style={{ width: '100%', maxWidth: 512 }}
+						noStyle
 					>
-						<Text style={{ fontSize: 8 }}>v{version}</Text>
-						<Text style={{ fontSize: 8 }}>For issues, please contact us via danieljohnbyns@gmail.com</Text>
-					</Flex>
+						<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
+							<Card><Form.Item noStyle><Input placeholder='Email' /></Form.Item></Card>
+							<Card><Form.Item noStyle><Input placeholder='Password' secureTextEntry /></Form.Item></Card>
+							<Form.Item noStyle>
+								<Button type='primary' size='large'>
+									Sign In
+								</Button>
+							</Form.Item>
+						</Flex>
+					</Form>
+
+					<Text style={{ textAlign: 'center' }}>
+						<Anchor href='/'>Sign Up</Anchor> or <Anchor href='/'>Reset Password</Anchor>
+					</Text>
 				</Flex>
-			</ScrollView>
-		</SafeAreaView>
+
+				{/***************************************** Footer *****************************************/}
+				{!keyboardShown && (
+					<>
+						<Button type='default' size='large' icon='google' style={{ width: '100%' }}>
+							Sign In with Google
+						</Button>
+
+						<Text>Copyright © Colegio de Montalban 2025</Text>
+						<Flex
+							direction='column'
+							justify='space-between'
+							align='start'
+							style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
+						>
+							<Text style={{ fontSize: 8 }}>v{version}</Text>
+							<Text style={{ fontSize: 8 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com' style={{ fontSize: 8 }}>danieljohnbyns@gmail.com</Anchor></Text>
+						</Flex>
+					</>
+				)}
+			</Flex>
+		</>
 	);
 };
 
