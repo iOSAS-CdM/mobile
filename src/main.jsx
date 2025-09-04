@@ -1,3 +1,7 @@
+import * as React from 'react';
+import { createStaticNavigation } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { StatusBar } from 'expo-status-bar';
 import Constants from 'expo-constants';
 
@@ -6,25 +10,22 @@ import {
 	SafeAreaView
 } from 'react-native';
 
-import { Provider } from '@ant-design/react-native';
+import Authentication from './pages/Authentication';
 
-const statusBarHeight = Constants.statusBarHeight;
+const RootStack = createNativeStackNavigator({
+	screens: {
+		Authentication: {
+			screen: Authentication,
+			options: { headerShown: false }
+		}
+	}
+});
+
+const Navigation = createStaticNavigation(RootStack);
 
 const main = () => {
 	return (
-		<SafeAreaView
-			style={{
-				flex: 1,
-				paddingTop: statusBarHeight,
-				backgroundColor: 'white'
-			}}
-		>
-			<StatusBar style='auto' />
-
-			<Provider>
-				<Text>iOSAS</Text>
-			</Provider>
-		</SafeAreaView>
+		<Navigation />
 	);
 };
 
