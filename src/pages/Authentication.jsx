@@ -32,6 +32,8 @@ const Authentication = () => {
 					padding: 32
 				}}
 			>
+
+				{/***************************************** Banner *****************************************/}
 				<Image
 					source={LogoBanner}
 					style={{
@@ -43,6 +45,7 @@ const Authentication = () => {
 					contentFit='contain'
 				/>
 
+				{/***************************************** Content *****************************************/}
 				<Flex direction='column' align='center' gap={16} style={{ flex: 1 }}>
 					<SignIn />
 				</Flex>
@@ -51,6 +54,8 @@ const Authentication = () => {
 					Create an Account
 				</Button>
 
+
+				{/***************************************** Footer *****************************************/}
 				<Text>Copyright © Colegio de Montalban 2025</Text>
 				<Flex
 					direction='column'
