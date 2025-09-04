@@ -11,21 +11,13 @@ import Title from '../../components/Title';
 
 import Logo from '../../../assets/public/Logo.png';
 
+import { KeyboardShownContext } from '../../main';
+
 import theme from '../../styles/theme';
 const SignUp = () => {
 	const version = packageJson.version;
 
-	const [keyboardShown, setKeyboardShown] = React.useState(false);
-
-	React.useEffect(() => {
-		const showListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardShown(true));
-		const hideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardShown(false));
-
-		return () => {
-			showListener.remove();
-			hideListener.remove();
-		};
-	}, []);
+	const { keyboardShown } = React.useContext(KeyboardShownContext);
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>

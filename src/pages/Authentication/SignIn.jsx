@@ -12,21 +12,13 @@ import Anchor from '../../components/Anchor';
 import LogoBanner from '../../../assets/public/Logo Banner.png';
 import Logo from '../../../assets/public/Logo.png';
 
+import { KeyboardShownContext } from '../../main';
+
 import theme from '../../styles/theme';
 const SignIn = () => {
 	const version = packageJson.version;
 
-	const [keyboardShown, setKeyboardShown] = React.useState(false);
-
-	React.useEffect(() => {
-		const showListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardShown(true));
-		const hideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardShown(false));
-
-		return () => {
-			showListener.remove();
-			hideListener.remove();
-		};
-	}, []);
+	const { keyboardShown } = React.useContext(KeyboardShownContext);
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
