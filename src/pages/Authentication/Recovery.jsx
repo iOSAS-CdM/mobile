@@ -7,12 +7,11 @@ import { Flex, Text, Form, Input, Card } from '@ant-design/react-native';
 
 import Button from '../../components/Button';
 import Anchor from '../../components/Anchor';
-import Title from '../../components/Title';
 
 import Logo from '../../../assets/public/Logo.png';
 
 import theme from '../../styles/theme';
-const SignUp = () => {
+const Recovery = () => {
 	const version = packageJson.version;
 
 	const [keyboardShown, setKeyboardShown] = React.useState(false);
@@ -43,12 +42,12 @@ const SignUp = () => {
 			>
 				{/***************************************** Form *****************************************/}
 				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
-					<Flex direction='row' justify='center' align='center' gap={8}>
-						<Title level={2}>Join us at</Title>
+					<Flex justify='center' align='center'>
 						<Image
 							source={Logo}
 							style={{ width: 128, height: 64 }}
 							contentFit='contain'
+							contentPosition={{ top: 0.5, left: 0.5 }}
 						/>
 					</Flex>
 
@@ -93,4 +92,4 @@ const SignUp = () => {
 	);
 };
 
-export default SignUp;
+export default Recovery;
