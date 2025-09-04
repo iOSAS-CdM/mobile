@@ -2,12 +2,11 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import packageJson from '../../../package.json';
 
-import { Keyboard } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'expo-image';
 import { Flex, Text, Form, Input, Card } from '@ant-design/react-native';
 
 import Button from '../../components/Button';
-import Title from '../../components/Title';
 import Anchor from '../../components/Anchor';
 
 import LogoBanner from '../../../assets/public/Logo Banner.png';
@@ -30,9 +29,7 @@ const SignUp = () => {
 	}, []);
 
 	return (
-		<>
-			<StatusBar style='auto' translucent />
-
+		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 			<Flex
 				direction='column'
 				justify='space-between'
@@ -47,12 +44,12 @@ const SignUp = () => {
 			>
 				{/***************************************** Form *****************************************/}
 				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
-					<Flex direction='row' justify='center' align='center' gap={4} >
-						<Title level={4}>Welcome to</Title>
+					<Flex justify='center' align='center'>
 						<Image
 							source={Logo}
-							style={{ width: 64, height: 32 }}
+							style={{ width: 128, height: 64 }}
 							contentFit='contain'
+							contentPosition={{ top: 0.5, left: 0.5 }}
 						/>
 					</Flex>
 
@@ -82,25 +79,18 @@ const SignUp = () => {
 
 				{/***************************************** Footer *****************************************/}
 				{!keyboardShown && (
-					<>
-						<Button type='default' size='large' icon='google' style={{ width: '100%' }}>
-							Sign In with Google
-						</Button>
-
-						<Text>Copyright © Colegio de Montalban 2025</Text>
-						<Flex
-							direction='column'
-							justify='space-between'
-							align='start'
-							style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
-						>
-							<Text style={{ fontSize: 8 }}>v{version}</Text>
-							<Text style={{ fontSize: 8 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com'>danieljohnbyns@gmail.com</Anchor></Text>
-						</Flex>
-					</>
+					<Flex
+						direction='column'
+						justify='space-between'
+						align='start'
+						style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
+					>
+						<Text style={{ fontSize: 8 }}>v{version}</Text>
+						<Text style={{ fontSize: 8 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com'>danieljohnbyns@gmail.com</Anchor></Text>
+					</Flex>
 				)}
 			</Flex>
-		</>
+		</TouchableWithoutFeedback>
 	);
 };
 
