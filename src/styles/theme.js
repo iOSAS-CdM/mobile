@@ -12,12 +12,12 @@ export default {
 	color_link: brandPrimary,
 
 	// Custom Title Font Sizes
-	title_font_size_1: 32,
-	title_font_size_2: 28,
-	title_font_size_3: 24,
-	title_font_size_4: 20,
-	title_font_size_5: 16,
-	title_font_size_6: 12,
+	title_font_size_1: 36,
+	title_font_size_2: 32,
+	title_font_size_3: 28,
+	title_font_size_4: 22,
+	title_font_size_5: 18,
+	title_font_size_6: 16,
 
 	fill_base: '#ffffff',
 	fill_body: '#f5f5f9',
@@ -39,12 +39,12 @@ export default {
 
 	border_color_base: '#dddddd',
 
-	font_size_icontext: 10,
-	font_size_caption_sm: 12,
-	font_size_base: 14,
-	font_size_subhead: 15,
-	font_size_caption: 16,
-	font_size_heading: 17,
+	font_size_icontext: 12,
+	font_size_caption_sm: 14,
+	font_size_base: 16,
+	font_size_subhead: 17,
+	font_size_caption: 18,
+	font_size_heading: 19,
 
 	radius_xs: 2,
 	radius_sm: 3,

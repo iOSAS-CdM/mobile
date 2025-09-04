@@ -3,11 +3,12 @@ import packageJson from '../../../package.json';
 
 import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'expo-image';
-import { Flex, Text, Form, Input, Card } from '@ant-design/react-native';
+import { Flex, Form, Input, Card } from '@ant-design/react-native';
 
 import Button from '../../components/Button';
 import Title from '../../components/Title';
 import Anchor from '../../components/Anchor';
+import Text from '../../components/Text';
 
 import LogoBanner from '../../../assets/public/Logo Banner.png';
 import Logo from '../../../assets/public/Logo.png';
@@ -92,8 +93,8 @@ const SignIn = () => {
 							align='start'
 							style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
 						>
-							<Text style={{ fontSize: 8 }}>v{version}</Text>
-							<Text style={{ fontSize: 8 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com' style={{ fontSize: 8 }}>danieljohnbyns@gmail.com</Anchor></Text>
+							<Text style={{ fontSize: theme.font_size_icontext * 0.75 }}>v{version}</Text>
+							<Text style={{ fontSize: theme.font_size_icontext * 0.75 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com' style={{ fontSize: 8 }}>danieljohnbyns@gmail.com</Anchor></Text>
 						</Flex>
 					</>
 				)}
