@@ -38,10 +38,10 @@ export default {
 	font_size_caption: 16,
 	font_size_heading: 17,
 
-	radius_xs: 2,
-	radius_sm: 3,
-	radius_md: 5,
-	radius_lg: 7,
+	radius_xs: 4,
+	radius_sm: 8,
+	radius_md: 16,
+	radius_lg: 32,
 
 	border_width_sm: 0.5,
 	border_width_md: 1,
