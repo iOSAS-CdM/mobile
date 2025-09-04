@@ -1,14 +1,8 @@
-import * as React from 'react';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useFonts } from 'expo-font';
 
-import { StatusBar } from 'expo-status-bar';
-import Constants from 'expo-constants';
-
-import {
-	Text,
-	SafeAreaView
-} from 'react-native';
+import { Provider } from '@ant-design/react-native';
 
 import Authentication from './pages/Authentication';
 
@@ -23,9 +17,19 @@ const RootStack = createNativeStackNavigator({
 
 const Navigation = createStaticNavigation(RootStack);
 
+import theme from './styles/theme';
 const main = () => {
+	const [fontsLoaded] = useFonts({
+		antoutline: require('@ant-design/icons-react-native/fonts/antoutline.ttf')
+	});
+	if (!fontsLoaded) return null;
+
 	return (
-		<Navigation />
+		<Provider
+			theme={theme}
+		>
+			<Navigation />
+		</Provider>
 	);
 };
 
