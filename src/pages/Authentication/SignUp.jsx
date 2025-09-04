@@ -64,7 +64,7 @@ const SignUp = () => {
 					</Form>
 
 					<Text style={{ textAlign: 'center' }}>
-						<Anchor to='SignIn'>Sign In</Anchor> or <Anchor href='/'>Recover your Account</Anchor>
+						<Anchor to='SignIn'>Sign In</Anchor> or <Anchor to='Recovery'>Recover your Account</Anchor>
 					</Text>
 				</Flex>
 

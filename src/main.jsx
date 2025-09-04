@@ -15,6 +15,7 @@ const Stack = createStackNavigator();
 
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
+import Recovery from './pages/Authentication/Recovery';
 
 import theme from './styles/theme';
 const main = () => {
@@ -78,6 +79,14 @@ const main = () => {
 							<Stack.Screen
 								name='SignUp'
 								component={SignUp}
+								options={{
+									headerShown: false,
+									animation: 'slide_from_right'
+								}}
+							/>
+							<Stack.Screen
+								name='Recovery'
+								component={Recovery}
 								options={{
 									headerShown: false,
 									animation: 'slide_from_right'

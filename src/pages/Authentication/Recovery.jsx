@@ -7,24 +7,19 @@ import { Flex, Text, Form, Input, Card } from '@ant-design/react-native';
 
 import Button from '../../components/Button';
 import Anchor from '../../components/Anchor';
+import Title from '../../components/Title';
 
 import Logo from '../../../assets/public/Logo.png';
+
+import { KeyboardShownContext } from '../../main';
 
 import theme from '../../styles/theme';
 const Recovery = () => {
 	const version = packageJson.version;
 
-	const [keyboardShown, setKeyboardShown] = React.useState(false);
+	const { keyboardShown } = React.useContext(KeyboardShownContext);
 
-	React.useEffect(() => {
-		const showListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardShown(true));
-		const hideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardShown(false));
-
-		return () => {
-			showListener.remove();
-			hideListener.remove();
-		};
-	}, []);
+	const [step, setStep] = React.useState(1); // 1: Confirm ID and Email, 2: Verify OTP, 3: Reset Password
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -42,36 +37,68 @@ const Recovery = () => {
 			>
 				{/***************************************** Form *****************************************/}
 				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
-					<Flex justify='center' align='center'>
-						<Image
-							source={Logo}
-							style={{ width: 128, height: 64 }}
-							contentFit='contain'
-							contentPosition={{ top: 0.5, left: 0.5 }}
-						/>
+					<Flex direction='row' justify='center' align='center' gap={8}>
+						<Title center level={2}>We're here to help you recover your account</Title>
 					</Flex>
 
-					<Form
-						name='signUp'
-						layout='vertical'
-						style={{ width: '100%', maxWidth: 512 }}
-						noStyle
-					>
-						<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
-							<Card><Form.Item noStyle><Input placeholder='Student ID' /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Email Address' /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Password' secureTextEntry /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Confirm Password' secureTextEntry /></Form.Item></Card>
-							<Form.Item noStyle>
-								<Button type='primary' size='large'>
-									Sign Up
-								</Button>
-							</Form.Item>
-						</Flex>
-					</Form>
+					{step === 1 && (
+						<Form
+							name='confirm'
+							layout='vertical'
+							style={{ width: '100%', maxWidth: 512 }}
+							noStyle
+						>
+							<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
+								<Card><Form.Item noStyle><Input placeholder='Student ID' /></Form.Item></Card>
+								<Card><Form.Item noStyle><Input placeholder='Email Address' /></Form.Item></Card>
+								<Form.Item noStyle>
+									<Button type='primary' size='large' onPress={() => setStep(2)}>
+										Confirm Account
+									</Button>
+								</Form.Item>
+							</Flex>
+						</Form>
+					)}
+
+					{step === 2 && (
+						<Form
+							name='verify'
+							layout='vertical'
+							style={{ width: '100%', maxWidth: 512 }}
+							noStyle
+						>
+							<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
+								<Card><Form.Item noStyle><Input placeholder='Verification Code' /></Form.Item></Card>
+								<Form.Item noStyle>
+									<Button type='primary' size='large' onPress={() => setStep(3)}>
+										Verify Code
+									</Button>
+								</Form.Item>
+							</Flex>
+						</Form>
+					)}
+
+					{step === 3 && (
+						<Form
+							name='reset'
+							layout='vertical'
+							style={{ width: '100%', maxWidth: 512 }}
+							noStyle
+						>
+							<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
+								<Card><Form.Item noStyle><Input placeholder='New Password' secureTextEntry /></Form.Item></Card>
+								<Card><Form.Item noStyle><Input placeholder='Confirm Password' secureTextEntry /></Form.Item></Card>
+								<Form.Item noStyle>
+									<Button type='primary' size='large'>
+										Reset Password
+									</Button>
+								</Form.Item>
+							</Flex>
+						</Form>
+					)}
 
 					<Text style={{ textAlign: 'center' }}>
-						<Anchor to='SignIn'>Sign In</Anchor> or <Anchor href='/'>Recover your Account</Anchor>
+						<Anchor to='SignIn'>Sign In</Anchor> or <Anchor to='SignUp'>Create an Account</Anchor>
 					</Text>
 				</Flex>
 
