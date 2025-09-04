@@ -1,21 +1,13 @@
-import { createStaticNavigation } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
 import { useFonts } from 'expo-font';
 
 import { Provider } from '@ant-design/react-native';
 
-import Authentication from './pages/Authentication';
+const Stack = createStackNavigator();
 
-const RootStack = createNativeStackNavigator({
-	screens: {
-		Authentication: {
-			screen: Authentication,
-			options: { headerShown: false }
-		}
-	}
-});
-
-const Navigation = createStaticNavigation(RootStack);
+import SignIn from './pages/Authentication/SignIn';
 
 import theme from './styles/theme';
 const main = () => {
@@ -28,7 +20,15 @@ const main = () => {
 		<Provider
 			theme={theme}
 		>
-			<Navigation />
+			<NavigationContainer>
+				<Stack.Navigator>
+					<Stack.Screen
+						name='SignIn'
+						component={SignIn}
+						options={{ headerShown: false }}
+					/>
+				</Stack.Navigator>
+			</NavigationContainer>
 		</Provider>
 	);
 };
