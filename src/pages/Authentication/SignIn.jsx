@@ -48,12 +48,27 @@ const SignIn = () => {
 				/>
 
 				{/***************************************** Form *****************************************/}
-				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
-					<Flex direction='row' justify='center' align='center' gap={4} >
+				<Flex
+					direction='column'
+					justify='center'
+					align='stretch'
+					gap={16}
+					style={{ flex: 1, width: '100%' }}
+				>
+					<Flex
+						direction='row'
+						justify='center'
+						align='center'
+						gap={4}
+					>
 						<Title level={4}>Welcome to</Title>
 						<Image
 							source={Logo}
-							style={{ width: 64, height: 32, objectFit: 'contain' }}
+							style={{
+								width: 64,
+								height: 32,
+								objectFit: 'contain'
+							}}
 							contentFit='contain'
 						/>
 					</Flex>
@@ -61,14 +76,41 @@ const SignIn = () => {
 					<Form
 						name='signIn'
 						layout='vertical'
-						style={{ width: '100%', maxWidth: 512, backgroundColor: theme.fill_base }}
+						style={{
+							width: '100%',
+							maxWidth: 512,
+							backgroundColor: theme.fill_base
+						}}
 						noStyle
 					>
-						<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
-							<Card><Form.Item noStyle><Input placeholder='Email Address' /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Password' secureTextEntry /></Form.Item></Card>
+						<Flex
+							direction='column'
+							justify='center'
+							align='stretch'
+							gap={16}
+							style={{ width: '100%' }}
+						>
+							<Card>
+								<Form.Item noStyle>
+									<Input placeholder='Email Address' />
+								</Form.Item>
+							</Card>
+							<Card>
+								<Form.Item noStyle>
+									<Input
+										placeholder='Password'
+										secureTextEntry
+									/>
+								</Form.Item>
+							</Card>
 							<Form.Item noStyle>
-								<Button type='primary' size='large' onPress={() => navigationRef.current?.navigate('Feed')}>
+								<Button
+									type='primary'
+									size='large'
+									onPress={() =>
+										navigationRef.current?.navigate('Feed')
+									}
+								>
 									Sign In
 								</Button>
 							</Form.Item>
@@ -76,14 +118,20 @@ const SignIn = () => {
 					</Form>
 
 					<Text style={{ textAlign: 'center' }}>
-						<Anchor to='SignUp'>Sign Up</Anchor> or <Anchor to='Recovery'>Recover your Account</Anchor>
+						<Anchor to='SignUp'>Sign Up</Anchor> or{' '}
+						<Anchor to='Recovery'>Recover your Account</Anchor>
 					</Text>
 				</Flex>
 
 				{/***************************************** Footer *****************************************/}
 				{!keyboardShown && (
 					<>
-						<Button type='default' size='large' icon='google' style={{ width: '100%' }}>
+						<Button
+							type='default'
+							size='large'
+							icon='google'
+							style={{ width: '100%' }}
+						>
 							Sign In with Google
 						</Button>
 
@@ -92,10 +140,34 @@ const SignIn = () => {
 							direction='column'
 							justify='space-between'
 							align='start'
-							style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
+							style={{
+								position: 'absolute',
+								bottom: 0,
+								left: 0,
+								right: 0,
+								padding: 8
+							}}
 						>
-							<Text style={{ fontSize: theme.font_size_icontext * 0.75 }}>v{version}</Text>
-							<Text style={{ fontSize: theme.font_size_icontext * 0.75 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com' style={{ fontSize: 8 }}>danieljohnbyns@gmail.com</Anchor></Text>
+							<Text
+								style={{
+									fontSize: theme.font_size_icontext * 0.75
+								}}
+							>
+								v{version}
+							</Text>
+							<Text
+								style={{
+									fontSize: theme.font_size_icontext * 0.75
+								}}
+							>
+								For issues, please contact us via{' '}
+								<Anchor
+									href='mailto:danieljohnbyns@gmail.com'
+									style={{ fontSize: 8 }}
+								>
+									danieljohnbyns@gmail.com
+								</Anchor>
+							</Text>
 						</Flex>
 					</>
 				)}

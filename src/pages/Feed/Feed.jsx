@@ -30,7 +30,10 @@ const Feed = () => {
 					direction='row'
 					justify='space-between'
 					align='center'
-					style={{ paddingHorizontal: 16, backgroundColor: theme.fill_base }}
+					style={{
+						paddingHorizontal: 16,
+						backgroundColor: theme.fill_base
+					}}
 				>
 					<Image
 						source={Logo}
@@ -38,8 +41,8 @@ const Feed = () => {
 						contentFit='contain'
 					/>
 					<Flex direction='row' align='center' gap={8}>
-						<IconButton size='small' name='search'/>
-						<IconButton size='small'  name='info-circle' />
+						<IconButton size='small' name='search' />
+						<IconButton size='small' name='info-circle' />
 					</Flex>
 				</Flex>
 			</TouchableWithoutFeedback>
@@ -76,42 +79,102 @@ const Feed = () => {
 						name='Home'
 						component={Home}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='home' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='home'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
 						}}
 					/>
 					<Tab.Screen
 						name='Cases'
 						component={Cases}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='file-text' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='file-text'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
 						}}
 					/>
 					<Tab.Screen
 						name='Calendar'
 						component={Calendar}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='calendar' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='calendar'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
 						}}
 					/>
 					<Tab.Screen
 						name='Repository'
 						component={Repository}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='folder' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='folder'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
 						}}
 					/>
 					<Tab.Screen
 						name='Profile'
 						component={Profile}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='user' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='user'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
 						}}
 					/>
 					<Tab.Screen
 						name='AmBot'
 						component={AmBot}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='robot' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='robot'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
 						}}
 					/>
 				</Tab.Navigator>

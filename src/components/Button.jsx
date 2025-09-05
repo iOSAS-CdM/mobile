@@ -22,7 +22,8 @@ const Button = (props) => {
 	return (
 		<AntButton
 			style={{
-				backgroundColor: type === 'primary' ? theme.brand_primary : theme.fill_base,
+				backgroundColor:
+					type === 'primary' ? theme.brand_primary : theme.fill_base,
 				...style
 			}}
 			{...props}
@@ -60,20 +61,18 @@ const Button = (props) => {
 						{children}
 					</Text>
 				</Flex>
+			) : icon && !children ? (
+				<Icon
+					name={icon}
+					style={{
+						color:
+							type === 'primary'
+								? theme.color_text_base_inverse
+								: theme.color_text_base
+					}}
+				/>
 			) : (
-					icon && !children ? (
-						<Icon
-							name={icon}
-							style={{
-								color:
-									type === 'primary'
-										? theme.color_text_base_inverse
-										: theme.color_text_base
-							}}
-						/>
-					) : (
-						children
-					)
+				children
 			)}
 		</AntButton>
 	);

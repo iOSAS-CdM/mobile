@@ -35,12 +35,27 @@ const SignUp = () => {
 				}}
 			>
 				{/***************************************** Form *****************************************/}
-				<Flex direction='column' justify='center' align='stretch' gap={16} style={{ flex: 1, width: '100%' }}>
-					<Flex direction='row' justify='center' align='center' gap={8}>
+				<Flex
+					direction='column'
+					justify='center'
+					align='stretch'
+					gap={16}
+					style={{ flex: 1, width: '100%' }}
+				>
+					<Flex
+						direction='row'
+						justify='center'
+						align='center'
+						gap={8}
+					>
 						<Title level={2}>Join us at</Title>
 						<Image
 							source={Logo}
-							style={{ width: 64, height: 32, objectFit: 'contain' }}
+							style={{
+								width: 64,
+								height: 32,
+								objectFit: 'contain'
+							}}
 							contentFit='contain'
 						/>
 					</Flex>
@@ -48,14 +63,46 @@ const SignUp = () => {
 					<Form
 						name='signUp'
 						layout='vertical'
-						style={{ width: '100%', maxWidth: 512, backgroundColor: theme.fill_base }}
+						style={{
+							width: '100%',
+							maxWidth: 512,
+							backgroundColor: theme.fill_base
+						}}
 						noStyle
 					>
-						<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
-							<Card><Form.Item noStyle><Input placeholder='Student ID' /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Email Address' /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Password' secureTextEntry /></Form.Item></Card>
-							<Card><Form.Item noStyle><Input placeholder='Confirm Password' secureTextEntry /></Form.Item></Card>
+						<Flex
+							direction='column'
+							justify='center'
+							align='stretch'
+							gap={16}
+							style={{ width: '100%' }}
+						>
+							<Card>
+								<Form.Item noStyle>
+									<Input placeholder='Student ID' />
+								</Form.Item>
+							</Card>
+							<Card>
+								<Form.Item noStyle>
+									<Input placeholder='Email Address' />
+								</Form.Item>
+							</Card>
+							<Card>
+								<Form.Item noStyle>
+									<Input
+										placeholder='Password'
+										secureTextEntry
+									/>
+								</Form.Item>
+							</Card>
+							<Card>
+								<Form.Item noStyle>
+									<Input
+										placeholder='Confirm Password'
+										secureTextEntry
+									/>
+								</Form.Item>
+							</Card>
 							<Form.Item noStyle>
 								<Button type='primary' size='large'>
 									Sign Up
@@ -65,7 +112,8 @@ const SignUp = () => {
 					</Form>
 
 					<Text style={{ textAlign: 'center' }}>
-						<Anchor to='SignIn'>Sign In</Anchor> or <Anchor to='Recovery'>Recover your Account</Anchor>
+						<Anchor to='SignIn'>Sign In</Anchor> or{' '}
+						<Anchor to='Recovery'>Recover your Account</Anchor>
 					</Text>
 				</Flex>
 
@@ -75,10 +123,34 @@ const SignUp = () => {
 						direction='column'
 						justify='space-between'
 						align='start'
-						style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8 }}
+						style={{
+							position: 'absolute',
+							bottom: 0,
+							left: 0,
+							right: 0,
+							padding: 8
+						}}
 					>
-						<Text style={{ fontSize: theme.font_size_icontext * 0.75 }}>v{version}</Text>
-						<Text style={{ fontSize: theme.font_size_icontext * 0.75 }}>For issues, please contact us via <Anchor href='mailto:danieljohnbyns@gmail.com' style={{ fontSize: 8 }}>danieljohnbyns@gmail.com</Anchor></Text>
+						<Text
+							style={{
+								fontSize: theme.font_size_icontext * 0.75
+							}}
+						>
+							v{version}
+						</Text>
+						<Text
+							style={{
+								fontSize: theme.font_size_icontext * 0.75
+							}}
+						>
+							For issues, please contact us via{' '}
+							<Anchor
+								href='mailto:danieljohnbyns@gmail.com'
+								style={{ fontSize: 8 }}
+							>
+								danieljohnbyns@gmail.com
+							</Anchor>
+						</Text>
 					</Flex>
 				)}
 			</Flex>
