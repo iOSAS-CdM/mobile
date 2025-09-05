@@ -41,7 +41,8 @@ const SignIn = () => {
 					style={{
 						width: '100%',
 						maxWidth: 512,
-						height: 128
+						height: 128,
+						objectFit: 'contain'
 					}}
 					contentFit='contain'
 				/>
@@ -52,7 +53,7 @@ const SignIn = () => {
 						<Title level={4}>Welcome to</Title>
 						<Image
 							source={Logo}
-							style={{ width: 64, height: 32 }}
+							style={{ width: 64, height: 32, objectFit: 'contain' }}
 							contentFit='contain'
 						/>
 					</Flex>

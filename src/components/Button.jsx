@@ -13,26 +13,37 @@ import theme from '../styles/theme';
  * @param {{
  *  children: String;
  *  icon: IconProps['name'];
+ * 	outlined: Boolean;
  * } & ButtonProps} props
  * @returns {JSX.Element}
  */
 const Button = (props) => {
+	const { children, icon, outlined, type, size, style } = props;
+	console.log(outlined);
 	return (
-		<AntButton {...props}>
-			{props.icon ? (
+		<AntButton
+			style={{
+				backgroundColor: outlined ? 'transparent' : type === 'primary' ? theme.brand_primary : theme.fill_base,
+				borderColor: outlined ? theme.brand_primary : 'transparent',
+				borderWidth: outlined ? 1 : 0,
+				...style
+			}}
+			{...props}
+		>
+			{icon && children ? (
 				<Flex
 					align='center'
 					gap={
-						props.size === 'small'
+						size === 'small'
 							? theme.button_font_size_sm / 2
 							: theme.button_font_size / 2
 					}
 				>
 					<Icon
-						name={props.icon}
+						name={icon}
 						style={{
 							color:
-								props.type === 'primary'
+								type === 'primary'
 									? theme.color_text_base_inverse
 									: theme.color_text_base
 						}}
@@ -40,20 +51,32 @@ const Button = (props) => {
 					<Text
 						style={{
 							color:
-								props.type === 'primary'
+								type === 'primary'
 									? theme.color_text_base_inverse
 									: theme.color_text_base,
 							fontSize:
-								props.size === 'small'
+								size === 'small'
 									? theme.button_font_size_sm
 									: theme.button_font_size
 						}}
 					>
-						{props.children}
+						{children}
 					</Text>
 				</Flex>
 			) : (
-				props.children
+					icon && !children ? (
+						<Icon
+							name={icon}
+							style={{
+								color:
+									type === 'primary'
+										? theme.color_text_base_inverse
+										: theme.color_text_base
+							}}
+						/>
+					) : (
+						children
+					)
 			)}
 		</AntButton>
 	);

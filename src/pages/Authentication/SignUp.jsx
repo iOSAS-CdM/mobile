@@ -40,7 +40,7 @@ const SignUp = () => {
 						<Title level={2}>Join us at</Title>
 						<Image
 							source={Logo}
-							style={{ width: 128, height: 64 }}
+							style={{ width: 64, height: 32, objectFit: 'contain' }}
 							contentFit='contain'
 						/>
 					</Flex>
