@@ -14,7 +14,7 @@ const Text = (props) => {
 
 	return (
 		<RNText
-			style={[{ fontSize: theme.font_size_base }, style]}
+			style={{ fontSize: theme.font_size_base, ...style }}
 			{...rest}
 		>
 			{children}

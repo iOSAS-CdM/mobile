@@ -29,7 +29,7 @@ const Anchor = (props) => {
 				else
 					Linking.openURL(href);
 			}}
-			style={[{ color: !pressed ? theme.brand_primary : theme.brand_primary_tap }, style]}
+			style={{ color: !pressed ? theme.brand_primary : theme.brand_primary_tap, ...style }}
 			{...rest}
 		>
 			{children}

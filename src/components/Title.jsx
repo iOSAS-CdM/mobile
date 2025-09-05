@@ -18,12 +18,13 @@ const Title = (props) => {
 		: theme.title_font_size_1;
 
 	return (
-		<Text style={[{
+		<Text style={{
 			fontSize,
 			color: theme.brand_primary,
 			fontWeight: 'bold',
-			textAlign: center ? 'center' : 'left'
-		}, style]} {...rest}>
+			textAlign: center ? 'center' : 'left',
+			...style
+		}} {...rest}>
 			{children}
 		</Text>
 	);
