@@ -24,7 +24,7 @@ export default {
 	fill_tap: '#dddddd',
 	fill_disabled: '#dddddd',
 	fill_mask: 'rgba(0, 0, 0, .4)',
-	color_icon_base: '#cccccc',
+	color_icon_base: '#595959',
 	fill_grey: '#f7f7f7',
 
 	opacity_disabled: '0.3',

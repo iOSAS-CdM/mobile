@@ -13,19 +13,16 @@ import theme from '../styles/theme';
  * @param {{
  *  children: String;
  *  icon: IconProps['name'];
- * 	outlined: Boolean;
  * } & ButtonProps} props
  * @returns {JSX.Element}
  */
 const Button = (props) => {
-	const { children, icon, outlined, type, size, style } = props;
+	const { children, icon, type, size, style } = props;
 
 	return (
 		<AntButton
 			style={{
-				backgroundColor: outlined ? 'transparent' : type === 'primary' ? theme.brand_primary : theme.fill_base,
-				borderColor: outlined ? theme.brand_primary : 'transparent',
-				borderWidth: outlined ? 1 : 0,
+				backgroundColor: type === 'primary' ? theme.brand_primary : theme.fill_base,
 				...style
 			}}
 			{...props}

@@ -4,7 +4,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import { Flex, Icon } from '@ant-design/react-native';
 
-import Button from '../../components/Button';
+import IconButton from '../../components/IconButton';
 
 import Home from './Tabs/Home';
 import Cases from './Tabs/Cases';
@@ -37,9 +37,9 @@ const Feed = () => {
 						style={{ width: 64, height: 32, objectFit: 'contain' }}
 						contentFit='contain'
 					/>
-					<Flex direction='row' align='center' gap={4}>
-						<Button type='default' size='small' icon='search' outlined={false} />
-						<Button type='default' size='small' icon='info-circle' outlined={false} />
+					<Flex direction='row' align='center' gap={8}>
+						<IconButton size='small' name='search'/>
+						<IconButton size='small'  name='info-circle' />
 					</Flex>
 				</Flex>
 			</TouchableWithoutFeedback>
@@ -66,6 +66,7 @@ const Feed = () => {
 								width: 0,
 								height: 0
 							},
+							borderBottomWidth: 0.25,
 							elevation: 0,
 							zIndex: 0
 						}
@@ -75,42 +76,42 @@ const Feed = () => {
 						name='Home'
 						component={Home}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='home' color={focused ? theme.brand_primary : 'gray'} />
+							tabBarIcon: ({ focused }) => <Icon name='home' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
 						}}
 					/>
 					<Tab.Screen
 						name='Cases'
 						component={Cases}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='file-text' color={focused ? theme.brand_primary : 'gray'} />
+							tabBarIcon: ({ focused }) => <Icon name='file-text' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
 						}}
 					/>
 					<Tab.Screen
 						name='Calendar'
 						component={Calendar}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='calendar' color={focused ? theme.brand_primary : 'gray'} />
+							tabBarIcon: ({ focused }) => <Icon name='calendar' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
 						}}
 					/>
 					<Tab.Screen
 						name='Repository'
 						component={Repository}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='folder' color={focused ? theme.brand_primary : 'gray'} />
+							tabBarIcon: ({ focused }) => <Icon name='folder' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
 						}}
 					/>
 					<Tab.Screen
 						name='Profile'
 						component={Profile}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='user' color={focused ? theme.brand_primary : 'gray'} />
+							tabBarIcon: ({ focused }) => <Icon name='user' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
 						}}
 					/>
 					<Tab.Screen
 						name='AmBot'
 						component={AmBot}
 						options={{
-							tabBarIcon: ({ focused }) => <Icon name='robot' color={focused ? theme.brand_primary : 'gray'} />
+							tabBarIcon: ({ focused }) => <Icon name='robot' size={theme.icon_size_sm} color={focused ? theme.brand_primary : theme.color_icon_base} />
 						}}
 					/>
 				</Tab.Navigator>
