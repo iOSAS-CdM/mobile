@@ -16,6 +16,7 @@ const Stack = createStackNavigator();
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import Recovery from './pages/Authentication/Recovery';
+import Feed from './pages/Feed/Feed';
 
 import theme from './styles/theme';
 const main = () => {
@@ -59,7 +60,7 @@ const main = () => {
 			keyboardVerticalOffset={Platform.OS === 'ios' ? keyboardHeight : 0} 
 			style={{
 				flex: 1,
-				backgroundColor: theme.fill_body,
+				backgroundColor: theme.fill_base,
 				paddingTop: statusBarHeight
 			}}
 		>
@@ -87,6 +88,14 @@ const main = () => {
 							<Stack.Screen
 								name='Recovery'
 								component={Recovery}
+								options={{
+									headerShown: false,
+									animation: 'slide_from_right'
+								}}
+							/>
+							<Stack.Screen
+								name='Feed'
+								component={Feed}
 								options={{
 									headerShown: false,
 									animation: 'slide_from_right'
