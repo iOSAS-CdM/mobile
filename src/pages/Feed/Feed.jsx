@@ -24,24 +24,13 @@ const Feed = () => {
 	const { keyboardShown } = React.useContext(KeyboardShownContext);
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-			<Flex
-				direction='column'
-				justify='flex-start'
-				align='stretch'
-				style={{
-					position: 'relative',
-					width: '100%',
-					minHeight: '100%',
-					padding: 0,
-					backgroundColor: theme.fill_base
-				}}
-			>
+		<>
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Flex
 					direction='row'
 					justify='space-between'
 					align='center'
-					style={{ paddingHorizontal: 16 }}
+					style={{ paddingHorizontal: 16, backgroundColor: theme.fill_base }}
 				>
 					<Image
 						source={Logo}
@@ -53,8 +42,12 @@ const Feed = () => {
 						<Button type='default' size='small' icon='info-circle' outlined={false} />
 					</Flex>
 				</Flex>
+			</TouchableWithoutFeedback>
+
+			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Tab.Navigator
 					initialRouteName='Home'
+					swipeEnabled={!keyboardShown}
 					style={{
 						position: 'relative',
 						width: '100%',
@@ -121,8 +114,8 @@ const Feed = () => {
 						}}
 					/>
 				</Tab.Navigator>
-			</Flex>
-		</TouchableWithoutFeedback>
+			</TouchableWithoutFeedback>
+		</>
 	);
 };
 
