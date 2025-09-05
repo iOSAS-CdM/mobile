@@ -30,7 +30,7 @@ const Recovery = () => {
 					width: '100%',
 					minHeight: '100%',
 					padding: 32,
-					backgroundColor: theme.fill_body
+					backgroundColor: theme.fill_base
 				}}
 			>
 				{/***************************************** Form *****************************************/}
@@ -43,7 +43,7 @@ const Recovery = () => {
 						<Form
 							name='confirm'
 							layout='vertical'
-							style={{ width: '100%', maxWidth: 512 }}
+							style={{ width: '100%', maxWidth: 512, backgroundColor: theme.fill_base }}
 							noStyle
 						>
 							<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>

@@ -31,7 +31,7 @@ const SignUp = () => {
 					width: '100%',
 					minHeight: '100%',
 					padding: 32,
-					backgroundColor: theme.fill_body
+					backgroundColor: theme.fill_base
 				}}
 			>
 				{/***************************************** Form *****************************************/}
@@ -48,7 +48,7 @@ const SignUp = () => {
 					<Form
 						name='signUp'
 						layout='vertical'
-						style={{ width: '100%', maxWidth: 512 }}
+						style={{ width: '100%', maxWidth: 512, backgroundColor: theme.fill_base }}
 						noStyle
 					>
 						<Flex direction='column' justify='center' align='stretch' gap={16} style={{ width: '100%' }}>
