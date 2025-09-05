@@ -19,7 +19,7 @@ import theme from '../styles/theme';
  */
 const Button = (props) => {
 	const { children, icon, outlined, type, size, style } = props;
-	console.log(outlined);
+
 	return (
 		<AntButton
 			style={{
