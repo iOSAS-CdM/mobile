@@ -74,7 +74,6 @@ const Feed = () => {
 						contentFit='contain'
 					/>
 					<Flex direction='row' align='center' gap={8}>
-						<IconButton size='small' name='search' />
 						{user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
 						)}
