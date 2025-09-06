@@ -58,7 +58,7 @@ const main = () => {
 	return (
 		<KeyboardAvoidingView
 			behavior={keyboardShown ? defaultValue : undefined}
-			keyboardVerticalOffset={Platform.OS === 'ios' ? keyboardHeight : 0} 
+			keyboardVerticalOffset={Platform.OS === 'ios' ? keyboardHeight : 0}
 			style={{
 				flex: 1,
 				backgroundColor: theme.fill_base,
