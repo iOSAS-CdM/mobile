@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { IconOutline, OutlineGlyphMapType, IconFill, FillGlyphMapType } from '@ant-design/icons-react-native';
 
@@ -29,12 +29,16 @@ const IconButton = (props) => {
 		? theme.icon_size_sm
 		: theme.icon_size_lg;
 
-	const [pressed, setPressed] = React.useState(false);
-
+	const iconStyle = {
+		fontSize: newSize,
+		color:
+			type === 'primary'
+				? theme.color_text_base_inverse
+				: theme.color_icon_base
+	};
 	return (
 		<Pressable
-			onPressIn={() => setPressed(true)}
-			onPressOut={() => setPressed(false)}
+			android_ripple={{ color: theme.fill_mask, borderless: true }}
 			style={{
 				width: newSize,
 				height: newSize,
@@ -44,16 +48,13 @@ const IconButton = (props) => {
 						: theme.radius_sm,
 				backgroundColor:
 					type === 'primary'
-						? pressed
-							? theme.brand_primary_tap
-							: theme.brand_primary
-						: pressed
-						? theme.fill_grey
+						? theme.brand_primary
 						: theme.fill_base,
 				borderColor: type === 'primary' ? theme.brand_primary : 'transparent',
 				borderWidth: type === 'primary' ? 1 : 0,
 				justifyContent: 'center',
 				alignItems: 'center',
+				zIndex: 10,
 				...style
 			}}
 			{...rest}
@@ -61,32 +62,12 @@ const IconButton = (props) => {
 			{iconType === 'filled' ? (
 				<IconFill
 					name={name}
-					style={{
-						fontSize: newSize,
-						color:
-							type === 'primary'
-								? pressed
-									? theme.primary_button_fill
-									: theme.color_text_base_inverse
-								: pressed
-									? theme.fill_tap
-									: theme.color_icon_base
-					}}
+					style={iconStyle}
 				/>
 			) : (
 				<IconOutline
 					name={name}
-					style={{
-						fontSize: newSize,
-						color:
-							type === 'primary'
-								? pressed
-									? theme.primary_button_fill
-									: theme.color_text_base_inverse
-								: pressed
-									? theme.fill_tap
-									: theme.color_icon_base
-					}}
+						style={iconStyle}
 				/>
 			)}
 		</Pressable>
