@@ -1,7 +1,7 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import { Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
 import { Flex, Icon } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
@@ -18,9 +18,9 @@ import { KeyboardShownContext } from '../../main';
 
 import Logo from '../../../assets/public/Logo.png';
 
-const Tab = createMaterialTopTabNavigator();
-
 import { useCache } from '../../contexts/CacheContext';
+
+const Tab = createMaterialTopTabNavigator();
 
 import theme from '../../styles/theme';
 const Feed = () => {
@@ -62,7 +62,9 @@ const Feed = () => {
 					justify='space-between'
 					align='center'
 					style={{
+						height: Platform.OS === 'ios' ? 32 * 1.5 : 32,
 						paddingHorizontal: 16,
+						borderBottomWidth: Platform.OS === 'ios' ? 0.25 : 0,
 						backgroundColor: theme.fill_base
 					}}
 				>
@@ -83,27 +85,30 @@ const Feed = () => {
 
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Tab.Navigator
+					tabBarPosition={Platform.OS === 'ios' ? 'bottom' : 'top'}
 					initialRouteName='Home'
 					swipeEnabled={!keyboardShown}
 					style={{
 						position: 'relative',
 						width: '100%',
-						minHeight: '100%',
 						padding: 0,
-						backgroundColor: theme.fill_base
+						backgroundColor: 'green'
 					}}
 					screenOptions={{
 						tabBarShowLabel: false,
 						tabBarIndicatorStyle: {
 							height: 2,
-							backgroundColor: theme.brand_primary
+							backgroundColor: theme.brand_primary,
+							bottom: Platform.OS === 'ios' ? 'calc(100% - 1px)' : 0
 						},
 						tabBarStyle: {
+							height: 32 * 1.5,
 							shadowOffset: {
 								width: 0,
 								height: 0
 							},
-							borderBottomWidth: 0.25,
+							borderTopWidth: Platform.OS === 'ios' ? 0.25 : 0,
+							borderBottomWidth: Platform.OS === 'ios' ? 0 : 0.25,
 							elevation: 0,
 							zIndex: 0
 						}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Flex } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
@@ -42,31 +43,202 @@ const Home = () => {
 	}, [cache.user]);
 
 	return (
-		<Flex
-			direction='column'
-			justify='flex-start'
-			align='stretch'
-			style={{ flex: 1 }}
-		>
-			{/***************************************** Greeting *****************************************/}
+		<ScrollView>
 			<Flex
 				direction='column'
 				justify='flex-start'
 				align='stretch'
-				style={{ padding: 16, backgroundColor: theme.fill_base }}
 			>
-				<Text>{`Good ${greeting},`}</Text>
-				<Flex direction='row' align='center' gap={8}>
-					<Avatar
-						size='large'
-						uri={user?.profilePicture}
-					/>
-					<Title level={2}>
-						{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
-					</Title>
+				{/***************************************** Greeting *****************************************/}
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`1Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`2Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`3Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`4Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`5Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`6Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`7Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`8Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`9Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`10Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
+				</Flex>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{ padding: 16, backgroundColor: theme.fill_base }}
+				>
+					<Text>{`11Good ${greeting},`}</Text>
+					<Flex direction='row' align='center' gap={8}>
+						<Avatar
+							size='large'
+							uri={user?.profilePicture}
+						/>
+						<Title level={2}>
+							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+						</Title>
+					</Flex>
 				</Flex>
 			</Flex>
-		</Flex>
+		</ScrollView>
 	);
 };
 
