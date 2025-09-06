@@ -19,7 +19,7 @@ const Home = () => {
 	const { cache, updateCache, getCache } = useCache();
 
 	/** @typedef {import('../../../contexts/CacheContext').UserProps} UserProps */
-	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
+	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | Null>>]} */
 	const [user, setUser] = React.useState(null);
 	React.useEffect(() => {
 		const user = getCache()['user'];
