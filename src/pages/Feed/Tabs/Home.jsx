@@ -5,6 +5,8 @@ import Text from '../../../components/Text';
 import Title from '../../../components/Title';
 import Avatar from '../../../components/Avatar';
 
+import { UserContext } from '../Feed';
+
 import theme from '../../../styles/theme';
 const Home = () => {
 	const [greeting, setGreeting] = React.useState(true);
@@ -17,6 +19,9 @@ const Home = () => {
 		else setGreeting('evening');
 	}, []);
 
+	/** @type {[import('../Feed').UserProps]} */
+	const [user] = React.useContext(UserContext);
+
 	return (
 		<Flex
 			direction='column'
@@ -24,6 +29,7 @@ const Home = () => {
 			align='stretch'
 			style={{ flex: 1 }}
 		>
+			{/***************************************** Greeting *****************************************/}
 			<Flex
 				direction='column'
 				justify='flex-start'
@@ -34,10 +40,10 @@ const Home = () => {
 				<Flex direction='row' align='center' gap={8}>
 					<Avatar
 						size='large'
-						uri='https://i.pravatar.cc/256'
+						uri={user?.profilePicture || user?.avatar || null}
 					/>
 					<Title level={2}>
-						Danielle Craig
+						{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
 					</Title>
 				</Flex>
 			</Flex>
