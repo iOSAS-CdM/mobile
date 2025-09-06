@@ -3,6 +3,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import { Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import { Flex, Icon } from '@ant-design/react-native';
+import { IconFill } from '@ant-design/icons-react-native';
 
 import IconButton from '../../components/IconButton';
 
@@ -42,7 +43,7 @@ const Feed = () => {
 					/>
 					<Flex direction='row' align='center' gap={8}>
 						<IconButton size='small' name='search' />
-						<IconButton size='small' name='info-circle' />
+						<IconButton size='small' iconType='filled' name='info-circle' />
 					</Flex>
 				</Flex>
 			</TouchableWithoutFeedback>

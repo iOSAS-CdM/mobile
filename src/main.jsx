@@ -21,7 +21,8 @@ import Feed from './pages/Feed/Feed';
 import theme from './styles/theme';
 const main = () => {
 	const [fontsLoaded] = useFonts({
-		antoutline: require('@ant-design/icons-react-native/fonts/antoutline.ttf')
+		antoutline: require('@ant-design/icons-react-native/fonts/antoutline.ttf'),
+		antfill: require('@ant-design/icons-react-native/fonts/antfill.ttf')
 	});
 
 	const defaultValue = Platform.OS === 'ios' ? 'padding' : 'height';
