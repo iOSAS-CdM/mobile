@@ -20,7 +20,7 @@ import Logo from '../../../assets/public/Logo.png';
 
 const Tab = createMaterialTopTabNavigator();
 
-import { CacheProvider, useCache } from '../../contexts/CacheContext';
+import { useCache } from '../../contexts/CacheContext';
 
 import theme from '../../styles/theme';
 const Feed = () => {
