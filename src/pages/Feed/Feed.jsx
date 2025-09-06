@@ -10,9 +10,9 @@ import Home from './Tabs/Home';
 import Cases from './Tabs/Cases';
 import Calendar from './Tabs/Calendar';
 import Repository from './Tabs/Repository';
-import Profile from './Tabs/Profile';
-import AmBot from './Tabs/AmBot';
 import Organizations from './Tabs/Organizations';
+import Profile from './Tabs/Profile';
+import Menu from './Tabs/Menu';
 
 import { KeyboardShownContext } from '../../main';
 
@@ -78,7 +78,7 @@ const Feed = () => {
 						{user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
 						)}
-						<IconButton size='small' iconType='filled' name='info-circle' />
+						<IconButton size='small' fi name='robot' />
 					</Flex>
 				</Flex>
 			</TouchableWithoutFeedback>
@@ -219,12 +219,12 @@ const Feed = () => {
 						}}
 					/>
 					<Tab.Screen
-						name='AmBot'
-						component={AmBot}
+						name='Menu'
+						component={Menu}
 						options={{
 							tabBarIcon: ({ focused }) => (
 								<Icon
-									name='robot'
+									name='menu'
 									size={theme.icon_size_sm}
 									color={
 										focused
