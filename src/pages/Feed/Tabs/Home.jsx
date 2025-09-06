@@ -5,22 +5,32 @@ import Text from '../../../components/Text';
 import Title from '../../../components/Title';
 import Avatar from '../../../components/Avatar';
 
-import { UserContext } from '../Feed';
+import { useCache } from '../../../contexts/CacheContext';
 
 import theme from '../../../styles/theme';
 const Home = () => {
-	const [greeting, setGreeting] = React.useState(true);
-
-	React.useLayoutEffect(() => {
-		// morning, afternoon, evening
+	const greeting = React.useMemo(() => {
 		const hour = new Date().getHours();
-		if (hour >= 5 && hour < 12) setGreeting('morning');
-		else if (hour >= 12 && hour < 18) setGreeting('afternoon');
-		else setGreeting('evening');
+		if (hour >= 5 && hour < 12) return 'morning';
+		else if (hour >= 12 && hour < 18) return 'afternoon';
+		else return 'evening';
 	}, []);
 
-	/** @type {[import('../Feed').UserProps]} */
-	const [user] = React.useContext(UserContext);
+	const { cache, updateCache, getCache } = useCache();
+
+	/** @typedef {import('../../../contexts/CacheContext').UserProps} UserProps */
+	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
+	const [user, setUser] = React.useState(null);
+	React.useEffect(() => {
+		const user = getCache()['user'];
+		if (user) return setUser(user);
+		const fetchedUser = {
+			name: { first: 'John', last: 'Doe' },
+			profilePicture: 'https://i.pravatar.cc/256'
+		};
+		updateCache('user', fetchedUser);
+		setUser(fetchedUser);
+	}, [cache.user]);
 
 	return (
 		<Flex
@@ -40,7 +50,7 @@ const Home = () => {
 				<Flex direction='row' align='center' gap={8}>
 					<Avatar
 						size='large'
-						uri={user?.profilePicture || user?.avatar || null}
+						uri={user?.profilePicture}
 					/>
 					<Title level={2}>
 						{`${user?.name?.first || ''} ${user?.name?.last || ''}`}

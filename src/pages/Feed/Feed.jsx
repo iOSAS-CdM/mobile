@@ -3,7 +3,6 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import { Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import { Flex, Icon } from '@ant-design/react-native';
-import { IconFill } from '@ant-design/icons-react-native';
 
 import IconButton from '../../components/IconButton';
 
@@ -20,37 +19,11 @@ import Logo from '../../../assets/public/Logo.png';
 
 const Tab = createMaterialTopTabNavigator();
 
-/**
- * @typedef {import('../../classes/Student').StudentProps | import('../../classes/Staff').StaffProps} UserProps
- */
+import { CacheProvider } from '../../contexts/CacheContext';
 
 import theme from '../../styles/theme';
 const Feed = () => {
 	const { keyboardShown } = React.useContext(KeyboardShownContext);
-
-	/**
-	 * @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps>>]}
-	 */
-	const [user, setUser] = React.useState(null);
-	
-	React.useEffect(() => {
-		setUser({
-			studentId: '22-00250',
-			name: {
-				first: 'Danielle',
-				last: 'Craig'
-			},
-			email: 'danielle.craig@example.com',
-			avatar: 'https://i.pravatar.cc/256',
-			role: 'student',
-			institute: 'ics',
-			program: 'BSIT',
-			phone: '+1234567890',
-			year: 2,
-			profilePicture: 'https://i.pravatar.cc/256',
-			status: 'active'
-		});
-	}, []);
 
 	return (
 		<>
@@ -76,7 +49,7 @@ const Feed = () => {
 				</Flex>
 			</TouchableWithoutFeedback>
 
-			<UserContext.Provider value={[user, setUser]}>
+			<CacheProvider>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<Tab.Navigator
 						initialRouteName='Home'
@@ -209,16 +182,9 @@ const Feed = () => {
 						/>
 					</Tab.Navigator>
 				</TouchableWithoutFeedback>
-			</UserContext.Provider>
+			</CacheProvider>
 		</>
 	);
 };
 
-const UserContext = React.createContext();
-const HighlightsContext = React.createContext();
-const CasesContext = React.createContext();
-const CalendarContext = React.createContext();
-const RepositoryContext = React.createContext();
-
 export default Feed;
-export { UserContext, HighlightsContext, CasesContext, CalendarContext, RepositoryContext };
