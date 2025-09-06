@@ -18,6 +18,13 @@ import SignUp from './pages/Authentication/SignUp';
 import Recovery from './pages/Authentication/Recovery';
 import Feed from './pages/Feed/Feed';
 
+import { CacheProvider } from './contexts/CacheContext';
+const CachedFeed = (props) => (
+	<CacheProvider>
+		<Feed {...props} />
+	</CacheProvider>
+);
+
 import theme from './styles/theme';
 const main = () => {
 	const [fontsLoaded] = useFonts({
@@ -96,7 +103,7 @@ const main = () => {
 							/>
 							<Stack.Screen
 								name='Feed'
-								component={Feed}
+								component={CachedFeed}
 								options={{
 									headerShown: false,
 									animation: 'slide_from_right'

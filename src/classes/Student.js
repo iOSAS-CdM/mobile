@@ -16,7 +16,8 @@
  * 	phone: String,
  * 	studentId: String,
  * 	profilePicture?: String,
- * 	status?: 'active' | 'restricted' | 'archived'
+ * 	status?: 'active' | 'restricted' | 'archived',
+ * 	organizations?: import('./Organization').OrganizationProps[],
  * }} BaseStudentProps
  */
 
@@ -40,7 +41,8 @@ class Student {
 		program,
 		year,
 		profilePicture = '/Placeholder Image.svg',
-		status = 'active'
+		status = 'active',
+		organizations = []
 	}) {
 		this.name = name;
 		this.role = role;
@@ -52,6 +54,7 @@ class Student {
 		this.year = year;
 		this.profilePicture = profilePicture;
 		this.status = status;
+		this.organizations = organizations;
 	};
 };
 
