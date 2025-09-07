@@ -8,7 +8,7 @@ import theme from '../styles/theme';
  * 	level: 1 | 2 | 3 | 4 | 5 | 6;
  * 	center: Boolean;
  * } & TextProps} props
- * @returns {JSX.Element}
+ * @returns {import('react').JSX.Element}
  */
 const Title = (props) => {
 	const { level, center, children, style, ...rest } = props;

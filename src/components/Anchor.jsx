@@ -11,7 +11,7 @@ import { navigationRef } from '../main';
  * 	href: String;
  * 	to: String;
  * } & TextProps} props
- * @returns {JSX.Element}
+ * @returns {import('react').JSX.Element}
  */
 const Anchor = (props) => {
 	const { href, children, onPress, style, to, ...rest } = props;

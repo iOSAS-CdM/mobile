@@ -17,7 +17,7 @@ import theme from '../styles/theme';
  * 	type: 'primary' | 'default';
  * 	size: 'small' | 'large' | 'default' | number;
  * } & IconProps} props
- * @returns {JSX.Element}
+ * @returns {import('react').JSX.Element}
  */
 const IconButton = (props) => {
 	const { name, iconType, type, size, style, ...rest } = props;

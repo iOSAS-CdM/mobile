@@ -14,7 +14,7 @@ import theme from '../styles/theme';
  *  children: String;
  *  icon: IconProps['name'];
  * } & ButtonProps} props
- * @returns {JSX.Element}
+ * @returns {import('react').JSX.Element}
  */
 const Button = (props) => {
 	const { children, icon, type, size, style } = props;

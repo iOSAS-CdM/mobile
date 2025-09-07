@@ -32,6 +32,8 @@ const main = () => {
 		antfill: require('@ant-design/icons-react-native/fonts/antfill.ttf')
 	});
 
+	React.useLayoutEffect(() => {});
+
 	const defaultValue = Platform.OS === 'ios' ? 'padding' : 'height';
 	const [keyboardShown, setKeyboardShown] = React.useState(false);
 	const [keyboardHeight] = React.useState(new Animated.Value(0));
@@ -120,3 +122,4 @@ const main = () => {
 export default main;
 export const navigationRef = React.createRef();
 export const KeyboardShownContext = React.createContext();
+export const API_Route = __DEV__ ? 'http://10.242.192.28:3001' : 'http://47.130.158.40';

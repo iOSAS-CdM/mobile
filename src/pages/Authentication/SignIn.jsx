@@ -92,7 +92,7 @@ const SignIn = () => {
 						>
 							<Card>
 								<Form.Item noStyle>
-									<Input placeholder='Email Address' />
+									<Input placeholder='Email Address' type='email-address' />
 								</Form.Item>
 							</Card>
 							<Card>
