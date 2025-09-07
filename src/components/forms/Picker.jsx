@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Dropdown } from 'react-native-element-dropdown';
 
+import { View } from 'react-native';
+
 import {
 	Card,
 	Flex
@@ -25,16 +27,14 @@ const Picker = (props) => {
 
 	return (
 		<Flex direction='column' justify='center' align='stretch'>
-			<Card
+			<View
 				style={{
 					height: theme.button_height * 1.5,
 					paddingHorizontal: theme.h_spacing_md,
-					borderColor: withError
-						? theme.brand_error
-						: theme.border_color_base,
-					borderWidth: withError
-						? theme.border_width_lg
-						: theme.border_width_md
+					borderColor: withError ? theme.brand_error : theme.border_color_base,
+					borderWidth: withError ? theme.border_width_lg : theme.border_width_md,
+					borderRadius: theme.radius_md,
+					backgroundColor: theme.fill_base
 				}}
 			>
 				<Dropdown
@@ -56,7 +56,7 @@ const Picker = (props) => {
 						props?.onChange?.(event);
 					}}
 				/>
-			</Card>
+			</View>
 
 			{withError && errorComponent}
 		</Flex>

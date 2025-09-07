@@ -1,4 +1,5 @@
 import React from 'react';
+import * as SystemUI from 'expo-system-ui';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -27,6 +28,8 @@ const CachedFeed = (props) => (
 
 const height = Dimensions.get('window').height;
 
+SystemUI.setBackgroundColorAsync('#ffffff');
+
 import theme from './styles/theme';
 const main = () => {
 	const [fontsLoaded, error] = useFonts({
@@ -39,13 +42,13 @@ const main = () => {
 
 	const [keyboardShown, setKeyboardShown] = React.useState(false);
 	const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!fontsLoaded) return;
-		const showListener = Keyboard.addListener('keyboardDidShow', (event) => {
+		const showListener = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', (event) => {
 			setKeyboardHeight(event.endCoordinates.height);
 			setKeyboardShown(true);
 		});
-		const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+		const hideListener = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => {
 			setKeyboardHeight(0);
 			setKeyboardShown(false);
 		});
@@ -57,7 +60,6 @@ const main = () => {
 	}, [fontsLoaded]);
 
 	if (!fontsLoaded) return null;
-
 	return (
 		<SafeAreaView
 			style={{
