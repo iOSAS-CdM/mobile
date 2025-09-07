@@ -3,7 +3,6 @@ import packageJson from '../../../package.json';
 import { useForm, Controller } from 'react-hook-form';
 
 import { Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
 import { Image } from 'expo-image';
 import { Flex, Checkbox } from '@ant-design/react-native';
 
