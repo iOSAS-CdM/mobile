@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Picker as RNPicker, PickerProps } from '@react-native-picker/picker';
+import { Dropdown } from 'react-native-element-dropdown';
 
 import {
 	Card,
@@ -9,15 +9,13 @@ import {
 
 import theme from '../../styles/theme';
 
-const { Item } = RNPicker;
-
 /**
  * @param {{
  * 	withError: Boolean;
  * 	errorComponent: import('react').JSX.Element;
  * 	required: Boolean;
  * 	onChange: (value: String) => Void;
- * } & PickerProps} props
+ * } & import('react-native-element-dropdown/src/components/Dropdown/model').DropdownProps} props
  */
 const Picker = (props) => {
 	// Destructure the error prop
@@ -29,39 +27,35 @@ const Picker = (props) => {
 		<Flex direction='column' justify='center' align='stretch'>
 			<Card
 				style={{
+					height: theme.button_height * 1.5,
+					paddingHorizontal: theme.h_spacing_md,
 					borderColor: withError
 						? theme.brand_error
 						: theme.border_color_base,
 					borderWidth: withError
 						? theme.border_width_lg
-						: theme.border_width_md,
-					height: theme.button_height * 2
+						: theme.border_width_md
 				}}
 			>
-				<RNPicker
+				<Dropdown
 					{...props}
 					style={{
-						height: theme.button_height * 2,
-						color: props.selectedValue ? theme.color_text_base : theme.color_text_placeholder,
+						height: theme.button_height * 1.5,
+						borderColor: 'transparent',
+						color: props.value ? theme.color_text_base : theme.color_text_placeholder,
 						fontSize: theme.button_font_size
 					}}
-					itemStyle={{
-						height: theme.button_height * 2,
-						fontSize: theme.button_font_size
-					}}
-					mode='dropdown'
-					dropdownIconColor={theme.color_text_base}
+					placeholderStyle={{ color: theme.color_text_placeholder, fontSize: theme.button_font_size }}
+					selectedTextStyle={{ color: theme.color_text_base, fontSize: theme.button_font_size }}
+					itemTextStyle={{ color: theme.color_text_base, fontSize: theme.button_font_size }}
+					dropdownPosition='bottom'
 					placeholder={newPlaceholder}
-				>
-					{!props.selectedValue && (
-						<RNPicker.Item
-							label={newPlaceholder}
-							value={null}
-							color={theme.color_text_placeholder}
-						/>
-					)}
-					{props.children}
-				</RNPicker>
+					value={props.value}
+					onChangeText={(event) => {
+						if (!event) return;
+						props?.onChange?.(event);
+					}}
+				/>
 			</Card>
 
 			{withError && errorComponent}
@@ -69,5 +63,4 @@ const Picker = (props) => {
 	);
 };
 
-Picker.Item = Item;
 export default Picker;

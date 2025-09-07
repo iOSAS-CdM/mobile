@@ -3,6 +3,7 @@ import packageJson from '../../../package.json';
 import { useForm, Controller } from 'react-hook-form';
 
 import { Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { Image } from 'expo-image';
 import { Flex, Checkbox } from '@ant-design/react-native';
 
@@ -350,70 +351,67 @@ const SignUp = () => {
 										field: { onChange, value }
 									}) => (
 										<Picker
+											data={[
+												{ label: 'Institute of Computer Studies', value: 'ics' },
+												{ label: 'Institute of Teacher Education', value: 'ite' },
+												{ label: 'Institute of Business Education', value: 'ibe' }
+											]}
+											labelField='label'
+											valueField='value'
 											placeholder='Select your Institute'
-											required
-											withError={!!errors?.institute}
-											errorComponent={
-												<Text style={{ color: theme.brand_error }}>
-													{`${errors?.institute?.message}`}
-												</Text>
-											}
-											selectedValue={value}
-											onValueChange={(itemValue, itemIndex) => {
-												onChange(itemValue);
-												setInstitute(itemValue);
+											value={value}
+											onChange={(item) => {
+												console.log('item', item)
+												onChange(item.value);
+												setInstitute(item.value);
 												setValue('program', null);
 												resetField('program');
 												clearErrors('program');
 											}}
-										>
-											<Picker.Item label='Institute of Computer Studies' value='ics' />
-											<Picker.Item label='Institute of Teacher Education' value='ite' />
-											<Picker.Item label='Institute of Business Education' value='ibe' />
-										</Picker>
-									)}
-								/>
-								<Controller
-									control={control}
-									name='program'
-									rules={{
-										required: 'Program is required'
-									}}
-									render={({
-										field: { onChange, value }
-									}) => (
-										<Picker
-											placeholder='Select your Program'
-											required
-											withError={!!errors?.program}
+											withError={!!errors?.institute}
 											errorComponent={
-												<Text style={{ color: theme.brand_error }}>
-													{`${errors?.program?.message}`}
-												</Text>
+												<Text
+													style={{ color: theme.brand_error }}
+												>{`${errors?.institute?.message}`}</Text>
 											}
-											selectedValue={value}
-											onValueChange={(itemValue, itemIndex) => {
-												onChange(itemValue);
-											}}
-											enabled={!!institute}
-										>
-											{institute ? (
-												programsPerInstitute[institute].map((program) => (
-													<Picker.Item
-														key={program}
-														label={programs[program]}
-														value={program}
-													/>
-												))
-											) : (
-												<Picker.Item
-													label='Select your Institute first'
-													value={null}
-												/>
-											)}
-										</Picker>
+											required
+										/>
 									)}
 								/>
+								{institute && (
+									<Controller
+										control={control}
+										name='program'
+										rules={{
+											required: 'Program is required'
+										}}
+										render={({
+											field: { onChange, value }
+										}) => (
+											<Picker
+												data={(programsPerInstitute?.[institute] ?? []).map((program) => ({
+													label: programs[program],
+													value: program
+												}))}
+												labelField='label'
+												valueField='value'
+												placeholder='Select your Program'
+												disabled={!institute}
+												value={value}
+												onChange={(item) => {
+													onChange(item.value);
+												}}
+												withError={!!errors?.program}
+												errorComponent={
+													<Text
+														style={{ color: theme.brand_error }}
+													>{`${errors?.program?.message}`}</Text>
+												}
+												required
+											/>
+										)}
+									/>
+								)}
 								<Controller
 									control={control}
 									name='year'
