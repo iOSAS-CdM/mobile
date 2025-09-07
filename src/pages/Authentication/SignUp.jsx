@@ -154,7 +154,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Student ID'
-											type='text'
+											keyboardType='text'
 											name='id'
 											required
 											onBlur={onBlur}
@@ -194,7 +194,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='First Name'
-											type='text'
+											keyboardType='text'
 											name='firstName'
 											required
 											onBlur={onBlur}
@@ -223,7 +223,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Middle Name (Optional)'
-											type='text'
+											keyboardType='text'
 											name='middleName'
 											onBlur={onBlur}
 											onChangeText={onChange}
@@ -252,7 +252,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Last Name'
-											type='text'
+											keyboardType='text'
 											name='lastName'
 											required
 											onBlur={onBlur}
@@ -292,7 +292,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Email Address'
-											type='email-address'
+											keyboardType='email-address'
 											name='email'
 											required
 											onBlur={onBlur}
@@ -316,7 +316,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Phone Number'
-											type='phone-pad'
+											keyboardType='phone-pad'
 											name='phone'
 											onBlur={onBlur}
 											onChangeText={onChange}
@@ -411,6 +411,36 @@ const SignUp = () => {
 												/>
 											)}
 										</Picker>
+									)}
+								/>
+								<Controller
+									control={control}
+									name='year'
+									rules={{
+										required: 'Year is required',
+										pattern: {
+											value: /^[1-5]$/,
+											message: 'Invalid Year'
+										}
+									}}
+									render={({
+										field: { onChange, onBlur, value }
+									}) => (
+										<Input
+											placeholder='Year (e.g., 1, 2, 3, 4)'
+											keyboardType='number-pad'
+											name='year'
+											required
+											onBlur={onBlur}
+											onChangeText={onChange}
+											value={value}
+											withError={!!errors?.year}
+											errorComponent={
+												<Text
+													style={{ color: theme.brand_error }}
+												>{`${errors?.year?.message}`}</Text>
+											}
+										/>
 									)}
 								/>
 							</Flex>
