@@ -36,7 +36,7 @@ const Feed = () => {
 		if (user) return setUser(user);
 		const fetchedUser = {
 			role: 'student',
-			studentId: '22-00250',
+			id: '22-00250',
 			name: {
 				first: 'Danielle',
 				last: 'Craig'
