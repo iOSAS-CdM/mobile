@@ -13,7 +13,11 @@ const Input = (props) => {
 
 	return (
 		<Flex direction='column' justify='center' align='stretch'>
-			<Card style={{ borderColor: withError ? theme.brand_error : theme.border_color_base, borderWidth: withError ? theme.border_width_lg : theme.border_width_md }}>
+			<Card style={{
+				paddingHorizontal: theme.h_spacing_md,
+				borderColor: withError ? theme.brand_error : theme.border_color_base,
+				borderWidth: withError ? theme.border_width_lg : theme.border_width_md
+			}}>
 				<AntInput {...props} placeholder={newPlaceholder} />
 			</Card>
 

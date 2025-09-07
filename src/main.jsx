@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Constants from 'expo-constants';
 const statusBarHeight = Constants.statusBarHeight;
 
-import { KeyboardAvoidingView, Platform, Keyboard, Animated } from 'react-native';
+import { SafeAreaView, Platform, Keyboard, Dimensions } from 'react-native';
 
 import { useFonts } from 'expo-font';
 
@@ -25,35 +25,28 @@ const CachedFeed = (props) => (
 	</CacheProvider>
 );
 
+const height = Dimensions.get('window').height;
+
 import theme from './styles/theme';
 const main = () => {
-	const [fontsLoaded] = useFonts({
+	const [fontsLoaded, error] = useFonts({
 		antoutline: require('@ant-design/icons-react-native/fonts/antoutline.ttf'),
 		antfill: require('@ant-design/icons-react-native/fonts/antfill.ttf')
 	});
+	if (error) {
+		console.error('Error loading fonts', error);
+	};
 
-	React.useLayoutEffect(() => {});
-
-	const defaultValue = Platform.OS === 'ios' ? 'padding' : 'height';
 	const [keyboardShown, setKeyboardShown] = React.useState(false);
-	const [keyboardHeight] = React.useState(new Animated.Value(0));
+	const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 	React.useEffect(() => {
 		if (!fontsLoaded) return;
-
-		const showListener = Keyboard.addListener('keyboardDidShow', () => {
-			Animated.timing(keyboardHeight, {
-				toValue: 250,
-				duration: 250,
-				useNativeDriver: false
-			}).start();
+		const showListener = Keyboard.addListener('keyboardDidShow', (event) => {
+			setKeyboardHeight(event.endCoordinates.height);
 			setKeyboardShown(true);
 		});
 		const hideListener = Keyboard.addListener('keyboardDidHide', () => {
-			Animated.timing(keyboardHeight, {
-				toValue: 0,
-				duration: 250,
-				useNativeDriver: false
-			}).start();
+			setKeyboardHeight(0);
 			setKeyboardShown(false);
 		});
 
@@ -61,17 +54,18 @@ const main = () => {
 			showListener.remove();
 			hideListener.remove();
 		};
-	}, [defaultValue, fontsLoaded]);
+	}, [fontsLoaded]);
 
 	if (!fontsLoaded) return null;
+
 	return (
-		<KeyboardAvoidingView
-			behavior={keyboardShown ? defaultValue : undefined}
-			keyboardVerticalOffset={Platform.OS === 'ios' ? keyboardHeight : 0}
+		<SafeAreaView
 			style={{
-				flex: 1,
-				backgroundColor: theme.fill_base,
-				paddingTop: statusBarHeight
+				flex: Platform.OS === 'ios' ? 0 : 1,
+				height: Platform.OS === 'ios' ? height - keyboardHeight : null,
+				paddingTop: statusBarHeight,
+				paddingBottom: Platform.OS === 'ios' ? 0 : keyboardHeight,
+				backgroundColor: theme.fill_base
 			}}
 		>
 			<KeyboardShownContext.Provider value={{ keyboardShown, setKeyboardShown }}>
@@ -115,7 +109,7 @@ const main = () => {
 					</NavigationContainer>
 				</Provider>
 			</KeyboardShownContext.Provider>
-		</KeyboardAvoidingView>
+		</SafeAreaView>
 	);
 };
 

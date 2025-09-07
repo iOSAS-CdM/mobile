@@ -42,7 +42,8 @@ const Picker = (props) => {
 					{...props}
 					style={{
 						height: theme.button_height * 2,
-						color: props.selectedValue ? theme.color_text_base : theme.color_text_placeholder
+						color: props.selectedValue ? theme.color_text_base : theme.color_text_placeholder,
+						fontSize: theme.button_font_size
 					}}
 					itemStyle={{
 						height: theme.button_height * 2,

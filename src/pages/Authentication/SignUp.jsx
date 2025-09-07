@@ -154,7 +154,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Student ID'
-											keyboardType='text'
+											type='text'
 											name='id'
 											required
 											onBlur={onBlur}
@@ -194,7 +194,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='First Name'
-											keyboardType='text'
+											type='text'
 											name='firstName'
 											required
 											onBlur={onBlur}
@@ -223,7 +223,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Middle Name (Optional)'
-											keyboardType='text'
+											type='text'
 											name='middleName'
 											onBlur={onBlur}
 											onChangeText={onChange}
@@ -252,7 +252,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Last Name'
-											keyboardType='text'
+											type='text'
 											name='lastName'
 											required
 											onBlur={onBlur}
@@ -292,7 +292,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Email Address'
-											keyboardType='email-address'
+											type='email-address'
 											name='email'
 											required
 											onBlur={onBlur}
@@ -316,7 +316,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Phone Number'
-											keyboardType='phone-pad'
+											type='phone-pad'
 											name='phone'
 											onBlur={onBlur}
 											onChangeText={onChange}
@@ -331,6 +331,7 @@ const SignUp = () => {
 									)}
 								/>
 							</Flex>
+
 							<Flex
 								direction='column'
 								justify='center'
@@ -428,7 +429,7 @@ const SignUp = () => {
 									}) => (
 										<Input
 											placeholder='Year (e.g., 1, 2, 3, 4)'
-											keyboardType='number-pad'
+											type='number-pad'
 											name='year'
 											required
 											onBlur={onBlur}
