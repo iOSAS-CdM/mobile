@@ -79,13 +79,13 @@ const main = () => {
 	// Modify `fetch`
 	React.useLayoutEffect(() => {
 		const modifyFetch = async () => {
-			const originalFetch = window.fetch;
 			const AllAsyncStorageKeys = await AsyncStorage.getAllKeys();
 			const sessionKey = AllAsyncStorageKeys.find((key) => key.startsWith('sb-') && key.endsWith('-auth-token'));
 			const sessionString = sessionKey ? await AsyncStorage.getItem(sessionKey) : null;
+			/** @type {import('@supabase/supabase-js').Session | null} */
 			const session = sessionString ? JSON.parse(sessionString) : null;
 
-			window.fetch = async (...args) => {
+			fetchRef.current = async (...args) => {
 				// Only add headers if we have a session with access token
 				if (session?.access_token) {
 					// First arg is the resource/URL, second arg is options
@@ -106,22 +106,20 @@ const main = () => {
 					};
 				};
 
-				const response = await originalFetch(...args);
+				const response = await fetch(...args);
 
 				// If we have a session but get a 403 Forbidden response, sign out
 				if (session && response.status === 403) {
 					await supabase.auth.signOut();
-					window.location.href = '/unauthorized';
+					navigationRef.current?.navigate('SignUp');
 				};
 				return response;
 			};
-
-			return () => {
-				window.fetch = originalFetch;
-			};
 		};
 		modifyFetch();
-	}, [session?.access_token, sessionChecked]);
+
+		return () => { fetchRef.current = null; };
+	}, [session, sessionChecked]);
 
 	if (!fontsLoaded || !sessionChecked) return null;
 	return (
@@ -181,8 +179,11 @@ const main = () => {
 		</SafeAreaView>
 	);
 };
-
+fetch
 export default main;
+/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef>} */
 export const navigationRef = React.createRef();
+/** @type {React.RefObject<(input: URL | RequestInfo, init?: RequestInit) => Promise<Response>>} */
+export const fetchRef = React.createRef();
 export const KeyboardShownContext = React.createContext();
 export const API_Route = __DEV__ ? 'http://10.242.192.28:3001' : 'http://47.130.158.40';

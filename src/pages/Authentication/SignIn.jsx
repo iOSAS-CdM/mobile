@@ -36,8 +36,10 @@ const SignIn = () => {
 
 	const [showPassword, setShowPassword] = React.useState(false);
 
+	const [signingIn, setSigningIn] = React.useState(false);
 	const onSubmit = async (data) => {
 		const { email, password } = data;
+		setSigningIn(true);
 
 		const { data: userData, error } = await supabase.auth.signInWithPassword({
 			email,
@@ -46,15 +48,17 @@ const SignIn = () => {
 
 		if (error) {
 			Toast.fail(error.message, 0.5);
+			setSigningIn(false);
 			return;
 		};
 
 		if (userData?.user) {
-			Toast.success('Successfully Signed In', 0.5);
+			Toast.success('Successfully Signed In!', 0.5);
 			navigationRef.current?.navigate('Feed');
 		} else {
-			Toast.fail('Failed to Sign In', 0.5);
+			Toast.fail('Failed to Sign In.', 0.5);
 		};
+		setSigningIn(false);
 	};
 
 	return (
@@ -155,6 +159,7 @@ const SignIn = () => {
 					<Button
 						type='primary'
 						size='large'
+						loading={signingIn}
 						onPress={handleSubmit(onSubmit)}
 					>
 						Sign Up

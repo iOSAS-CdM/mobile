@@ -40,6 +40,7 @@ const SignUp = () => {
 		formState: { errors }
 	} = useForm();
 
+	const [signingUp, setSigningUp] = React.useState(false);
 	/**
 	 * @type {({
 	 * 	id: String;
@@ -56,6 +57,7 @@ const SignUp = () => {
 	 * }) => Promise<Void>}
 	 */
 	const onSubmit = async (data) => {
+		setSigningUp(true);
 		const request = await fetch(`${API_Route}/auth/student/sign-up`, {
 			method: 'POST',
 			headers: {
@@ -65,18 +67,20 @@ const SignUp = () => {
 		}).catch((error) => {
 			Toast.fail('Network error. Please try again.', 2);
 		});
-		if (!request) return;
+		if (!request) return setSigningUp(false);
 
 		if (!request.ok) {
 			const response = await request.json();
 			if (response?.key && response?.message)
 				setError(response.key, { type: 'server', message: response.message });
 			Toast.fail(response?.message ?? 'An error occurred. Please try again.', 2);
+			setSigningUp(false);
 			return;
 		};
 
-		Toast.success('Account created successfully! Please sign in.', 2);
+		Toast.success('Account created successfully!', 2);
 		navigationRef.current?.navigate('SignIn');
+		setSigningUp(false);
 	};
 
 	const [institute, setInstitute] = React.useState();
@@ -565,6 +569,7 @@ const SignUp = () => {
 						<Button
 							type='primary'
 							size='large'
+							loading={signingUp}
 							onPress={handleSubmit(onSubmit)}
 						>
 							Sign Up

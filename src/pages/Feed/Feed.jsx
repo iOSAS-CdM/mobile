@@ -14,7 +14,7 @@ import Organizations from './Tabs/Organizations';
 import Profile from './Tabs/Profile';
 import Menu from './Tabs/Menu';
 
-import { KeyboardShownContext } from '../../main';
+import { KeyboardShownContext, fetchRef } from '../../main';
 
 import Logo from '../../../assets/public/Logo.png';
 
@@ -33,22 +33,17 @@ const Feed = () => {
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | Null>>]} */
 	const [user, setUser] = React.useState(null);
-	React.useEffect(() => {
-		const user = getCache()['user'];
-		if (user) return setUser(user);
+	React.useLayoutEffect(() => {
+		if (!fetchRef.current) return;
+		if (getCache()['user']) return setUser(user);
+
+		const controller = new AbortController();
 		const fetchUser = async () => {
-			const request = await fetch(`${API_Route}/auth/me`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
+			const request = await fetchRef.current(`${API_Route}/auth/me`, {
+				signal: controller.signal,
 			}).catch((error) => {
 				console.error('Error fetching user data:', error);
 			});
-			if (!request || !request.ok) {
-				Toast.fail('Failed to fetch user data', 1);
-				return;
-			};
 			const data = await request.json();
 			if (!data) {
 				Toast.fail('Invalid user data received', 1);
@@ -58,7 +53,8 @@ const Feed = () => {
 			setUser(data);
 		};
 		fetchUser();
-	}, [cache.user]);
+		return () => { controller.abort(); };
+	}, [cache.user, fetchRef.current]);
 
 	return (
 		<>
@@ -80,10 +76,13 @@ const Feed = () => {
 						contentFit='contain'
 					/>
 					<Flex direction='row' align='center' gap={8}>
-						{user?.organizations?.length > 0 && (
+						{user?.role === 'student' && user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
 						)}
-						<IconButton size='small' fi name='robot' />
+						{['head', 'guidance', 'prefect', 'student-affairs'].includes(user?.role) && (
+							<IconButton size='small' name='camera' />
+						)}
+						<IconButton size='small' name='robot' />
 					</Flex>
 				</Flex>
 			</TouchableWithoutFeedback>
@@ -136,23 +135,25 @@ const Feed = () => {
 							)
 						}}
 					/>
-					<Tab.Screen
-						name='Cases'
-						component={Cases}
-						options={{
-							tabBarIcon: ({ focused }) => (
-								<Icon
-									name='file-text'
-									size={theme.icon_size_sm}
-									color={
-										focused
-											? theme.brand_primary
-											: theme.color_icon_base
-									}
-								/>
-							)
-						}}
-					/>
+					{user?.role === 'student' || user?.role === 'unverified-student' && (
+						<Tab.Screen
+							name='Cases'
+							component={Cases}
+							options={{
+								tabBarIcon: ({ focused }) => (
+									<Icon
+										name='file-text'
+										size={theme.icon_size_sm}
+										color={
+											focused
+												? theme.brand_primary
+												: theme.color_icon_base
+										}
+									/>
+								)
+							}}
+						/>
+					)}
 					<Tab.Screen
 						name='Calendar'
 						component={Calendar}

@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
 	Button as AntButton,
 	ButtonProps,
@@ -13,18 +15,33 @@ import theme from '../styles/theme';
  * @param {{
  *  children: String;
  *  icon: IconProps['name'];
+ * 	onPress: Promise<Void>;
  * } & ButtonProps} props
  * @returns {import('react').JSX.Element}
  */
 const Button = (props) => {
-	const { children, icon, type, size, style } = props;
+	const { children, icon, type, size, style, onPress } = props;
+
+	const [loading, setLoading] = React.useState(false);
 
 	return (
 		<AntButton
+			loading={loading}
 			style={{
 				backgroundColor:
 					type === 'primary' ? theme.brand_primary : theme.fill_base,
 				...style
+			}}
+			disabled={loading}
+			onPress={async () => {
+				setLoading(true);
+				try {
+					await onPress();
+				} catch (error) {
+					console.error('Error occurred while pressing button:', error);
+				} finally {
+					setLoading(false);
+				}
 			}}
 			{...props}
 		>
