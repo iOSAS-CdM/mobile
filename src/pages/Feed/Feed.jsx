@@ -1,8 +1,9 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import supabase from '../../utils/supabase';
 
 import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
-import { Flex, Icon } from '@ant-design/react-native';
+import { Flex, Icon, Toast } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
 
@@ -22,6 +23,8 @@ import { useCache } from '../../contexts/CacheContext';
 
 const Tab = createMaterialTopTabNavigator();
 
+import { API_Route } from '../../main';
+
 import theme from '../../styles/theme';
 const Feed = () => {
 	const { keyboardShown } = React.useContext(KeyboardShownContext);
@@ -34,24 +37,28 @@ const Feed = () => {
 	React.useEffect(() => {
 		const user = getCache()['user'];
 		if (user) return setUser(user);
-		const fetchedUser = {
-			role: 'student',
-			id: '22-00250',
-			name: {
-				first: 'Danielle',
-				last: 'Craig'
-			},
-			email: 'danielle.craig@gmail.com',
-			institute: 'ics',
-			program: 'BSIT',
-			year: 3,
-			phone: '+63 912 345 6789',
-			profilePicture: 'https://i.pravatar.cc/256',
-			status: 'active',
-			organizations: []
+		const fetchUser = async () => {
+			const request = await fetch(`${API_Route}/auth/me`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}).catch((error) => {
+				console.error('Error fetching user data:', error);
+			});
+			if (!request || !request.ok) {
+				Toast.fail('Failed to fetch user data', 1);
+				return;
+			};
+			const data = await request.json();
+			if (!data) {
+				Toast.fail('Invalid user data received', 1);
+				return;
+			};
+			updateCache('user', data);
+			setUser(data);
 		};
-		updateCache('user', fetchedUser);
-		setUser(fetchedUser);
+		fetchUser();
 	}, [cache.user]);
 
 	return (

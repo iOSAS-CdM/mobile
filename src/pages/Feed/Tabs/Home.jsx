@@ -18,29 +18,6 @@ const Home = () => {
 	}, []);
 
 	const { cache, updateCache, getCache } = useCache();
-	const [user, setUser] = React.useState(null);
-	React.useEffect(() => {
-		const user = getCache()['user'];
-		if (user) return setUser(user);
-		const fetchedUser = {
-			role: 'student',
-			id: '22-00250',
-			name: {
-				first: 'Danielle',
-				last: 'Craig'
-			},
-			email: 'danielle.craig@gmail.com',
-			institute: 'ics',
-			program: 'BSIT',
-			year: 3,
-			phone: '+63 912 345 6789',
-			profilePicture: 'https://i.pravatar.cc/256',
-			status: 'active',
-			organizations: []
-		};
-		updateCache('user', fetchedUser);
-		setUser(fetchedUser);
-	}, [cache.user]);
 
 	return (
 		<ScrollView>
@@ -60,10 +37,10 @@ const Home = () => {
 					<Flex direction='row' align='center' gap={8}>
 						<Avatar
 							size='large'
-							uri={user?.profilePicture}
+							uri={cache.user?.profilePicture}
 						/>
 						<Title level={2}>
-							{`${user?.name?.first || ''} ${user?.name?.last || ''}`}
+							{cache.user?.name?.first || ''}
 						</Title>
 					</Flex>
 				</Flex>

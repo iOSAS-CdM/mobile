@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Constants from 'expo-constants';
 const statusBarHeight = Constants.statusBarHeight;
 import supabase from './utils/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { SafeAreaView, Platform, Keyboard, Dimensions } from 'react-native';
 
@@ -74,6 +75,50 @@ const main = () => {
 		});
 	}, []);
 
+
+	// Modify `fetch`
+	React.useLayoutEffect(() => {
+		const modifyFetch = async () => {
+			const originalFetch = window.fetch;
+
+			window.fetch = async (...args) => {
+				// Only add headers if we have a session with access token
+				if (session?.access_token) {
+					// First arg is the resource/URL, second arg is options
+					if (args[1] && typeof args[1] === 'object') {
+						// If headers already exist, add to them
+						args[1].headers = {
+							...args[1].headers,
+							'Authorization': `Bearer ${session.access_token}`
+						};
+					} else {
+						// Create headers object if options doesn't exist
+						args[1] = {
+							...(args[1] || {}),
+							headers: {
+								'Authorization': `Bearer ${session.access_token}`
+							}
+						};
+					};
+				};
+
+				const response = await originalFetch(...args);
+
+				// If we have a session but get a 403 Forbidden response, sign out
+				if (session && response.status === 403) {
+					await supabase.auth.signOut();
+					window.location.href = '/unauthorized';
+				};
+				return response;
+			};
+
+			return () => {
+				window.fetch = originalFetch;
+			};
+		};
+		modifyFetch();
+	}, [session, sessionChecked]);
+
 	if (!fontsLoaded || !sessionChecked) return null;
 	return (
 		<SafeAreaView
@@ -114,6 +159,9 @@ const main = () => {
 									animation: 'slide_from_right'
 								}}
 							/>
+
+
+
 							<Stack.Screen
 								name='Feed'
 								component={CachedFeed}
