@@ -80,6 +80,10 @@ const main = () => {
 	React.useLayoutEffect(() => {
 		const modifyFetch = async () => {
 			const originalFetch = window.fetch;
+			const AllAsyncStorageKeys = await AsyncStorage.getAllKeys();
+			const sessionKey = AllAsyncStorageKeys.find((key) => key.startsWith('sb-') && key.endsWith('-auth-token'));
+			const sessionString = sessionKey ? await AsyncStorage.getItem(sessionKey) : null;
+			const session = sessionString ? JSON.parse(sessionString) : null;
 
 			window.fetch = async (...args) => {
 				// Only add headers if we have a session with access token
@@ -117,7 +121,7 @@ const main = () => {
 			};
 		};
 		modifyFetch();
-	}, [session, sessionChecked]);
+	}, [session?.access_token, sessionChecked]);
 
 	if (!fontsLoaded || !sessionChecked) return null;
 	return (

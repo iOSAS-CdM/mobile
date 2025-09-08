@@ -49,7 +49,12 @@ const SignIn = () => {
 			return;
 		};
 
-		console.log(userData);
+		if (userData?.user) {
+			Toast.success('Successfully Signed In', 0.5);
+			navigationRef.current?.navigate('Feed');
+		} else {
+			Toast.fail('Failed to Sign In', 0.5);
+		};
 	};
 
 	return (

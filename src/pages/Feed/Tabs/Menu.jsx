@@ -1,8 +1,18 @@
-import Text from '../../../components/Text';
+
+import { navigationRef } from '../../../main';
+
+import supabase from '../../../utils/supabase';
+
+import Button from '../../../components/Button';
 
 const Menu = () => {
+	const handleSignOut = async () => {
+		await supabase.auth.signOut();
+		navigationRef.current?.navigate('SignIn');
+	};
+
 	return (
-		<Text>Menu</Text>
+		<Button type='primary' onPress={handleSignOut}>Sign Out</Button>
 	);
 };
 

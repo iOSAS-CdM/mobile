@@ -1,6 +1,5 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import supabase from '../../utils/supabase';
 
 import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
 import { Flex, Icon, Toast } from '@ant-design/react-native';
