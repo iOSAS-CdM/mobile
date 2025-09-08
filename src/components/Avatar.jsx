@@ -14,7 +14,6 @@ import theme from '../styles/theme';
 const Avatar = (props) => {
 	const { size, uri, style, ...rest } = props;
 
-
 	const sizeIsNumber = typeof size === 'number';
 	const newSize = sizeIsNumber
 		? size
@@ -37,7 +36,7 @@ const Avatar = (props) => {
 
 	return (
 		<>
-			{imageSource ? (
+			{false ? (
 				<Image
 					source={imageSource}
 					style={{
@@ -51,20 +50,22 @@ const Avatar = (props) => {
 					{...rest}
 				/>
 			) : (
-				<IconOutline
-					name='user'
-					style={{
-						width: newSize,
-						height: newSize,
-						fontSize: newSize * 0.6,
-						borderRadius: newSize >= theme.icon_size_lg ? theme.radius_lg : theme.radius_sm,
-						backgroundColor: theme.fill_base,
-						color: theme.color_icon_base,
-						textAlign: 'center',
-						textAlignVertical: 'center',
-						...style
-					}}
-				/>
+				<SkeletonLoading>
+					<IconOutline
+						name='user'
+						style={{
+							width: newSize,
+							height: newSize,
+							fontSize: newSize * 0.6,
+							borderRadius: newSize >= theme.icon_size_lg ? theme.radius_lg : theme.radius_sm,
+							backgroundColor: theme.fill_base,
+							color: theme.color_icon_base,
+							textAlign: 'center',
+							textAlignVertical: 'center',
+							...style
+						}}
+					/>
+				</SkeletonLoading>
 			)}
 		</>
 	);

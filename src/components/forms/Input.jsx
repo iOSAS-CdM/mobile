@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Input as AntInput, Card, Flex, InputProps } from '@ant-design/react-native';
 
 import { View } from 'react-native';
@@ -13,12 +15,14 @@ const Input = (props) => {
 
 	const newPlaceholder = required ? `${placeholder} *` : placeholder;
 
+	const [focused, setFocused] = React.useState(false);
+
 	return (
 		<Flex direction='column' justify='center' align='stretch'>
 			<View
 				style={{
 					paddingHorizontal: theme.h_spacing_md,
-					borderColor: withError ? theme.brand_error : theme.border_color_base,
+					borderColor: withError ? theme.brand_error : focused ? theme.brand_primary : theme.border_color_base,
 					borderWidth: withError ? theme.border_width_lg : theme.border_width_md,
 					borderRadius: theme.radius_md,
 					backgroundColor: theme.fill_base
@@ -31,6 +35,14 @@ const Input = (props) => {
 						...props.style
 					}}
 					placeholder={newPlaceholder}
+					onFocus={(e) => {
+						props.onFocus?.(e);
+						setFocused(true);
+					}}
+					onBlur={() => {
+						props.onBlur?.();
+						setFocused(false);
+					}}
 				/>
 			</View>
 

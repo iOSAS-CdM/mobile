@@ -4,9 +4,10 @@ import { useForm, Controller } from 'react-hook-form';
 
 import { ScrollView } from 'react-native';
 import { Image } from 'expo-image';
-import { Flex, Checkbox } from '@ant-design/react-native';
+import { Flex, Checkbox, Toast } from '@ant-design/react-native';
 
 import Button from '../../components/Button';
+import IconButton from '../../components/IconButton';
 import Anchor from '../../components/Anchor';
 import Title from '../../components/Title';
 import Text from '../../components/Text';
@@ -18,7 +19,7 @@ import Logo from '../../../assets/public/Logo.png';
 
 import { KeyboardShownContext } from '../../main';
 
-import { API_Route } from '../../main';
+import { API_Route, navigationRef } from '../../main';
 
 import theme from '../../styles/theme';
 const SignUp = () => {
@@ -55,7 +56,27 @@ const SignUp = () => {
 	 * }) => Promise<Void>}
 	 */
 	const onSubmit = async (data) => {
-		console.log(data);
+		const request = await fetch(`${API_Route}/auth/student/sign-up`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+		}).catch((error) => {
+			Toast.fail('Network error. Please try again.', 2);
+		});
+		if (!request) return;
+
+		if (!request.ok) {
+			const response = await request.json();
+			if (response?.key && response?.message)
+				setError(response.key, { type: 'server', message: response.message });
+			Toast.fail(response?.message ?? 'An error occurred. Please try again.', 2);
+			return;
+		};
+
+		Toast.success('Account created successfully! Please sign in.', 2);
+		navigationRef.current?.navigate('SignIn');
 	};
 
 	const [institute, setInstitute] = React.useState();
@@ -108,19 +129,37 @@ const SignUp = () => {
 					{/***************************************** Header *****************************************/}
 					<Flex
 						direction='row'
-						justify='center'
+						justify='space-between'
 						align='center'
-						gap={8}
 					>
-						<Title level={2}>Join us at</Title>
-						<Image
-							source={Logo}
-							style={{
-								width: 64,
-								height: 32,
-								objectFit: 'contain'
-							}}
-							contentFit='contain'
+						<IconButton
+							iconType='outline'
+							name='left'
+							size='small'
+							onPress={() => navigationRef.current?.goBack()}
+						/>
+						<Flex
+							direction='row'
+							justify='center'
+							align='center'
+							gap={8}
+							style={{ flex: 1, width: '100%' }}
+						>
+							<Title level={2}>Join us at</Title>
+							<Image
+								source={Logo}
+								style={{
+									width: 64,
+									height: 32,
+									objectFit: 'contain'
+								}}
+								contentFit='contain'
+							/>
+						</Flex>
+						<IconButton
+							iconType='outline'
+							name=''
+							size='small'
 						/>
 					</Flex>
 					{/***************************************** Form *****************************************/}
