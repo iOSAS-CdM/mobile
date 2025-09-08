@@ -14,11 +14,12 @@ import Organizations from './Tabs/Organizations';
 import Profile from './Tabs/Profile';
 import Menu from './Tabs/Menu';
 
-import { KeyboardShownContext, fetchRef } from '../../main';
+import { KeyboardShownContext } from '../../main';
 
 import Logo from '../../../assets/public/Logo.png';
 
 import { useCache } from '../../contexts/CacheContext';
+import authFetch from '../../utils/authFetch';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -33,16 +34,16 @@ const Feed = () => {
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | Null>>]} */
 	const [user, setUser] = React.useState(null);
-	React.useLayoutEffect(() => {
-		if (!fetchRef.current) return;
+	React.useEffect(() => {
 		if (getCache()['user']) return setUser(user);
 
 		const controller = new AbortController();
 		const fetchUser = async () => {
-			const request = await fetchRef.current(`${API_Route}/auth/me`, {
-				signal: controller.signal,
+			const request = await authFetch(`${API_Route}/auth/me`, {
+				signal: controller.signal
 			}).catch((error) => {
 				console.error('Error fetching user data:', error);
+				Toast.fail('Network error. Please try again.', 1);
 			});
 			const data = await request.json();
 			if (!data) {
@@ -54,7 +55,7 @@ const Feed = () => {
 		};
 		fetchUser();
 		return () => { controller.abort(); };
-	}, [cache.user, fetchRef.current]);
+	}, [cache]);
 
 	return (
 		<>
