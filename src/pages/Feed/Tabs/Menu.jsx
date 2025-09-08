@@ -7,7 +7,7 @@ import Button from '../../../components/Button';
 
 const Menu = () => {
 	const handleSignOut = async () => {
-		await supabase.auth.signOut();
+		supabase.auth.signOut();
 		navigationRef.current?.navigate('SignIn');
 	};
 

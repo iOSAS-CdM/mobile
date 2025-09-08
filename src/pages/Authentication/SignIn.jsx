@@ -26,11 +26,6 @@ const SignIn = () => {
 	const {
 		control,
 		handleSubmit,
-		getValues,
-		setValue,
-		setError,
-		resetField,
-		clearErrors,
 		formState: { errors }
 	} = useForm();
 
