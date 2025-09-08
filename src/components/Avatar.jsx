@@ -50,22 +50,20 @@ const Avatar = (props) => {
 					{...rest}
 				/>
 			) : (
-				<SkeletonLoading>
-					<IconOutline
-						name='user'
-						style={{
-							width: newSize,
-							height: newSize,
-							fontSize: newSize * 0.6,
-							borderRadius: newSize >= theme.icon_size_lg ? theme.radius_lg : theme.radius_sm,
-							backgroundColor: theme.fill_base,
-							color: theme.color_icon_base,
-							textAlign: 'center',
-							textAlignVertical: 'center',
-							...style
-						}}
-					/>
-				</SkeletonLoading>
+				<IconOutline
+					name='user'
+					style={{
+						width: newSize,
+						height: newSize,
+						fontSize: newSize * 0.6,
+						borderRadius: newSize >= theme.icon_size_lg ? theme.radius_lg : theme.radius_sm,
+						backgroundColor: theme.fill_base,
+						color: theme.color_icon_base,
+						textAlign: 'center',
+						textAlignVertical: 'center',
+						...style
+					}}
+				/>
 			)}
 		</>
 	);

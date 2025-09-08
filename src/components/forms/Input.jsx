@@ -1,13 +1,19 @@
 import React from 'react';
 
-import { Input as AntInput, Card, Flex, InputProps } from '@ant-design/react-native';
+import { Input as AntInput, Flex, InputProps } from '@ant-design/react-native';
 
 import { View } from 'react-native';
 
 import theme from '../../styles/theme';
 
 /**
- * @param {{ withError: Boolean, errorComponent: import('react').JSX.Element, required: Boolean } & InputProps} props
+ * @param {{
+ * 	withError: Boolean;
+ * 	errorComponent: import('react').JSX.Element;
+ * 	required: Boolean;
+ * 	placeholder: String;
+ * 	required: Boolean;
+ * } & InputProps} props
  */
 const Input = (props) => {
 	// Destructure the error prop

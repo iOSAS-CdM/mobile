@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Constants from 'expo-constants';
 const statusBarHeight = Constants.statusBarHeight;
+import supabase from './utils/supabase';
 
 import { SafeAreaView, Platform, Keyboard, Dimensions } from 'react-native';
 
@@ -59,7 +60,21 @@ const main = () => {
 		};
 	}, [fontsLoaded]);
 
-	if (!fontsLoaded) return null;
+	/** @type {[import('@supabase/supabase-js').Session, React.Dispatch<React.SetStateAction<import('@supabase/supabase-js').Session | Null>>]} */
+	const [session, setSession] = React.useState(null);
+	const [sessionChecked, setSessionChecked] = React.useState(false);
+	React.useEffect(() => {
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			setSession(session);
+			setSessionChecked(true);
+		});
+		supabase.auth.onAuthStateChange((_event, session) => {
+			setSession(session);
+			setSessionChecked(true);
+		});
+	}, []);
+
+	if (!fontsLoaded || !sessionChecked) return null;
 	return (
 		<SafeAreaView
 			style={{
@@ -74,7 +89,7 @@ const main = () => {
 				<Provider theme={theme}>
 					<StatusBar style='auto' translucent />
 					<NavigationContainer ref={navigationRef}>
-						<Stack.Navigator>
+						<Stack.Navigator initialRouteName={session && session.user ? 'Feed' : 'SignIn'}>
 							<Stack.Screen
 								name='SignIn'
 								component={SignIn}
