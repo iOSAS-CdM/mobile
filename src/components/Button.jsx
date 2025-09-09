@@ -36,7 +36,7 @@ const Button = (props) => {
 			onPress={async () => {
 				setLoading(true);
 				try {
-					await onPress();
+					await onPress?.();
 				} catch (error) {
 					console.error('Error occurred while pressing button:', error);
 				} finally {
