@@ -22,7 +22,6 @@ import LogoBanner from '../../../assets/public/banner.png';
 import { API_Route, KeyboardShownContext, navigationRef } from '../../main';
 
 const redirectTo = makeRedirectUri();
-console.log('Redirect URI:', redirectTo);
 /** @type {(url: string) => Promise<import('@supabase/supabase-js').Session | null>} */
 const createSessionFromUrl = async (url) => {
 	const { params, errorCode } = QueryParams.getQueryParams(url);
@@ -50,7 +49,7 @@ const performOAuth = async () => {
 		}
 	});
 	if (error) throw error;
-WebBrowser
+
 	const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo, {
 		showTitle: false,
 		enableBarCollapsing: true
