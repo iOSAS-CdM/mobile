@@ -41,7 +41,7 @@ const Button = (props) => {
 					console.error('Error occurred while pressing button:', error);
 				} finally {
 					setLoading(false);
-				}
+				};
 			}}
 			{...props}
 		>
