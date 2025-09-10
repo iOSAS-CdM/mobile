@@ -18,7 +18,7 @@ import IconButton from '../../components/IconButton';
 
 import LogoBanner from '../../../assets/public/banner.png';
 
-import { API_Route, KeyboardShownContext, navigationRef } from '../../main';
+import { KeyboardShownContext, navigationRef } from '../../main';
 
 const redirectTo = makeRedirectUri();
 console.log('Redirect URI:', redirectTo);
