@@ -13,9 +13,9 @@ import theme from '../styles/theme';
 
 /**
  * @param {{
- *  children: String;
+ *  children: string;
  *  icon: IconProps['name'];
- * 	onPress: Promise<Void>;
+ * 	onPress: Promise<void>;
  * } & ButtonProps} props
  * @returns {import('react').JSX.Element}
  */

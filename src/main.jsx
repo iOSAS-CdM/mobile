@@ -60,7 +60,7 @@ const main = () => {
 		};
 	}, [fontsLoaded]);
 
-	/** @type {[import('@supabase/supabase-js').Session, React.Dispatch<React.SetStateAction<import('@supabase/supabase-js').Session | Null>>]} */
+	/** @type {[import('@supabase/supabase-js').Session, React.Dispatch<React.SetStateAction<import('@supabase/supabase-js').Session | null>>]} */
 	const [session, setSession] = React.useState(null);
 	const [sessionChecked, setSessionChecked] = React.useState(false);
 	React.useEffect(() => {

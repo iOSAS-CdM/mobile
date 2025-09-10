@@ -22,8 +22,8 @@ import theme from '../styles/theme';
 const IconButton = (props) => {
 	const { name, iconType, type, size, style, ...rest } = props;
 
-	const sizeIsNumber = typeof size === 'number';
-	const newSize = sizeIsNumber
+	const sizeIsnumber = typeof size === 'number';
+	const newSize = sizeIsnumber
 		? size
 		: size === 'small'
 		? theme.icon_size_sm

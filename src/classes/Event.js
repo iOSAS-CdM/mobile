@@ -2,12 +2,12 @@
  * @typedef {import('./Record').RecordProps} DisciplinaryEventProps
  */
 /**
- * @typedef {{ id: Number | String }} EventProps
+ * @typedef {{ id: number | string }} EventProps
  */
 
 /**
  * @typedef {{
- * 	id: Number | String;
+ * 	id: number | string;
  * }} BaseEventProps
  */
 

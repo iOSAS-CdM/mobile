@@ -23,7 +23,7 @@ import { KeyboardShownContext, navigationRef } from '../../main';
 
 
 const redirectTo = makeRedirectUri();
-/** @type {(url: String) => Promise<import('@supabase/supabase-js').Session | null>} */
+/** @type {(url: string) => Promise<import('@supabase/supabase-js').Session | null>} */
 const createSessionFromUrl = async (url) => {
 	const { params, errorCode } = QueryParams.getQueryParams(url);
 

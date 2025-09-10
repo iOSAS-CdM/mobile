@@ -32,7 +32,7 @@ const Feed = () => {
 	const { cache, updateCache, getCache } = useCache();
 
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
-	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | Null>>]} */
+	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
 	const [user, setUser] = React.useState(null);
 	React.useEffect(() => {
 		if (getCache()['user']) return setUser(user);

@@ -1,16 +1,16 @@
 /**
  * @typedef {{
- *  id: Number | String;
+ *  id: number | string;
  *  name: {
- * 		first: String;
- * 		last: String;
- * 		middle?: String;
+ * 		first: string;
+ * 		last: string;
+ * 		middle?: string;
  * 	};
- *  email: String;
+ *  email: string;
  *  role: 'head' | 'guidance' | 'prefect' | 'student-affairs';
- *  profilePicture: String;
+ *  profilePicture: string;
  *  status: 'active' | 'restricted' | 'archived';
- *  reason?: String;
+ *  reason?: string;
  * }} StaffProps
  */
 

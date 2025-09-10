@@ -13,11 +13,11 @@
 
 /**
  * @typedef {{
- * 	id: Number | String,
- * 	title: String,
- * 	description: String,
- * 	cover: String,
- * 	content: String,
+ * 	id: number | string,
+ * 	title: string,
+ * 	description: string,
+ * 	cover: string,
+ * 	content: string,
  * 	date: Date,
  * 	authors: (StaffAuthor | StudentAuthor)[],
  * 	archived?: Boolean,

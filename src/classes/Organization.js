@@ -1,19 +1,19 @@
 /**
  * @typedef {{
- * 	role: String,
+ * 	role: string,
  * 	student: import('./Student').StudentProps
  * }} OrganizationMember
  */
 
 /**
  * @typedef {{
- * 	id?: Number | String,
- * 	shortName: String,
- * 	fullName: String,
- * 	description: String,
- * 	email: String,
- * 	logo?: String,
- * 	cover?: String,
+ * 	id?: number | string,
+ * 	shortName: string,
+ * 	fullName: string,
+ * 	description: string,
+ * 	email: string,
+ * 	logo?: string,
+ * 	cover?: string,
  * 	status?: 'active' | 'restricted' | 'archived',
  * 	type?: 'college-wide' | 'institute-wide',
  * 	members?: OrganizationMember[],

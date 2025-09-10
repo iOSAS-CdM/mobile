@@ -7,9 +7,9 @@ import { navigationRef } from '../main';
 
 /**
  * @param {{
- *  children: String;
- * 	href: String;
- * 	to: String;
+ *  children: string;
+ * 	href: string;
+ * 	to: string;
  * } & TextProps} props
  * @returns {import('react').JSX.Element}
  */

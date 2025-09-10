@@ -8,14 +8,14 @@ import theme from '../styles/theme';
 /**
  * @param {{
  * 	size: 'small' | 'large' | 'default' | number;
- * 	uri: String;
+ * 	uri: string;
  * } & ImageProps} props
  */
 const Avatar = (props) => {
 	const { size, uri, style, ...rest } = props;
 
-	const sizeIsNumber = typeof size === 'number';
-	const newSize = sizeIsNumber
+	const sizeIsnumber = typeof size === 'number';
+	const newSize = sizeIsnumber
 		? size
 		: size === 'small'
 			? theme.icon_size_sm

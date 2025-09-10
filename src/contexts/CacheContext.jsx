@@ -8,12 +8,12 @@ const CacheContext = React.createContext();
 
 /**
  * @typedef {{
- * 	user: UserProps | Null;
- * 	highlights: Object[] | Null;
- * 	peers: UserProps[] | Null;
+ * 	user: UserProps | null;
+ * 	highlights: Object[] | null;
+ * 	peers: UserProps[] | null;
  * }} Cache
  */
-/** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
+/** @typedef {(key: keyof Cache, data: Any) => void} UpdateCache */
 /** @typedef {() => Cache} GetCache */
 
 // This is the custom hook that components will use to access the cache

@@ -4,7 +4,7 @@ import theme from '../styles/theme';
 
 /**
  * @param {{
- *  children: String;
+ *  children: string;
  * 	level: 1 | 2 | 3 | 4 | 5 | 6;
  * 	center: Boolean;
  * } & TextProps} props

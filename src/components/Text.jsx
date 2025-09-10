@@ -5,7 +5,7 @@ import theme from '../styles/theme';
 
 /**
  * @param {{
- *  children: String;
+ *  children: string;
  * } & TextProps} props
  * @returns {import('react').JSX.Element}
  */

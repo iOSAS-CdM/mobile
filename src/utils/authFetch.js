@@ -12,9 +12,9 @@ import { navigationRef } from '../main';
 const authFetch = async (...args) => {
 	const AllAsyncStorageKeys = await AsyncStorage.getAllKeys();
 	const sessionKey = AllAsyncStorageKeys.find((key) => key.startsWith('sb-') && key.endsWith('-auth-token'));
-	const sessionString = sessionKey ? await AsyncStorage.getItem(sessionKey) : null;
+	const sessionstring = sessionKey ? await AsyncStorage.getItem(sessionKey) : null;
 	/** @type {import('@supabase/supabase-js').Session | null} */
-	const session = sessionString ? JSON.parse(sessionString) : null;
+	const session = sessionstring ? JSON.parse(sessionstring) : null;
 	
 	if (session?.access_token) {
 		// First arg is the resource/URL, second arg is options

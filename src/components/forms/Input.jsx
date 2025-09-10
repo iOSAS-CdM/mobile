@@ -11,7 +11,7 @@ import theme from '../../styles/theme';
  * 	withError: Boolean;
  * 	errorComponent: import('react').JSX.Element;
  * 	required: Boolean;
- * 	placeholder: String;
+ * 	placeholder: string;
  * 	required: Boolean;
  * } & InputProps} props
  */

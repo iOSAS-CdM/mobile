@@ -16,7 +16,7 @@ import theme from '../../styles/theme';
  * 	withError: Boolean;
  * 	errorComponent: import('react').JSX.Element;
  * 	required: Boolean;
- * 	onChange: (value: String) => Void;
+ * 	onChange: (value: string) => void;
  * } & import('react-native-element-dropdown/src/components/Dropdown/model').DropdownProps} props
  */
 const Picker = (props) => {

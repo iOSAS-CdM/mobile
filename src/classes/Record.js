@@ -3,20 +3,20 @@
 
 /**
  * @typedef {{
- * 	occurrence: Number,
+ * 	occurrence: number,
  * 	student: import('./Student').StudentProps
  * }} RecordComplainanee
  */
 
 /**
  * @typedef {{
- * 	id: Number | String,
- * 	violation: String,
- * 	description: String,
+ * 	id: number | string,
+ * 	violation: string,
+ * 	description: string,
  * 	tags: {
  * 		status: RecordStatus,
  * 		severity: RecordSeverity,
- * 		progress: Number
+ * 		progress: number
  * 	},
  * 	complainants: import('./Student').StudentProps[],
  * 	complainees: RecordComplainanee[],

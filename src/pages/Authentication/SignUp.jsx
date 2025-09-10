@@ -43,18 +43,18 @@ const SignUp = () => {
 	const [signingUp, setSigningUp] = React.useState(false);
 	/**
 	 * @type {({
-	 * 	id: String;
-	 * 	email: String;
-	 * 	firstName: String;
-	 * 	middleName?: String;
-	 * 	lastName: String;
-	 * 	email: String;
-	 * 	profilePicture: String;
+	 * 	id: string;
+	 * 	email: string;
+	 * 	firstName: string;
+	 * 	middleName?: string;
+	 * 	lastName: string;
+	 * 	email: string;
+	 * 	profilePicture: string;
 	 * 	institute: 'ics' | 'ite' | 'ibe';
-	 * 	program: String;
-	 * 	year: Number;
-	 * 	password: String;
-	 * }) => Promise<Void>}
+	 * 	program: string;
+	 * 	year: number;
+	 * 	password: string;
+	 * }) => Promise<void>}
 	 */
 	const onSubmit = async (data) => {
 		setSigningUp(true);
@@ -357,7 +357,7 @@ const SignUp = () => {
 									field: { onChange, onBlur, value }
 								}) => (
 									<Input
-										placeholder='Phone Number'
+										placeholder='Phone number'
 										type='phone-pad'
 										name='phone'
 										onBlur={onBlur}
