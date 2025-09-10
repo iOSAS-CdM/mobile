@@ -2,6 +2,7 @@
   "expo": {
     "name": "iOSAS",
     "slug": "iOSAS",
+    "scheme": "com.iosas",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -32,11 +33,12 @@
         "expo-asset",
         {
           "assets": [
-            "./assets/public/Logo Banner.png",
-            "./assets/public/Logo.png"
+            "./assets/public/banner.png",
+            "./assets/public/logo.png"
           ]
         }
-      ]
+      ],
+      "expo-web-browser"
     ]
   }
 }

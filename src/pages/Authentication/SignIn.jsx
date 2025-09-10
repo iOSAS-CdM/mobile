@@ -2,6 +2,10 @@ import React from 'react';
 import packageJson from '../../../package.json';
 import { useForm, Controller } from 'react-hook-form';
 import supabase from '../../utils/supabase';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as QueryParams from 'expo-auth-session/build/QueryParams';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'expo-image';
@@ -13,9 +17,47 @@ import Text from '../../components/Text';
 import Input from '../../components/forms/Input';
 import IconButton from '../../components/IconButton';
 
-import LogoBanner from '../../../assets/public/Logo Banner.png';
+import LogoBanner from '../../../assets/public/banner.png';
 
 import { KeyboardShownContext, navigationRef } from '../../main';
+
+
+const redirectTo = makeRedirectUri();
+/** @type {(url: String) => Promise<import('@supabase/supabase-js').Session | null>} */
+const createSessionFromUrl = async (url) => {
+	const { params, errorCode } = QueryParams.getQueryParams(url);
+
+	if (errorCode) throw new Error(errorCode);
+	const { access_token, refresh_token } = params;
+
+	if (!access_token) return;
+
+	const { data, error } = await supabase.auth.setSession({
+		access_token,
+		refresh_token
+	});
+	if (error) throw error;
+	return data.session;
+};
+
+/** @type {() => Promise<void>} */
+const performOAuth = async () => {
+	const { data, error } = await supabase.auth.signInWithOAuth({
+		provider: 'google',
+		options: {
+			redirectTo,
+			skipBrowserRedirect: true
+		}
+	});
+	if (error) throw error;
+
+	const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo);
+
+	if (res.type === 'success')
+		await createSessionFromUrl({ url: res.url });
+};
+
+
 
 import theme from '../../styles/theme';
 const SignIn = () => {
@@ -173,6 +215,15 @@ const SignIn = () => {
 							size='large'
 							icon='google'
 							style={{ width: '100%' }}
+							onPress={async () => {
+								try {
+									await performOAuth();
+									Toast.success('Successfully Signed In!', 0.5);
+									navigationRef.current?.navigate('Feed');
+								} catch (error) {
+									Toast.fail(error.message, 0.5);
+								};
+							}}
 						>
 							Sign In with Google
 						</Button>

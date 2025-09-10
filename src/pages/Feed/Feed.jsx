@@ -16,7 +16,7 @@ import Menu from './Tabs/Menu';
 
 import { KeyboardShownContext } from '../../main';
 
-import Logo from '../../../assets/public/Logo.png';
+import Logo from '../../../assets/public/logo.png';
 
 import { useCache } from '../../contexts/CacheContext';
 import authFetch from '../../utils/authFetch';

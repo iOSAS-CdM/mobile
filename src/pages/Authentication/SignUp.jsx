@@ -15,7 +15,7 @@ import Text from '../../components/Text';
 import Input from '../../components/forms/Input';
 import Picker from '../../components/forms/Picker';
 
-import Logo from '../../../assets/public/Logo.png';
+import Logo from '../../../assets/public/logo.png';
 
 import { KeyboardShownContext } from '../../main';
 

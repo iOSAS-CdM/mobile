@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 import { Flex } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
@@ -20,7 +20,18 @@ const Home = () => {
 	const { cache, updateCache, getCache } = useCache();
 
 	return (
-		<ScrollView>
+		<ScrollView
+			refreshControl={
+				<RefreshControl
+					refreshing={false}
+					onRefresh={async () => {
+						console.log('Refreshing...');
+					}}
+					colors={[theme.brand_primary]}
+					tintColor={theme.brand_primary}
+				/>
+			}
+		>
 			<Flex
 				direction='column'
 				justify='flex-start'
