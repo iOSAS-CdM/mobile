@@ -7,6 +7,7 @@ import Title from '../../../components/Title';
 import Avatar from '../../../components/Avatar';
 
 import { useCache } from '../../../contexts/CacheContext';
+import { RefreshContext } from '../Feed';
 
 import theme from '../../../styles/theme';
 const Home = () => {
@@ -18,6 +19,7 @@ const Home = () => {
 	}, []);
 
 	const { cache, updateCache, getCache } = useCache();
+	const { setRefresh } = React.useContext(RefreshContext);
 
 	return (
 		<ScrollView
@@ -25,7 +27,7 @@ const Home = () => {
 				<RefreshControl
 					refreshing={false}
 					onRefresh={async () => {
-						console.log('Refreshing...');
+						setRefresh('user');
 					}}
 					colors={[theme.brand_primary]}
 					tintColor={theme.brand_primary}

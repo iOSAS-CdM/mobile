@@ -26,16 +26,25 @@ const Tab = createMaterialTopTabNavigator();
 import { API_Route } from '../../main';
 
 import theme from '../../styles/theme';
+
+const RefreshContext = React.createContext({
+	/** @type {keyof import('../../contexts/CacheContext').Cache} */
+	refresh: '',
+	/** @type {(key: keyof import('../../contexts/CacheContext').Cache) => void} */
+	setRefresh: (key) => { }
+});
+
 const Feed = () => {
 	const { keyboardShown } = React.useContext(KeyboardShownContext);
 
 	const { cache, updateCache, getCache } = useCache();
+	const [refresh, setRefresh] = React.useState(/** @type {keyof import('../../contexts/CacheContext').Cache} */(''));
 
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
 	const [user, setUser] = React.useState(null);
 	React.useEffect(() => {
-		if (getCache()['user']) return setUser(user);
+		if (getCache()['user'] && refresh !== 'user') return setUser(user);
 
 		const controller = new AbortController();
 		const fetchUser = async () => {
@@ -52,13 +61,14 @@ const Feed = () => {
 			};
 			updateCache('user', data);
 			setUser(data);
+			setRefresh('');
 		};
 		fetchUser();
 		return () => { controller.abort(); };
-	}, [cache]);
+	}, [cache, refresh]);
 
 	return (
-		<>
+		<RefreshContext.Provider value={{ refresh, setRefresh }}>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Flex
 					direction='row'
@@ -244,8 +254,9 @@ const Feed = () => {
 					/>
 				</Tab.Navigator>
 			</TouchableWithoutFeedback>
-		</>
+		</RefreshContext.Provider>
 	);
 };
 
 export default Feed;
+export { RefreshContext };

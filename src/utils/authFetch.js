@@ -15,8 +15,6 @@ const authFetch = async (...args) => {
 	const sessionstring = sessionKey ? await AsyncStorage.getItem(sessionKey) : null;
 	/** @type {import('@supabase/supabase-js').Session | null} */
 	const session = sessionstring ? JSON.parse(sessionstring) : null;
-	console.log('authFetch session:', session);
-
 	if (session?.access_token) {
 		// First arg is the resource/URL, second arg is options
 		if (args[1] && typeof args[1] === 'object') {
