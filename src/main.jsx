@@ -132,7 +132,7 @@ const main = () => {
 		</SafeAreaView>
 	);
 };
-fetch
+
 export default main;
 /** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef>} */
 export const navigationRef = React.createRef();
