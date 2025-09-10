@@ -21,42 +21,57 @@ import LogoBanner from '../../../assets/public/banner.png';
 import { API_Route, KeyboardShownContext, navigationRef } from '../../main';
 
 const redirectTo = makeRedirectUri();
+console.log('Redirect URI:', redirectTo);
 /** @type {(url: string) => Promise<import('@supabase/supabase-js').Session | null>} */
-const createSessionFromUrl = async (url) => {
-	const { params, errorCode } = QueryParams.getQueryParams(url);
+const createSessionFromUrl = (url) =>
+	new Promise(async (resolve, reject) => {
+		try {
+			const { params, errorCode } = QueryParams.getQueryParams(url);
 
-	if (errorCode) throw new Error(errorCode);
-	const { access_token, refresh_token } = params;
+			if (errorCode) throw new Error(errorCode);
+			const { access_token, refresh_token } = params;
 
-	if (!access_token) return;
+			if (!access_token) return resolve(null);
 
-	const { data, error } = await supabase.auth.setSession({
-		access_token,
-		refresh_token
-	});
-	if (error) throw error;
-	return data.session;
-};
-
-/** @type {() => Promise<void>} */
-const performOAuth = async () => {
-	const { data, error } = await supabase.auth.signInWithOAuth({
-		provider: 'google',
-		options: {
-			redirectTo: redirectTo,
-			skipBrowserRedirect: true
+			const { data, error } = await supabase.auth.setSession({
+				access_token,
+				refresh_token
+			});
+			if (error) throw error;
+			resolve(data.session);
+		} catch (err) {
+			reject(err);
 		}
 	});
-	if (error) throw error;
 
-	const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo, {
-		showTitle: false,
-		enableBarCollapsing: true
+/** @type {() => Promise<import('@supabase/supabase-js').Session | null>} */
+const performOAuth = () =>
+	new Promise(async (resolve, reject) => {
+		try {
+			const { data, error } = await supabase.auth.signInWithOAuth({
+				provider: 'google',
+				options: {
+					redirectTo: redirectTo,
+					skipBrowserRedirect: true
+				}
+			});
+			if (error) throw error;
+
+			const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo, {
+				showTitle: false,
+				enableBarCollapsing: true
+			});
+
+			if (res.type === 'success') {
+				const session = await createSessionFromUrl(res.url);
+				resolve(session);
+			} else {
+				reject(new Error('OAuth sign-in was not successful.'));
+			};
+		} catch (err) {
+			reject(err);
+		}
 	});
-
-	if (res.type === 'success')
-		console.log(await createSessionFromUrl({ url: res.url }));
-};
 
 
 
@@ -218,8 +233,13 @@ const SignIn = () => {
 							style={{ width: '100%' }}
 							onPress={async () => {
 								try {
-									await performOAuth();
-									Toast.success('Successfully Signed In!', 0.5);
+									const session = await performOAuth();
+									if (session) {
+										Toast.success('Successfully Signed In!', 0.5);
+										navigationRef.current?.navigate('Feed');
+									} else {
+										Toast.fail('Failed to Sign In.', 0.5);
+									};
 								} catch (error) {
 									Toast.fail(error.message, 0.5);
 								};
