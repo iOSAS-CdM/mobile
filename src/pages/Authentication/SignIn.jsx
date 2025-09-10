@@ -5,7 +5,6 @@ import supabase from '../../utils/supabase';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
 
 import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Image } from 'expo-image';
