@@ -15,7 +15,8 @@ const authFetch = async (...args) => {
 	const sessionstring = sessionKey ? await AsyncStorage.getItem(sessionKey) : null;
 	/** @type {import('@supabase/supabase-js').Session | null} */
 	const session = sessionstring ? JSON.parse(sessionstring) : null;
-	
+	console.log('authFetch session:', session);
+
 	if (session?.access_token) {
 		// First arg is the resource/URL, second arg is options
 		if (args[1] && typeof args[1] === 'object') {
@@ -36,7 +37,7 @@ const authFetch = async (...args) => {
 	};
 
 	const response = await fetch(...args);
-	
+
 	// If we have a session but get a 403 Forbidden response, sign out
 	if (session && (response.status === 403 || response.status === 401)) {
 		await supabase.auth.signOut();

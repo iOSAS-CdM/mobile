@@ -19,10 +19,10 @@ import IconButton from '../../components/IconButton';
 
 import LogoBanner from '../../../assets/public/banner.png';
 
-import { KeyboardShownContext, navigationRef } from '../../main';
-
+import { API_Route, KeyboardShownContext, navigationRef } from '../../main';
 
 const redirectTo = makeRedirectUri();
+console.log('Redirect URI:', redirectTo);
 /** @type {(url: string) => Promise<import('@supabase/supabase-js').Session | null>} */
 const createSessionFromUrl = async (url) => {
 	const { params, errorCode } = QueryParams.getQueryParams(url);
@@ -45,16 +45,19 @@ const performOAuth = async () => {
 	const { data, error } = await supabase.auth.signInWithOAuth({
 		provider: 'google',
 		options: {
-			redirectTo,
+			redirectTo: redirectTo,
 			skipBrowserRedirect: true
 		}
 	});
 	if (error) throw error;
-
-	const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo);
+WebBrowser
+	const res = await WebBrowser.openAuthSessionAsync(data?.url ?? '', redirectTo, {
+		showTitle: false,
+		enableBarCollapsing: true
+	});
 
 	if (res.type === 'success')
-		await createSessionFromUrl({ url: res.url });
+		console.log(await createSessionFromUrl({ url: res.url }));
 };
 
 
@@ -219,7 +222,6 @@ const SignIn = () => {
 								try {
 									await performOAuth();
 									Toast.success('Successfully Signed In!', 0.5);
-									navigationRef.current?.navigate('Feed');
 								} catch (error) {
 									Toast.fail(error.message, 0.5);
 								};

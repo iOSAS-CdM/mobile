@@ -89,7 +89,7 @@ const main = () => {
 				<Provider theme={theme}>
 					<StatusBar style='auto' translucent />
 					<NavigationContainer ref={navigationRef}>
-						<Stack.Navigator initialRouteName={session && session.user ? 'Feed' : 'SignIn'}>
+						<Stack.Navigator initialRouteName={session && session.access_token ? 'Feed' : 'SignIn'}>
 							<Stack.Screen
 								name='SignIn'
 								component={SignIn}
