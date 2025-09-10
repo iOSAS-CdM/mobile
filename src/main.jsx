@@ -134,7 +134,11 @@ const main = () => {
 };
 
 export default main;
-/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef>} */
+/**
+ * @type {{
+ * 	current: import('@react-navigation/native').NavigationContainerRef<any> | null
+ * }}
+ */
 export const navigationRef = React.createRef();
 export const KeyboardShownContext = React.createContext();
 export const API_Route = __DEV__ ? 'http://10.242.192.28:3001' : 'http://47.130.158.40';

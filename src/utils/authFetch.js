@@ -37,9 +37,9 @@ const authFetch = async (...args) => {
 	const response = await fetch(...args);
 
 	// If we have a session but get a 403 Forbidden response, sign out
-	if (session && (response.status === 403 || response.status === 401)) {
+	if (response.status === 403 || response.status === 401) {
 		await supabase.auth.signOut();
-		navigationRef.current?.navigate('SignUp');
+		navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
 	};
 	return response;
 };
