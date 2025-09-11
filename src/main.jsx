@@ -6,8 +6,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Constants from 'expo-constants';
 const statusBarHeight = Constants.statusBarHeight;
 import supabase from './utils/supabase';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { SafeAreaView, Platform, Keyboard, Dimensions } from 'react-native';
+import { Platform, Keyboard, Dimensions } from 'react-native';
 
 import { useFonts } from 'expo-font';
 
