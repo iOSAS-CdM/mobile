@@ -18,7 +18,7 @@ const Home = () => {
 		else return 'evening';
 	}, []);
 
-	const { cache, updateCache, getCache } = useCache();
+	const { cache } = useCache();
 	const { setRefresh } = React.useContext(RefreshContext);
 
 	return (
@@ -27,7 +27,10 @@ const Home = () => {
 				<RefreshControl
 					refreshing={false}
 					onRefresh={async () => {
-						setRefresh('user');
+						setRefresh({
+							key: 'user',
+							seed: Math.random()
+						});
 					}}
 					colors={[theme.brand_primary]}
 					tintColor={theme.brand_primary}

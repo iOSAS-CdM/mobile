@@ -27,26 +27,31 @@ import { API_Route } from '../../main';
 
 import theme from '../../styles/theme';
 
+/** @typedef {{ key: keyof import('../../contexts/CacheContext').Cache, seed: number }} Refresh */
 const RefreshContext = React.createContext({
-	/** @type {keyof import('../../contexts/CacheContext').Cache} */
+	/** @type {Refresh} */
 	refresh: '',
-	/** @type {(key: keyof import('../../contexts/CacheContext').Cache) => void} */
-	setRefresh: (key) => { }
+	/** @type {React.Dispatch<React.SetStateAction<Refresh | null>>} */
+	setRefresh: (refresh) => { }
 });
 
 const Feed = () => {
 	const { keyboardShown } = React.useContext(KeyboardShownContext);
 
 	const { cache, updateCache, getCache } = useCache();
-	const [refresh, setRefresh] = React.useState(/** @type {keyof import('../../contexts/CacheContext').Cache} */(''));
+	/** @type {[Refresh, React.Dispatch<React.SetStateAction<Refresh | null>>]} */
+	const [refresh, setRefresh] = React.useState(null);
+	/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef | null>} */
+	const tabNavigatorRef = React.useRef(null);
 
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
 	const [user, setUser] = React.useState(null);
 	React.useEffect(() => {
-		if (getCache()['user'] && refresh !== 'user') return setUser(user);
+		if (cache.user && refresh?.key !== 'user') return;
 
 		const controller = new AbortController();
+
 		const fetchUser = async () => {
 			const request = await authFetch(`${API_Route}/auth/me`, {
 				signal: controller.signal
@@ -54,6 +59,8 @@ const Feed = () => {
 				console.error('Error fetching user data:', error);
 				Toast.fail('Network error. Please try again.', 1);
 			});
+
+			console.log('Fetch user response:', request);
 			const data = await request.json();
 			if (!data) {
 				Toast.fail('Invalid user data received', 1);
@@ -61,11 +68,12 @@ const Feed = () => {
 			};
 			updateCache('user', data);
 			setUser(data);
-			setRefresh('');
+			setRefresh(null);
+			tabNavigatorRef.current?.reset({ index: 0, routes: [{ name: 'Home' }] });
 		};
 		fetchUser();
 		return () => { controller.abort(); };
-	}, [cache, refresh]);
+	}, [cache, refresh, tabNavigatorRef]);
 
 	return (
 		<RefreshContext.Provider value={{ refresh, setRefresh }}>
@@ -100,6 +108,7 @@ const Feed = () => {
 
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Tab.Navigator
+					ref={tabNavigatorRef}
 					tabBarPosition={Platform.OS === 'ios' ? 'bottom' : 'top'}
 					initialRouteName='Home'
 					swipeEnabled={!keyboardShown}
@@ -126,7 +135,10 @@ const Feed = () => {
 							borderBottomWidth: Platform.OS === 'ios' ? 0 : 0.25,
 							elevation: 0,
 							zIndex: 0
-						}
+						},
+						swipeEnabled: !keyboardShown,
+						lazy: true,
+						animationEnabled: false
 					}}
 				>
 					<Tab.Screen
@@ -146,7 +158,7 @@ const Feed = () => {
 							)
 						}}
 					/>
-					{user?.role === 'student' || user?.role === 'unverified-student' && (
+					{['student', 'unverified-student'].includes(user?.role) && (
 						<Tab.Screen
 							name='Cases'
 							component={Cases}
@@ -165,23 +177,25 @@ const Feed = () => {
 							}}
 						/>
 					)}
-					<Tab.Screen
-						name='Calendar'
-						component={Calendar}
-						options={{
-							tabBarIcon: ({ focused }) => (
-								<Icon
-									name='calendar'
-									size={theme.icon_size_sm}
-									color={
-										focused
-											? theme.brand_primary
-											: theme.color_icon_base
-									}
-								/>
-							)
-						}}
-					/>
+					{user?.role === 'student' && (
+						<Tab.Screen
+							name='Calendar'
+							component={Calendar}
+							options={{
+								tabBarIcon: ({ focused }) => (
+									<Icon
+										name='calendar'
+										size={theme.icon_size_sm}
+										color={
+											focused
+												? theme.brand_primary
+												: theme.color_icon_base
+										}
+									/>
+								)
+							}}
+						/>
+					)}
 					<Tab.Screen
 						name='Repository'
 						component={Repository}
