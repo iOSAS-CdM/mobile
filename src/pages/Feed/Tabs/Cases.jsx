@@ -2,7 +2,7 @@ import React from 'react';
 import { View, RefreshControl } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { Toast, Flex, Icon, Tag, Collapse } from '@ant-design/react-native';
+import { Flex, Icon, Tag, Collapse } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import Button from '../../../components/Button';
