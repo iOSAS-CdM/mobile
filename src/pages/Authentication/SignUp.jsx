@@ -17,7 +17,7 @@ import Picker from '../../components/forms/Picker';
 
 import Logo from '../../../assets/public/logo.png';
 
-import { KeyboardShownContext } from '../../main';
+import { useKeyboard } from '../../contexts/useKeyboard';
 
 import { API_Route, navigationRef } from '../../main';
 
@@ -25,7 +25,7 @@ import theme from '../../styles/theme';
 const SignUp = () => {
 	const version = packageJson.version;
 
-	const { keyboardShown } = React.useContext(KeyboardShownContext);
+	const keyboardShown = useKeyboard();
 
 	const [showPassword, setShowPassword] = React.useState(false);
 

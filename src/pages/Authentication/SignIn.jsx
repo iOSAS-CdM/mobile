@@ -18,7 +18,8 @@ import IconButton from '../../components/IconButton';
 
 import LogoBanner from '../../../assets/public/banner.png';
 
-import { KeyboardShownContext, navigationRef } from '../../main';
+import { navigationRef } from '../../main';
+import { useKeyboard } from '../../contexts/useKeyboard';
 
 const redirectTo = makeRedirectUri();
 console.log('Redirect URI:', redirectTo);
@@ -79,7 +80,7 @@ import theme from '../../styles/theme';
 const SignIn = () => {
 	const version = packageJson.version;
 
-	const { keyboardShown } = React.useContext(KeyboardShownContext);
+	const keyboardShown = useKeyboard();
 
 	const {
 		control,

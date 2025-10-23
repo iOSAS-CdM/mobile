@@ -14,7 +14,7 @@ import Organizations from './Tabs/Organizations';
 import Profile from './Tabs/Profile';
 import Menu from './Tabs/Menu';
 
-import { KeyboardShownContext } from '../../main';
+import { useKeyboard } from '../../contexts/useKeyboard';
 
 import Logo from '../../../assets/public/logo.png';
 
@@ -28,19 +28,13 @@ import { API_Route } from '../../main';
 import theme from '../../styles/theme';
 
 /** @typedef {{ key: keyof import('../../contexts/CacheContext').Cache, seed: number }} Refresh */
-const RefreshContext = React.createContext({
-	/** @type {Refresh} */
-	refresh: '',
-	/** @type {React.Dispatch<React.SetStateAction<Refresh | null>>} */
-	setRefresh: (refresh) => { }
-});
+import { useRefresh } from '../../contexts/useRefresh';
 
 const Feed = () => {
-	const { keyboardShown } = React.useContext(KeyboardShownContext);
+	const keyboardShown = useKeyboard();
 
 	const { cache, updateCache, getCache } = useCache();
-	/** @type {[Refresh, React.Dispatch<React.SetStateAction<Refresh | null>>]} */
-	const [refresh, setRefresh] = React.useState(null);
+	const { refresh, setRefresh } = useRefresh();
 	/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef | null>} */
 	const tabNavigatorRef = React.useRef(null);
 
@@ -76,7 +70,7 @@ const Feed = () => {
 	}, [cache, refresh, tabNavigatorRef]);
 
 	return (
-		<RefreshContext.Provider value={{ refresh, setRefresh }}>
+		<>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Flex
 					direction='row'
@@ -268,9 +262,8 @@ const Feed = () => {
 					/>
 				</Tab.Navigator>
 			</TouchableWithoutFeedback>
-		</RefreshContext.Provider>
+		</>
 	);
 };
 
 export default Feed;
-export { RefreshContext };

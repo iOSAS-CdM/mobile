@@ -9,13 +9,13 @@ import Anchor from '../../components/Anchor';
 import Title from '../../components/Title';
 import Text from '../../components/Text';
 
-import { KeyboardShownContext } from '../../main';
+import { useKeyboard } from '../../contexts/useKeyboard';
 
 import theme from '../../styles/theme';
 const Recovery = () => {
 	const version = packageJson.version;
 
-	const { keyboardShown } = React.useContext(KeyboardShownContext);
+	const keyboardShown = useKeyboard();
 
 	const [step, setStep] = React.useState(1); // 1: Confirm ID and Email, 2: Verify OTP, 3: Reset Password
 

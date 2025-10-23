@@ -7,7 +7,7 @@ import Title from '../../../components/Title';
 import Avatar from '../../../components/Avatar';
 
 import { useCache } from '../../../contexts/CacheContext';
-import { RefreshContext } from '../Feed';
+import { useRefresh } from '../../../contexts/useRefresh';
 
 import theme from '../../../styles/theme';
 const Home = () => {
@@ -19,7 +19,7 @@ const Home = () => {
 	}, []);
 
 	const { cache } = useCache();
-	const { setRefresh } = React.useContext(RefreshContext);
+	const { setRefresh } = useRefresh();
 
 	return (
 		<ScrollView
