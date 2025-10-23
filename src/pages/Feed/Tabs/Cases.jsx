@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 
-import { Toast, Flex, Icon } from '@ant-design/react-native';
+import { Toast, Flex, Icon, Tag } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import Button from '../../../components/Button';
@@ -113,6 +113,12 @@ const Cases = () => {
 				{records.filter((record) => record.tags.status === 'ongoing').map((record) => (
 					<Case key={record.id} record={record} />
 				))}
+				{records.filter((record) => record.tags.status === 'resolved').map((record) => (
+					<Case key={record.id} record={record} />
+				))}
+				{records.filter((record) => record.tags.status === 'dismissed').map((record) => (
+					<Case key={record.id} record={record} />
+				))}
 			</Flex>
 		</ScrollView>
 	);
@@ -128,11 +134,24 @@ const Case = ({ record }) => (
 		justify='between'
 		align='center'
 		style={{
+			position: 'relative',
 			padding: 16,
 			backgroundColor: theme.fill_base,
 			filter: record.tags.status === 'ongoing' ? 'none' : 'grayscale(100%)'
 		}}
 	>
+		{record.tags.status !== 'ongoing' && (
+			<Tag
+				style={{
+					position: 'absolute',
+					top: 8,
+					right: 8,
+					zIndex: 10
+				}}
+			>
+				{record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}
+			</Tag>
+		)}
 		<Flex
 			direction='column'
 			align='start'
