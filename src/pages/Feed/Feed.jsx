@@ -17,6 +17,7 @@ import Menu from './Tabs/Menu';
 import { useKeyboard } from '../../contexts/useKeyboard';
 
 import Logo from '../../../assets/public/logo.png';
+import AppIcon from '../../../assets/icon.png';
 
 import { useCache } from '../../contexts/CacheContext';
 import authFetch from '../../utils/authFetch';
@@ -29,6 +30,7 @@ import theme from '../../styles/theme';
 
 /** @typedef {{ key: keyof import('../../contexts/CacheContext').Cache, seed: number }} Refresh */
 import { useRefresh } from '../../contexts/useRefresh';
+
 
 const Feed = () => {
 	const keyboardShown = useKeyboard();
@@ -68,6 +70,21 @@ const Feed = () => {
 		fetchUser();
 		return () => { controller.abort(); };
 	}, [cache, refresh, tabNavigatorRef]);
+
+	if (!user) return (
+		<Flex
+			direction='column'
+			justify='center'
+			align='center'
+			style={{ flex: 1, height: '100%' }}
+		>
+			<Image
+				source={AppIcon}
+				style={{ width: 128, height: 128, objectFit: 'contain' }}
+				contentFit='contain'
+			/>
+		</Flex>
+	);
 
 	return (
 		<>

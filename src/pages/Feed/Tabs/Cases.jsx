@@ -18,21 +18,17 @@ const Cases = () => {
 	React.useEffect(() => {
 		const controller = new AbortController();
 
-		// (async () => {
-		// 	const [recordsResponse] = await Promise.all(
-		// 		authFetch(`${API_Route}/users/student/22-00250/records`, { signal: controller.signal })
-		// 	);
-		// 	if (!recordsResponse?.ok) return;
+		(async () => {
+			const [recordsResponse] = await Promise.all(
+				authFetch(`${API_Route}/users/student/22-00250/records`, { signal: controller.signal })
+			);
+			if (!recordsResponse?.ok) return;
 
-		// 	const recordsData = await recordsResponse.json();
-		// 	console.log(recordsData);
-		// 	setRecords(recordsData.records);
-		// });
-		authFetch(`${API_Route}/users/student/22-00250/records`, { signal: controller.signal })
-			.then(res => res.json())
-			.then((response) => setRecords(response.records))
-			.catch(() => { console.log('error') });
-		console.log(id);
+			const recordsData = await recordsResponse.json();
+			console.log(recordsData);
+			setRecords(recordsData.records);
+		})();
+
 	}, [id]);
 
 	return (

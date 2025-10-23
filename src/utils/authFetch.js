@@ -6,8 +6,7 @@ import { navigationRef } from '../main';
 /**
  * A fetch wrapper that includes the user's access token in the Authorization header.
  * If a 403 Forbidden response is received, it signs the user out and navigates to SignUp.
- * @param  {input: URL | RequestInfo, init?: RequestInit} args - Arguments to pass to fetch (url, options)
- * @returns {Promise<Response>} - The fetch response
+ * @type  {typeof fetch}
  */
 const authFetch = async (...args) => {
 	const AllAsyncStorageKeys = await AsyncStorage.getAllKeys();

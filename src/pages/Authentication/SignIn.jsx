@@ -42,7 +42,7 @@ const createSessionFromUrl = (url) =>
 			resolve(data.session);
 		} catch (err) {
 			reject(err);
-		}
+		};
 	});
 
 /** @type {() => Promise<import('@supabase/supabase-js').Session | null>} */
@@ -71,12 +71,13 @@ const performOAuth = () =>
 			};
 		} catch (err) {
 			reject(err);
-		}
+		};
 	});
 
 
 
 import theme from '../../styles/theme';
+import authFetch from '../../utils/authFetch';
 const SignIn = () => {
 	const version = packageJson.version;
 

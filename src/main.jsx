@@ -2,9 +2,8 @@ import React from 'react';
 import * as SystemUI from 'expo-system-ui';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Constants from 'expo-constants';
+import * as SplashScreen from 'expo-splash-screen';
 import supabase from './utils/supabase';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Platform, KeyboardAvoidingView, Dimensions, LogBox, StatusBar } from 'react-native';
 
@@ -32,6 +31,7 @@ const CachedFeed = (props) => (
 const height = Dimensions.get('window').height;
 
 SystemUI.setBackgroundColorAsync('#ffffff');
+SplashScreen.preventAutoHideAsync();
 
 import theme from './styles/theme';
 const Main = () => {
@@ -42,15 +42,23 @@ const Main = () => {
 		StatusBar.setBackgroundColor('#ffffff');
 
 		// Check active session and set
-		supabase.auth.getSession().then(({ data: { session } }) => {
+		supabase.auth.getSession().then(({ data: { session }, error }) => {
+			if (error) {
+				console.error('Error getting session:', error);
+				setSessionChecked(true);
+				SplashScreen.hide();
+				return;
+			};
 			setSession(session);
 			setSessionChecked(true);
+			SplashScreen.hide();
 		});
 
 		// Listen for auth changes
 		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
 			setSession(session);
 			setSessionChecked(true);
+			SplashScreen.hide();
 		});
 
 		return () => subscription.unsubscribe();
@@ -68,13 +76,14 @@ const Main = () => {
 	LogBox.ignoreLogs(['AbortError']);
 
 	if (!fontsLoaded || !sessionChecked) return null;
+
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 			style={{
 				flex: Platform.OS === 'ios' ? 0 : 1,
 				height: height,
-				paddingTop: StatusBar.currentHeight || 0,
+				paddingTop: StatusBar.currentHeight || 64,
 				backgroundColor: theme.fill_base
 			}}
 			enabled={keyboardVisible}
