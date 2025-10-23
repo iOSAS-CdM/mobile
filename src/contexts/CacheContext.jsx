@@ -5,11 +5,15 @@ import React from 'react';
 const CacheContext = React.createContext();
 
 /**  @typedef {import('../classes/Student').StudentProps | import('../classes/Staff').StaffProps} UserProps */
+/**  @typedef {import('../classes/Record').RecordProps} RecordProps */
+/**  @typedef {import('../classes/Case').CaseProps} CaseProps */
 
 /**
  * @typedef {{
  * 	user: UserProps | null;
+ * 	cases: CaseProps[];
  * 	highlights: Object[] | null;
+ * 	records: RecordProps[];
  * 	peers: UserProps[] | null;
  * }} Cache
  */
@@ -41,6 +45,8 @@ export const CacheProvider = ({ children }) => {
 	// Use a single state object to hold all your cached data
 	const [cache, setCache] = React.useState({
 		user: null,
+		records: [],
+		cases: [],
 		highlights: null,
 		peers: null
 	});

@@ -1,4 +1,5 @@
 import React from 'react';
+import Constants from 'expo-constants';
 import * as SystemUI from 'expo-system-ui';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -20,6 +21,8 @@ import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import Recovery from './pages/Authentication/Recovery';
 import Feed from './pages/Feed/Feed';
+
+import NewCase from './pages/Feed/Tabs/cases/New';
 
 import { CacheProvider } from './contexts/CacheContext';
 const CachedFeed = (props) => (
@@ -83,7 +86,7 @@ const Main = () => {
 			style={{
 				flex: Platform.OS === 'ios' ? 0 : 1,
 				height: height,
-				paddingTop: StatusBar.currentHeight,
+				paddingTop: Constants.statusBarHeight,
 				backgroundColor: theme.fill_base
 			}}
 			enabled={keyboardVisible}
@@ -127,6 +130,14 @@ const Main = () => {
 								animation: 'slide_from_right'
 							}}
 						/>
+						<Stack.Screen
+							name='NewCase'
+							component={NewCase}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
 					</Stack.Navigator>
 				</NavigationContainer>
 			</Provider>
@@ -134,15 +145,13 @@ const Main = () => {
 	);
 };
 
-const Entry = (props) => {
-	return (
-		<KeyboardProvider>
-			<RefreshProvider>
-				<Main {...props} />
-			</RefreshProvider>
-		</KeyboardProvider>
-	);
-};
+const Entry = (props) => (
+	<KeyboardProvider>
+		<RefreshProvider>
+			<Main {...props} />
+		</RefreshProvider>
+	</KeyboardProvider>
+);
 
 export default Entry;
 /**

@@ -76,7 +76,7 @@ const Feed = () => {
 			direction='column'
 			justify='center'
 			align='center'
-			style={{ flex: 1, height: '100%' }}
+			style={{ flex: 1, height: '100%', width: '100%', backgroundColor: theme.fill_base }}
 		>
 			<Image
 				source={AppIcon}

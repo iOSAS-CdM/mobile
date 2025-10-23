@@ -41,10 +41,10 @@ export default {
 
 	font_size_icontext: 12,
 	font_size_caption_sm: 14,
-	font_size_base: 16,
-	font_size_subhead: 17,
+	font_size_base: 14,
+	font_size_subhead: 16,
 	font_size_caption: 18,
-	font_size_heading: 19,
+	font_size_heading: 22,
 
 	radius_xs: 2,
 	radius_sm: 3,

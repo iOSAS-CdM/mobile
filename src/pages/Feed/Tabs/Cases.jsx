@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 
-import { Toast, Flex, Icon, Tag } from '@ant-design/react-native';
+import { Toast, Flex, Icon, Tag, Collapse } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import Button from '../../../components/Button';
@@ -15,11 +15,15 @@ import { API_Route } from '../../../main';
 
 import theme from '../../../styles/theme';
 
+import { navigationRef } from '../../../main';
+
 const Cases = () => {
-	const { cache } = useCache();
+	const { cache, pushToCache } = useCache();
 	const { refresh, setRefresh } = useRefresh();
 	/** @typedef {import('../../../classes/Record').RecordProps} Record */
 	const [records, setRecords] = React.useState(/** @type {Record[]} */([]));
+	/** @typedef {import('../../../classes/Case').CaseProps} Case */
+	const [cases, setCases] = React.useState(/** @type {Case[]} */([]));
 	const id = cache.user?.id;
 
 	React.useEffect(() => {
@@ -28,16 +32,36 @@ const Cases = () => {
 		const controller = new AbortController();
 
 		const fetchData = async () => {
-			const recordResponse = await authFetch(
-				`${API_Route}/users/student/${id}/records`,
-				{ signal: controller.signal }
-			);
-			if (!recordResponse?.ok) {
-				Toast.fail('Failed to fetch records', 2);
-				return;
-			}
-			const recordData = await recordResponse.json();
-			setRecords(recordData.records);
+			try {
+				const [recordsRes, casesRes] = await Promise.all([
+					authFetch(`${API_Route}/users/student/${id}/records`, { signal: controller.signal }),
+					authFetch(`${API_Route}/users/student/${id}/cases`, { signal: controller.signal })
+				]);
+
+				if (!recordsRes?.ok) {
+					Toast.fail('Failed to fetch records', 2);
+					return;
+				};
+				if (!casesRes?.ok) {
+					Toast.fail('Failed to fetch cases', 2);
+					return;
+				};
+
+				const [recordsData, casesData] = await Promise.all([recordsRes.json(), casesRes.json()]);
+
+				if (recordsData) {
+					setRecords(recordsData.records);
+					pushToCache('records', recordsData.records, false);
+				};
+				if (casesData) {
+					setCases(casesData.cases);
+					pushToCache('cases', casesData.cases, false);
+				};
+			} catch (err) {
+				if (err.name === 'AbortError') return;
+				Toast.fail('Failed to fetch data', 2);
+				console.error(err);
+			};
 		};
 
 		fetchData();
@@ -96,11 +120,93 @@ const Cases = () => {
 								record.tags.status === 'ongoing'
 						).length !== 1 ? 's' : ''}.
 					</Text>
-					<Button type='primary' size='small' icon='warning'>
+					<Button type='primary' size='small' icon='warning' onPress={() => {
+						navigationRef.current?.navigate('NewCase');
+					}}>
 						Report a Case
 					</Button>
 				</Flex>
 			</Flex>
+
+			{cases.length > 0 && (
+				<Collapse
+					style={{ backgroundColor: theme.fill_base }}
+					defaultActiveKey={['cases']}
+				>
+					<Collapse.Panel title={<Text style={{ fontSize: theme.font_size_base }}>Your Reports</Text>} key='reports'>
+						<Flex
+							direction='column'
+							align='start'
+							style={{
+								paddingVertical: theme.v_spacing_sm,
+								gap: theme.v_spacing_sm
+							}}
+						>
+							{cases.map((caseItem) => (
+								<Flex
+									key={caseItem.id}
+									direction='row'
+									justify='between'
+									align='center'
+									style={{
+										position: 'relative',
+										padding: theme.v_spacing_sm,
+										backgroundColor: theme.fill_base,
+										borderRadius: theme.radius_md,
+										borderWidth: theme.border_width_sm,
+										borderColor: theme.border_color_base,
+										filter: caseItem.status === 'open' ? 'none' : 'grayscale(100%)'
+									}}
+								>
+									{caseItem.status === 'open' && (
+										<Tag
+											selected
+											style={{
+												position: 'absolute',
+												top: 4,
+												right: 8,
+												zIndex: 10
+											}}
+										>
+											{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}
+										</Tag>
+									)}
+									<Flex
+										direction='row'
+										align='center'
+										style={{ flex: 1, gap: theme.v_spacing_sm, overflow: 'hidden' }}
+									>
+										<Text
+											style={{
+												fontSize: theme.font_size_heading,
+												fontWeight: '600'
+											}}
+										>
+											{{
+												'bullying': 'Bullying',
+												'cheating': 'Cheating',
+												'disruptive_behavior': 'Disruptive Behavior',
+												'fraud': 'Fraud',
+												'gambling': 'Gambling',
+												'harassment': 'Harassment',
+												'improper_uniform': 'Improper Uniform',
+												'littering': 'Litering',
+												'plagiarism': 'Plagiarism',
+												'prohibited_items': 'Possession of Prohibited Items',
+												'vandalism': 'Vandalism',
+												'other': 'Other',
+											}[caseItem.violation]}
+										</Text>
+										<Text style={{ fontSize: theme.font_size_base, color: theme.color_text_secondary, overflow: 'hidden' }}>
+											{caseItem.content}
+										</Text>
+									</Flex>
+								</Flex>
+							))}
+						</Flex>
+					</Collapse.Panel>
+				</Collapse>
+			)}
 
 			<Flex
 				direction='column'

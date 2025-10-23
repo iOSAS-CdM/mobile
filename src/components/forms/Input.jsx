@@ -37,7 +37,7 @@ const Input = (props) => {
 				<AntInput
 					{...props}
 					style={{
-						height: theme.button_height,
+						minHeight: theme.button_height,
 						...props.style
 					}}
 					placeholder={newPlaceholder}
