@@ -83,7 +83,7 @@ const Main = () => {
 			style={{
 				flex: Platform.OS === 'ios' ? 0 : 1,
 				height: height,
-				paddingTop: StatusBar.currentHeight || 64,
+				paddingTop: StatusBar.currentHeight,
 				backgroundColor: theme.fill_base
 			}}
 			enabled={keyboardVisible}

@@ -32,7 +32,7 @@ export default {
 	brand_primary: brandPrimary,
 	brand_primary_tap: brandPrimaryTap,
 	brand_success: '#6abf47',
-	brand_warning: '#f4333c',
+	brand_warning: '#faad14',
 	brand_error: '#f4333c',
 	brand_important: '#ff5b05',
 	brand_wait: '#108ee9',
