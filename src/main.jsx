@@ -12,6 +12,7 @@ import { useFonts } from 'expo-font';
 
 import { KeyboardProvider, useKeyboard } from './contexts/useKeyboard';
 import { RefreshProvider } from './contexts/useRefresh';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 
 import { Provider } from '@ant-design/react-native';
 
@@ -145,13 +146,20 @@ const Main = () => {
 	);
 };
 
-const Entry = (props) => (
-	<KeyboardProvider>
-		<RefreshProvider>
-			<Main {...props} />
-		</RefreshProvider>
-	</KeyboardProvider>
-);
+const Entry = (props) => {
+	// WebSocket URL - replace with your actual WebSocket server URL
+	const wsUrl = __DEV__ ? 'ws://10.242.192.28:3001' : 'ws://47.130.158.40/api';
+
+	return (
+		<KeyboardProvider>
+			<WebSocketProvider url={wsUrl}>
+				<RefreshProvider>
+					<Main {...props} />
+				</RefreshProvider>
+			</WebSocketProvider>
+		</KeyboardProvider>
+	);
+};
 
 export default Entry;
 /**

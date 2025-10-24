@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
-import { Flex } from '@ant-design/react-native';
+import { View, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 
 import Text from './Text';
 import { useCache } from '../contexts/CacheContext';
@@ -20,6 +19,7 @@ import theme from '../styles/theme';
  *  transformData?: (data: any) => any[];
  *  numColumns?: number;
  *  refreshControl?: JSX.Element;
+ *  ListHeaderComponent?: () => JSX.Element;
  * }} props
  * @returns {JSX.Element}
  */
@@ -32,7 +32,8 @@ const ContentPage = ({
 	onDataFetched,
 	transformData = (data) => Array.isArray(data) ? data : [],
 	numColumns = 1,
-	refreshControl
+	refreshControl,
+	ListHeaderComponent
 }) => {
 	const { updateCache, cache } = useCache();
 	const { refresh } = useRefresh();
@@ -48,18 +49,18 @@ const ContentPage = ({
 		return [];
 	});
 
-	// Keep items in sync with cache for the provided cacheKey
-	const cachedCollection = cacheKey && cache && Array.isArray(cache[cacheKey])
-		? cache[cacheKey]
-		: null;
-
 	// Track if we've completed an initial fetch
 	const [hasFetched, setHasFetched] = React.useState(false);
 
+	// Track the last fetched items to know when to update cache
+	const lastFetchedItemsRef = React.useRef(null);
+
+	// Keep items in sync with cache - use useEffect instead of during render
 	React.useEffect(() => {
 		if (!cacheKey || !hasFetched) return;
+		const cachedCollection = cache && Array.isArray(cache[cacheKey]) ? cache[cacheKey] : null;
 		if (cachedCollection) setItems(cachedCollection);
-	}, [cacheKey, cachedCollection, hasFetched]);
+	}, [cacheKey, cache, hasFetched]);
 
 	// Reset state when fetchUrl or refresh changes
 	React.useEffect(() => {
@@ -67,15 +68,13 @@ const ContentPage = ({
 		setItems([]);
 		setHasMore(true);
 		setHasFetched(false);
-	}, [fetchUrl, refresh]);
-
-	// Fetch items function
+		lastFetchedItemsRef.current = null;
+	}, [fetchUrl, refresh]);	// Fetch items function
 	const fetchItems = React.useCallback(async (currentPage, isInitialLoad = false) => {
-		if (isInitialLoad) {
+		if (isInitialLoad)
 			setLoading(true);
-		} else {
+		else
 			setLoadingMore(true);
-		}
 
 		// Add pagination parameters to the URL
 		const paginatedUrl = fetchUrl + (fetchUrl.includes('?') ? '&' : '?') +
@@ -87,30 +86,33 @@ const ContentPage = ({
 				if (isInitialLoad) setLoading(false);
 				else setLoadingMore(false);
 				return;
-			}
+			};
 
 			const data = await request.json();
 			if (!data) {
 				if (isInitialLoad) setLoading(false);
 				else setLoadingMore(false);
 				return;
-			}
+			};
 
 			const transformedItems = transformData(data);
 
 			// Check if we've reached the end
-			if (transformedItems.length < pageSize) {
+			if (transformedItems.length < pageSize)
 				setHasMore(false);
-			}
 
 			// Append new items to existing items for infinite scroll
 			setItems(prevItems => {
 				const newItems = currentPage === 0 ? transformedItems : [...prevItems, ...transformedItems];
 
-				// Cache the items if a cache key is provided
+				// Update cache immediately after fetching (not in a separate effect)
 				if (cacheKey) {
-					updateCache(cacheKey, newItems);
-				}
+					lastFetchedItemsRef.current = newItems;
+					// Use setTimeout to defer the cache update to avoid setState during render
+					setTimeout(() => {
+						updateCache(cacheKey, newItems);
+					}, 0);
+				};
 
 				return newItems;
 			});
@@ -126,8 +128,8 @@ const ContentPage = ({
 		} finally {
 			if (isInitialLoad) setLoading(false);
 			else setLoadingMore(false);
-		}
-	}, [fetchUrl, pageSize, transformData, cacheKey, updateCache, onDataFetched]);
+		};
+	}, [fetchUrl, pageSize, transformData, onDataFetched, cacheKey, updateCache]);
 
 	// Initial fetch
 	React.useEffect(() => {
@@ -142,7 +144,7 @@ const ContentPage = ({
 				fetchItems(nextPage, false);
 				return nextPage;
 			});
-		}
+		};
 	};
 
 	// Render footer with loading indicator
@@ -153,7 +155,7 @@ const ContentPage = ({
 					<ActivityIndicator size="small" color={theme.brand_primary} />
 				</View>
 			);
-		}
+		};
 
 		if (!hasMore && items.length > 0) {
 			return (
@@ -161,7 +163,7 @@ const ContentPage = ({
 					<Text style={styles.endText}>No more items to load</Text>
 				</View>
 			);
-		}
+		};
 
 		return null;
 	};
@@ -174,7 +176,7 @@ const ContentPage = ({
 					<ActivityIndicator size="large" color={theme.brand_primary} />
 				</View>
 			);
-		}
+		};
 
 		return (
 			<View style={styles.centerContainer}>
@@ -183,25 +185,44 @@ const ContentPage = ({
 		);
 	};
 
+	// Handle scroll event for infinite loading
+	const handleScroll = (event) => {
+		const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+		const paddingToBottom = 20;
+		const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+
+		if (isCloseToBottom && !loadingMore && hasMore && !loading) {
+			handleLoadMore();
+		}
+	};
+
 	return (
-		<FlatList
-			data={items}
-			renderItem={({ item, index }) => renderItem(item, index)}
-			keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-			numColumns={numColumns}
-			ListEmptyComponent={renderEmpty}
-			ListFooterComponent={renderFooter}
-			onEndReached={handleLoadMore}
-			onEndReachedThreshold={0.1}
-			refreshControl={refreshControl}
+		<ScrollView
+			onScroll={handleScroll}
+			scrollEventThrottle={400}
 			contentContainerStyle={items.length === 0 ? styles.emptyContainer : styles.contentContainer}
-		/>
+			refreshControl={refreshControl}
+		>
+			{ListHeaderComponent && <ListHeaderComponent />}
+
+			{items.length === 0 ? (
+				renderEmpty()
+			) : (
+				<>
+					{items.map((item, index) => (
+						<View key={item.id?.toString() || index.toString()}>
+							{renderItem(item, index)}
+						</View>
+					))}
+					{renderFooter()}
+				</>
+			)}
+		</ScrollView>
 	);
 };
 
 const styles = StyleSheet.create({
 	contentContainer: {
-		paddingVertical: theme.v_spacing_sm,
 		gap: theme.v_spacing_sm
 	},
 	emptyContainer: {
@@ -213,8 +234,7 @@ const styles = StyleSheet.create({
 	centerContainer: {
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
-		paddingVertical: 40
+		alignItems: 'center'
 	},
 	footer: {
 		paddingVertical: 20,

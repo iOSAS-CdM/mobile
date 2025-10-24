@@ -1,7 +1,27 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
+/**
+ * @typedef {Object} WebSocketContextValue
+ * @property {boolean} isConnected - Whether the WebSocket is currently connected
+ * @property {any} lastMessage - The last message received from the WebSocket
+ * @property {(message: string | Object, timeout?: number) => Promise<boolean>} sendMessage - Send a message through the WebSocket (waits for connection)
+ * @property {() => void} disconnect - Disconnect the WebSocket connection
+ * @property {() => void} reconnect - Manually trigger a reconnection
+ * @property {(callback: (message: any) => void) => () => void} subscribe - Subscribe to WebSocket messages
+ */
+
+/**
+ * @type {React.Context<WebSocketContextValue | null>}
+ */
 const WebSocketContext = createContext(null);
 
+/**
+ * WebSocket Provider Component
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child components
+ * @param {string} props.url - WebSocket server URL
+ * @returns {React.ReactElement}
+ */
 export const WebSocketProvider = ({ children, url }) => {
 	const [isConnected, setIsConnected] = useState(false);
 	const [lastMessage, setLastMessage] = useState(null);
@@ -10,7 +30,12 @@ export const WebSocketProvider = ({ children, url }) => {
 	const reconnectAttempts = useRef(0);
 	const maxReconnectAttempts = 5;
 	const reconnectDelay = 3000;
+	const subscribers = useRef(new Set());
 
+	/**
+	 * Establishes WebSocket connection
+	 * @private
+	 */
 	const connect = () => {
 		if (!url) {
 			console.warn('WebSocket URL not provided');
@@ -30,8 +55,24 @@ export const WebSocketProvider = ({ children, url }) => {
 				try {
 					const data = JSON.parse(event.data);
 					setLastMessage(data);
+					// Notify all subscribers
+					subscribers.current.forEach(callback => {
+						try {
+							callback(data);
+						} catch (error) {
+							console.error('Error in WebSocket subscriber:', error);
+						}
+					});
 				} catch (error) {
 					setLastMessage(event.data);
+					// Notify subscribers even for non-JSON messages
+					subscribers.current.forEach(callback => {
+						try {
+							callback(event.data);
+						} catch (error) {
+							console.error('Error in WebSocket subscriber:', error);
+						}
+					});
 				};
 			};
 
@@ -59,6 +100,10 @@ export const WebSocketProvider = ({ children, url }) => {
 		};
 	};
 
+	/**
+	 * Closes WebSocket connection and clears reconnection timeout
+	 * @private
+	 */
 	const disconnect = () => {
 		if (reconnectTimeout.current) {
 			clearTimeout(reconnectTimeout.current);
@@ -69,14 +114,46 @@ export const WebSocketProvider = ({ children, url }) => {
 		};
 	};
 
-	const sendMessage = (message) => {
-		if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+	/**
+	 * Sends a message through the WebSocket connection
+	 * Waits for connection to be established if not yet connected
+	 * @param {string | Object} message - Message to send (will be stringified if object)
+	 * @param {number} [timeout=5000] - Maximum time to wait for connection (ms)
+	 * @returns {Promise<boolean>} - True if message was sent, false if failed or timeout
+	 */
+	const sendMessage = async (message, timeout = 5000) => {
+		const startTime = Date.now();
+
+		// Wait for connection to be established
+		while (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
+			if (Date.now() - startTime > timeout) {
+				console.warn('WebSocket connection timeout');
+				return false;
+			};
+			// Wait 100ms before checking again
+			await new Promise(resolve => setTimeout(resolve, 100));
+		};
+
+		try {
 			const data = typeof message === 'string' ? message : JSON.stringify(message);
 			ws.current.send(data);
 			return true;
-		} else {
-			console.warn('WebSocket is not connected');
+		} catch (error) {
+			console.error('Failed to send message:', error);
 			return false;
+		};
+	};
+
+	/**
+	 * Subscribe to WebSocket messages
+	 * @param {(message: any) => void} callback - Function to call when a message is received
+	 * @returns {() => void} Unsubscribe function
+	 */
+	const subscribe = (callback) => {
+		subscribers.current.add(callback);
+		// Return unsubscribe function
+		return () => {
+			subscribers.current.delete(callback);
 		};
 	};
 
@@ -94,6 +171,7 @@ export const WebSocketProvider = ({ children, url }) => {
 		sendMessage,
 		disconnect,
 		reconnect: connect,
+		subscribe,
 	};
 
 	return (
@@ -103,6 +181,11 @@ export const WebSocketProvider = ({ children, url }) => {
 	);
 };
 
+/**
+ * Custom hook to access WebSocket context
+ * @returns {WebSocketContextValue} WebSocket context value
+ * @throws {Error} If used outside of WebSocketProvider
+ */
 export const useWebSocket = () => {
 	const context = useContext(WebSocketContext);
 	if (!context) {

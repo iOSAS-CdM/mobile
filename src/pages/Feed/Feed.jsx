@@ -36,8 +36,9 @@ import { useRefresh } from '../../contexts/useRefresh';
 const Feed = () => {
 	const keyboardShown = useKeyboard();
 
-	const { cache, updateCache, getCache } = useCache();
+	const { cache, updateCache } = useCache();
 	const { refresh, setRefresh } = useRefresh();
+	const { sendMessage } = useWebSocket();
 	/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef | null>} */
 	const tabNavigatorRef = React.useRef(null);
 
@@ -66,6 +67,7 @@ const Feed = () => {
 			updateCache('user', data);
 			setUser(data);
 			setRefresh(null);
+			sendMessage({ type: 'introduce', payload: { id: data.id } });
 			tabNavigatorRef.current?.reset({ index: 0, routes: [{ name: 'Home' }] });
 		};
 		fetchUser();
@@ -284,10 +286,16 @@ const Feed = () => {
 	);
 };
 
-const Entry = () => (
-	<WebSocketProvider url={`wss://${API_Route.replace(/^https?:\/\//i, '')}/`} >
-		<Feed />
-	</WebSocketProvider>
-);
+const Entry = () => {
+	const wsProtocol = API_Route.startsWith('https') ? 'wss' : 'ws';
+	const host = API_Route.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+	const url = `${wsProtocol}://${host}/`;
+
+	return (
+		<WebSocketProvider url={url}>
+			<Feed />
+		</WebSocketProvider>
+	);
+};
 
 export default Entry;
