@@ -1,0 +1,77 @@
+# This workflow performs a pure native Android release build without using EAS.
+# It requires custom GitHub Secrets for signing.
+
+name: Pure Native Android Build (APK)
+
+on:
+    # Trigger the workflow automatically on push to the main branch
+    push:
+        branches:
+            - main
+    # Allows you to manually trigger the workflow from the GitHub Actions UI
+    workflow_dispatch:
+
+jobs:
+    android_build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 🏗 Checkout Repository
+              uses: actions/checkout@v4
+
+            # --- SETUP ENVIRONMENT ---
+
+            - name: 🏗 Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20.x
+                  cache: 'npm'
+
+            - name: 📦 Install JavaScript Dependencies
+              run: npm install
+
+            - name: ☕ Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'temurin'
+                  java-version: '17'
+                  cache: 'gradle'
+
+            - name: 🤖 Setup Android SDK
+              # This action automatically downloads and sets up the necessary Android SDK components
+              uses: android-actions/setup-android@v3
+
+            # --- PREPARE SECRETS FOR SIGNING ---
+
+            # 1. Decode the Base64 Keystore file from GitHub Secret and create the file
+            - name: 🔑 Create Keystore File
+              env:
+                  KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+              run: |
+                  echo $KEYSTORE_BASE64 | base64 -d > android/app/upload-keystore.jks
+
+            # 2. Configure Gradle with signing credentials
+            - name: ⚙️ Setup Gradle Properties
+              run: |
+                  echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.jks" >> android/gradle.properties
+                  echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> android/gradle.properties
+                  echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> android/gradle.properties
+                  echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> android/gradle.properties
+
+            # --- RUN BUILD ---
+
+            - name: 🚀 Run Native Android Release Build (APK)
+              # We run the assembleRelease Gradle task to generate a signed APK.
+              run: |
+                  cd android
+                  ./gradlew assembleRelease
+
+            # --- UPLOAD ARTIFACT ---
+
+            - name: ⬆️ Upload Signed APK Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  # The resulting APK path may vary slightly but is usually in this location
+                  name: android-release-apk-${{ github.sha }}
+                  path: android/app/build/outputs/apk/release/app-release.apk
+                  retention-days: 7
