@@ -7,7 +7,7 @@ on:
     # Trigger the workflow automatically on push to the main branch
     push:
         branches:
-            - main
+            - master
     # Allows you to manually trigger the workflow from the GitHub Actions UI
     workflow_dispatch:
 
