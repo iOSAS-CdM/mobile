@@ -20,6 +20,7 @@ import Logo from '../../../assets/public/logo.png';
 import AppIcon from '../../../assets/icon.png';
 
 import { useCache } from '../../contexts/CacheContext';
+import { WebSocketProvider, useWebSocket } from '../../contexts/WebSocketContext';
 import authFetch from '../../utils/authFetch';
 
 const Tab = createMaterialTopTabNavigator();
@@ -283,4 +284,10 @@ const Feed = () => {
 	);
 };
 
-export default Feed;
+const Entry = () => (
+	<WebSocketProvider url={`wss://${API_Route.replace(/^https?:\/\//i, '')}/`} >
+		<Feed />
+	</WebSocketProvider>
+);
+
+export default Entry;
