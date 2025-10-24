@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView as RNScrollView } from 'react-native';
+import { View, ScrollView as RNScrollView, ActivityIndicator } from 'react-native';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 
 import { Flex, Icon, Tag, Modal } from '@ant-design/react-native';
@@ -24,6 +24,7 @@ const Cases = () => {
 	const { cache, updateCache } = useCache();
 	const { setRefresh } = useRefresh();
 	const [modalVisible, setModalVisible] = React.useState(false);
+	const [loadingCases, setLoadingCases] = React.useState(false);
 
 	// Listen for WebSocket refresh messages for records and cases
 	useWebSocketRefresh(['records', 'cases'], ({ resource, timestamp }) => {
@@ -41,31 +42,33 @@ const Cases = () => {
 	const cases = cache.cases || [];
 	const id = cache.user?.id;
 
-	// Get Cases
-	React.useEffect(() => {
+	// Function to fetch cases
+	const fetchCases = React.useCallback(async () => {
 		if (!id) return;
 
-		const controller = new AbortController();
-
-		const fetchCases = async () => {
-			const response = await authFetch(`${API_Route}/users/student/${id}/cases`, { signal: controller.signal })
-				.catch((error) => error);
-			if (!response?.ok) {
-				console.error('Error fetching cases:', response);
-				return;
-			};
-			const data = await response.json();
-			console.log('Fetched cases data:', data);
-			if (data?.cases) {
-				console.log('Fetched cases:', data.cases);
-				// Update cache with the fetched cases
-				updateCache('cases', data.cases);
-			};
+		setLoadingCases(true);
+		const response = await authFetch(`${API_Route}/users/student/${id}/cases`)
+			.catch((error) => error);
+		if (!response?.ok) {
+			console.error('Error fetching cases:', response);
+			setLoadingCases(false);
+			return;
 		};
+		const data = await response.json();
+		console.log('Fetched cases data:', data);
+		if (data?.cases) {
+			console.log('Fetched cases:', data.cases);
+			// Update cache with the fetched cases
+			updateCache('cases', data.cases);
+		};
+		setLoadingCases(false);
+	}, [id, updateCache]);
 
+	// Fetch cases when modal opens
+	const handleOpenModal = () => {
+		setModalVisible(true);
 		fetchCases();
-		return () => controller.abort();
-	}, [id]);
+	};
 
 	// Separate records by status
 	const ongoingRecords = records.filter(record => record.tags.status === 'ongoing');
@@ -107,13 +110,11 @@ const Cases = () => {
 						unresolved case{ongoingRecords.length !== 1 ? 's' : ''}.
 					</Text>
 					<Flex justify='end' style={{ gap: theme.h_spacing_sm }}>
-						{cases.length > 0 && (
-							<Button
-								size='small'
-								icon='ordered-list'
-								onPress={() => setModalVisible(true)}
-							/>
-						)}
+						<Button
+							size='small'
+							icon='ordered-list'
+							onPress={handleOpenModal}
+						/>
 						<Button type='primary' size='small' icon='warning' onPress={() => {
 							navigationRef.current?.navigate('NewCase');
 						}}>
@@ -140,15 +141,29 @@ const Cases = () => {
 				]}
 			>
 				<RNScrollView style={{ maxHeight: 400 }}>
-					<Flex
-						direction='column'
-						align='start'
-						style={{
-							paddingVertical: theme.v_spacing_sm,
-							gap: theme.v_spacing_sm
-						}}
-					>
-						{cases.map((caseItem) => (
+					{loadingCases && cases.length === 0 ? (
+						<View style={{ padding: 40, alignItems: 'center', justifyContent: 'center' }}>
+							<ActivityIndicator size="large" color={theme.brand_primary} />
+							<Text style={{ marginTop: 16, color: theme.color_text_secondary }}>
+								Loading your reports...
+							</Text>
+						</View>
+					) : cases.length === 0 ? (
+						<View style={{ padding: 40, alignItems: 'center', justifyContent: 'center' }}>
+							<Text style={{ color: theme.color_text_secondary }}>
+								No reports found
+							</Text>
+						</View>
+					) : (
+								<Flex
+									direction='column'
+									align='start'
+									style={{
+										paddingVertical: theme.v_spacing_sm,
+										gap: theme.v_spacing_sm
+									}}
+								>
+									{cases.map((caseItem) => (
 							<Flex
 								key={caseItem.id}
 								direction='column'
@@ -204,7 +219,8 @@ const Cases = () => {
 								</Text>
 							</Flex>
 						))}
-					</Flex>
+								</Flex>
+					)}
 				</RNScrollView>
 			</Modal>
 
