@@ -1,8 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, ScrollView as RNScrollView } from 'react-native';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 
-import { Flex, Icon, Tag, Collapse } from '@ant-design/react-native';
+import { Flex, Icon, Tag, Modal } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import Button from '../../../components/Button';
@@ -13,6 +13,7 @@ import { useCache } from '../../../contexts/CacheContext';
 import { useRefresh } from '../../../contexts/useRefresh';
 import { useWebSocketRefresh } from '../../../contexts/useWebSocketRefresh';
 
+import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
 
 import theme from '../../../styles/theme';
@@ -20,8 +21,9 @@ import theme from '../../../styles/theme';
 import { navigationRef } from '../../../main';
 
 const Cases = () => {
-	const { cache } = useCache();
+	const { cache, updateCache } = useCache();
 	const { setRefresh } = useRefresh();
+	const [modalVisible, setModalVisible] = React.useState(false);
 
 	// Listen for WebSocket refresh messages for records and cases
 	useWebSocketRefresh(['records', 'cases'], ({ resource, timestamp }) => {
@@ -39,8 +41,40 @@ const Cases = () => {
 	const cases = cache.cases || [];
 	const id = cache.user?.id;
 
+	// Get Cases
+	React.useEffect(() => {
+		if (!id) return;
+
+		const controller = new AbortController();
+
+		const fetchCases = async () => {
+			const response = await authFetch(`${API_Route}/users/student/${id}/cases`, { signal: controller.signal })
+				.catch((error) => error);
+			if (!response?.ok) {
+				console.error('Error fetching cases:', response);
+				return;
+			};
+			const data = await response.json();
+			console.log('Fetched cases data:', data);
+			if (data?.cases) {
+				console.log('Fetched cases:', data.cases);
+				// Update cache with the fetched cases
+				updateCache('cases', data.cases);
+			};
+		};
+
+		fetchCases();
+		return () => controller.abort();
+	}, [id]);
+
 	// Separate records by status
 	const ongoingRecords = records.filter(record => record.tags.status === 'ongoing');
+
+	// Debug logging
+	React.useEffect(() => {
+		console.log('Cases component - cases from cache:', cases);
+		console.log('Cases component - cases.length:', cases.length);
+	}, [cases]);
 
 	// Create header component
 	const ListHeaderComponent = () => (
@@ -72,98 +106,108 @@ const Cases = () => {
 						</Text>{' '}
 						unresolved case{ongoingRecords.length !== 1 ? 's' : ''}.
 					</Text>
-					<Button type='primary' size='small' icon='warning' onPress={() => {
-						navigationRef.current?.navigate('NewCase');
-					}}>
-						Report a Case
-					</Button>
+					<Flex justify='end' style={{ gap: theme.h_spacing_sm }}>
+						{cases.length > 0 && (
+							<Button
+								size='small'
+								icon='ordered-list'
+								onPress={() => setModalVisible(true)}
+							/>
+						)}
+						<Button type='primary' size='small' icon='warning' onPress={() => {
+							navigationRef.current?.navigate('NewCase');
+						}}>
+							Report a Case
+						</Button>
+					</Flex>
 				</Flex>
 			</Flex>
-
-			{cases.length > 0 && (
-				<Collapse
-					style={{ backgroundColor: theme.fill_base }}
-					defaultActiveKey={['cases']}
-				>
-					<Collapse.Panel title={<Text style={{ fontSize: theme.font_size_base }}>Your Reports</Text>} key='reports'>
-						<Flex
-							direction='column'
-							align='start'
-							style={{
-								paddingVertical: theme.v_spacing_sm,
-								gap: theme.v_spacing_sm
-							}}
-						>
-							{cases.map((caseItem) => (
-								<Flex
-									key={caseItem.id}
-									direction='row'
-									justify='between'
-									align='center'
-									style={{
-										position: 'relative',
-										padding: theme.v_spacing_sm,
-										backgroundColor: theme.fill_base,
-										borderRadius: theme.radius_md,
-										borderWidth: theme.border_width_sm,
-										borderColor: theme.border_color_base,
-										filter: caseItem.status === 'open' ? 'none' : 'grayscale(100%)'
-									}}
-								>
-									{caseItem.status === 'open' && (
-										<Tag
-											selected
-											style={{
-												position: 'absolute',
-												top: 4,
-												right: 8,
-												zIndex: 10
-											}}
-										>
-											{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}
-										</Tag>
-									)}
-									<Flex
-										direction='row'
-										align='center'
-										style={{ flex: 1, gap: theme.v_spacing_sm, overflow: 'hidden' }}
-									>
-										<Text
-											style={{
-												fontSize: theme.font_size_heading,
-												fontWeight: '600'
-											}}
-										>
-											{{
-												'bullying': 'Bullying',
-												'cheating': 'Cheating',
-												'disruptive_behavior': 'Disruptive Behavior',
-												'fraud': 'Fraud',
-												'gambling': 'Gambling',
-												'harassment': 'Harassment',
-												'improper_uniform': 'Improper Uniform',
-												'littering': 'Litering',
-												'plagiarism': 'Plagiarism',
-												'prohibited_items': 'Possession of Prohibited Items',
-												'vandalism': 'Vandalism',
-												'other': 'Other',
-											}[caseItem.violation]}
-										</Text>
-										<Text style={{ fontSize: theme.font_size_base, color: theme.color_text_secondary, overflow: 'hidden' }}>
-											{caseItem.content}
-										</Text>
-									</Flex>
-								</Flex>
-							))}
-						</Flex>
-					</Collapse.Panel>
-				</Collapse>
-			)}
 		</>
 	);
 
 	return (
 		<View style={{ flex: 1 }}>
+			<Modal
+				visible={modalVisible}
+				transparent
+				onClose={() => setModalVisible(false)}
+				title="Your Reports"
+				footer={[
+					{
+						text: 'Close',
+						onPress: () => setModalVisible(false)
+					}
+				]}
+			>
+				<RNScrollView style={{ maxHeight: 400 }}>
+					<Flex
+						direction='column'
+						align='start'
+						style={{
+							paddingVertical: theme.v_spacing_sm,
+							gap: theme.v_spacing_sm
+						}}
+					>
+						{cases.map((caseItem) => (
+							<Flex
+								key={caseItem.id}
+								direction='column'
+								align='start'
+								style={{
+									position: 'relative',
+									padding: theme.v_spacing_sm,
+									backgroundColor: theme.fill_base,
+									borderRadius: theme.radius_md,
+									borderWidth: theme.border_width_sm,
+									borderColor: theme.border_color_base,
+									width: '100%',
+									opacity: caseItem.status === 'open' ? 1 : 0.6
+								}}
+							>
+								{caseItem.status === 'open' && (
+									<Tag
+										selected
+										style={{
+											position: 'absolute',
+											top: 4,
+											right: 8,
+											zIndex: 10
+										}}
+									>
+										{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}
+									</Tag>
+								)}
+								<Text
+									style={{
+										fontSize: theme.font_size_heading,
+										fontWeight: '600',
+										marginBottom: theme.v_spacing_sm
+									}}
+								>
+									{{
+										'bullying': 'Bullying',
+										'cheating': 'Cheating',
+										'disruptive_behavior': 'Disruptive Behavior',
+										'fraud': 'Fraud',
+										'gambling': 'Gambling',
+										'harassment': 'Harassment',
+										'improper_uniform': 'Improper Uniform',
+										'littering': 'Littering',
+										'plagiarism': 'Plagiarism',
+										'prohibited_items': 'Possession of Prohibited Items',
+										'vandalism': 'Vandalism',
+										'other': 'Other',
+									}[caseItem.violation]}
+								</Text>
+								<Text style={{ fontSize: theme.font_size_base, color: theme.color_text_secondary }}>
+									{caseItem.content}
+								</Text>
+							</Flex>
+						))}
+					</Flex>
+				</RNScrollView>
+			</Modal>
+
 			{id && (
 				<ContentPage
 					fetchUrl={`${API_Route}/users/student/${id}/records`}
