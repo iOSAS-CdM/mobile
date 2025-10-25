@@ -42,5 +42,36 @@ export const RefreshProvider = ({ children }) => {
 	);
 };
 
+/**
+ * @typedef {Object} RefreshContext
+ * @property {Object|null} refresh - The current refresh state containing resource information and timing
+ * @property {string} [refresh.key] - The resource key to refresh (e.g., 'all', 'cases', 'announcements')
+ * @property {number} refresh.seed - A random seed value to force component re-renders
+ * @property {string} refresh.timestamp - ISO timestamp of when the refresh was triggered
+ * @property {string} refresh.source - Source of the refresh signal (e.g., 'websocket', 'manual')
+ * @property {Function} setRefresh - Function to manually trigger a refresh with custom parameters
+ */
+
+/**
+ * Hook to access the refresh context for managing data synchronization
+ * @returns {RefreshContext} The refresh context containing refresh state and setRefresh function
+ * @example
+ * const { refresh, setRefresh } = useRefresh();
+ * 
+ * // Listen to refresh events
+ * React.useEffect(() => {
+ *   if (refresh?.key === 'cases') {
+ *     // Refetch cases data
+ *   }
+ * }, [refresh]);
+ * 
+ * // Manually trigger a refresh
+ * setRefresh({
+ *   key: 'announcements',
+ *   seed: Math.random(),
+ *   timestamp: new Date().toISOString(),
+ *   source: 'manual'
+ * });
+ */
 // eslint-disable-next-line react-refresh/only-export-components
 export const useRefresh = () => React.useContext(RefreshContext);

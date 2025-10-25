@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
-import { Flex, Icon, Toast } from '@ant-design/react-native';
+import { Flex, Icon, Toast, Badge } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
 
@@ -58,7 +58,6 @@ const Feed = () => {
 				Toast.fail('Network error. Please try again.', 1);
 			});
 
-			console.log('Fetch user response:', request);
 			const data = await request.json();
 			if (!data) {
 				Toast.fail('Invalid user data received', 1);
@@ -151,7 +150,7 @@ const Feed = () => {
 							zIndex: 0
 						},
 						swipeEnabled: !keyboardShown,
-						lazy: true,
+						lazy: false,
 						animationEnabled: false
 					}}
 				>
@@ -178,15 +177,19 @@ const Feed = () => {
 							component={Cases}
 							options={{
 								tabBarIcon: ({ focused }) => (
-									<Icon
-										name='file-text'
-										size={theme.icon_size_sm}
-										color={
-											focused
-												? theme.brand_primary
-												: theme.color_icon_base
-										}
-									/>
+									<Badge
+										dot={cache.records.some(record => record.tags.status === 'ongoing')}
+									>
+										<Icon
+											name='file-text'
+											size={theme.icon_size_sm}
+											color={
+												focused
+													? theme.brand_primary
+													: theme.color_icon_base
+											}
+										/>
+									</Badge>
 								)
 							}}
 						/>

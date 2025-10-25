@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView as RNScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView as RNScrollView, Dimensions } from 'react-native';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 
 import { Flex, Icon, Tag, Modal } from '@ant-design/react-native';
@@ -19,111 +19,70 @@ import { API_Route } from '../../../main';
 import theme from '../../../styles/theme';
 
 import { navigationRef } from '../../../main';
+import IconButton from '../../../components/IconButton';
 
 const Cases = () => {
 	const { cache, updateCache } = useCache();
-	const { setRefresh } = useRefresh();
+	const { refresh, setRefresh } = useRefresh();
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [loadingCases, setLoadingCases] = React.useState(false);
 
-	// Listen for WebSocket refresh messages for records and cases
-	useWebSocketRefresh(['records', 'cases'], ({ resource, timestamp }) => {
-		console.log(`Cases page: Received refresh for ${resource || 'all'} at ${timestamp}`);
-		setRefresh({
-			key: 'user',
-			seed: Math.random(),
-			source: 'websocket',
-			resource
-		});
-	});
+	React.useEffect(() => { console.log(cache.records.length) }, [cache.records]);
 
-	// Read from cache
-	const records = cache.records || [];
-	const cases = cache.cases || [];
-	const id = cache.user?.id;
-
-	// Function to fetch cases
-	const fetchCases = React.useCallback(async () => {
-		if (!id) return;
-
-		setLoadingCases(true);
-		const response = await authFetch(`${API_Route}/users/student/${id}/cases`)
-			.catch((error) => error);
-		if (!response?.ok) {
-			console.error('Error fetching cases:', response);
-			setLoadingCases(false);
-			return;
-		};
-		const data = await response.json();
-		console.log('Fetched cases data:', data);
-		if (data?.cases) {
-			console.log('Fetched cases:', data.cases);
-			// Update cache with the fetched cases
-			updateCache('cases', data.cases);
-		};
-		setLoadingCases(false);
-	}, [id, updateCache]);
-
-	// Fetch cases when modal opens
-	const handleOpenModal = () => {
-		setModalVisible(true);
-		fetchCases();
-	};
-
-	// Separate records by status
-	const ongoingRecords = records.filter(record => record.tags.status === 'ongoing');
-
-	// Debug logging
 	React.useEffect(() => {
-		console.log('Cases component - cases from cache:', cases);
-		console.log('Cases component - cases.length:', cases.length);
-	}, [cases]);
+		const controller = new AbortController();
 
-	// Create header component
-	const ListHeaderComponent = () => (
-		<>
-			<Flex
-				direction='column'
-				align='start'
-				style={{ padding: 16, backgroundColor: theme.fill_base }}
-			>
-				<Text style={{ fontSize: theme.font_size_caption_sm }}>
-					You have
-				</Text>
-				<Flex
-					direction='row'
-					justify='between'
-					align='center'
-					style={{ width: '100%' }}
+		const fetchCases = async () => {
+			setLoadingCases(true);
+			const request = await authFetch(`${API_Route}/users/student/${cache.user?.id}/cases`, {
+				signal: controller.signal
+			}).catch((error) => {
+				console.error('Error fetching cases data:', error);
+			});
+
+			const data = await request.json();
+			if (!data) {
+				console.error('Invalid cases data received');
+				setLoadingCases(false);
+				return;
+			};
+
+			updateCache('cases', data.cases || []);
+			setLoadingCases(false);
+		};
+
+		fetchCases();
+		return () => controller.abort();
+	}, [refresh]);
+
+	const header = (
+		<Flex direction='column' align='stretch' style={{ padding: 16, backgroundColor: theme.fill_base }}>
+			<Text>You have</Text>
+			<Flex direction='row' justify='between' align='center'>
+				<Text
+					style={{
+						fontSize: theme.font_size_heading,
+						fontWeight: '600'
+					}}
 				>
-					<Text style={{ fontSize: theme.font_size_base }}>
-						<Text
-							style={{
-								fontSize: theme.font_size_caption,
-								color: theme.brand_primary,
-								fontWeight: '600',
-								textDecorationLine: 'underline'
-							}}
-						>
-							{ongoingRecords.length}
-						</Text>{' '}
-						unresolved case{ongoingRecords.length !== 1 ? 's' : ''}.
-					</Text>
-					<Flex justify='end' style={{ gap: theme.h_spacing_sm }}>
-						<Button
-							size='small'
-							icon='ordered-list'
-							onPress={handleOpenModal}
+					{cache.records.filter(record => record.tags.status === 'ongoing').length} ongoing case{cache.records.filter(record => record.tags.status === 'ongoing').length !== 1 ? 's' : ''}
+				</Text>
+
+				<Flex direction='row' justify='center' align='center' style={{ gap: theme.h_spacing_sm }}>
+					<IconButton
+						name='ellipsis'
+						type='primary'
+						size='small'
+						onPress={() => setModalVisible(true)}
 						/>
-						<Button type='primary' size='small' icon='warning' onPress={() => {
+					<Button size='small' type='primary' onPress={() => {
 							navigationRef.current?.navigate('NewCase');
 						}}>
 							Report a Case
 						</Button>
 					</Flex>
 				</Flex>
-			</Flex>
-		</>
+		</Flex>
 	);
 
 	return (
@@ -131,135 +90,79 @@ const Cases = () => {
 			<Modal
 				visible={modalVisible}
 				transparent
-				onClose={() => setModalVisible(false)}
-				title="Your Reports"
+				title='Your reports'
+				animateAppear
+				animationType='fade'
+				onRequestClose={() => setModalVisible(false)}
+				style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8 }}
 				footer={[
-					{
-						text: 'Close',
-						onPress: () => setModalVisible(false)
-					}
+					{ text: 'Close', onPress: () => setModalVisible(false) }
 				]}
 			>
-				<RNScrollView style={{ maxHeight: 400 }}>
-					{loadingCases && cases.length === 0 ? (
-						<View style={{ padding: 40, alignItems: 'center', justifyContent: 'center' }}>
-							<ActivityIndicator size="large" color={theme.brand_primary} />
-							<Text style={{ marginTop: 16, color: theme.color_text_secondary }}>
-								Loading your reports...
-							</Text>
-						</View>
-					) : cases.length === 0 ? (
-						<View style={{ padding: 40, alignItems: 'center', justifyContent: 'center' }}>
-							<Text style={{ color: theme.color_text_secondary }}>
-								No reports found
-							</Text>
-						</View>
-					) : (
-								<Flex
-									direction='column'
-									align='start'
-									style={{
-										paddingVertical: theme.v_spacing_sm,
-										gap: theme.v_spacing_sm
-									}}
-								>
-									{cases.map((caseItem) => (
-							<Flex
-								key={caseItem.id}
-								direction='column'
-								align='start'
-								style={{
-									position: 'relative',
-									padding: theme.v_spacing_sm,
-									backgroundColor: theme.fill_base,
-									borderRadius: theme.radius_md,
-									borderWidth: theme.border_width_sm,
-									borderColor: theme.border_color_base,
-									width: '100%',
-									opacity: caseItem.status === 'open' ? 1 : 0.6
-								}}
-							>
-								{caseItem.status === 'open' && (
-									<Tag
-										selected
-										style={{
-											position: 'absolute',
-											top: 4,
-											right: 8,
-											zIndex: 10
-										}}
-									>
-										{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}
-									</Tag>
-								)}
+				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm, gap: theme.v_spacing_sm }}>
+					{cache.cases.sort((a, b) => {
+						if (a.status === 'open' && b.status !== 'open') return -1;
+						if (b.status === 'open' && a.status !== 'open') return 1;
+						// fallback: newest first
+						return new Date(b.created_at) - new Date(a.created_at);
+					}).map((caseItem) => (
+						<Flex
+							key={caseItem.id}
+							direction='row'
+							align='start'
+							justify='between'
+							style={{
+								width: '100%',
+								padding: theme.v_spacing_sm,
+								backgroundColor: caseItem.status !== 'closed' && theme.fill_base,
+								borderRadius: theme.v_spacing_sm,
+								opacity: caseItem.status === 'closed' ? 0.25 : 1
+							}}
+						>
+							<Flex direction='column' align='start'>
 								<Text
 									style={{
-										fontSize: theme.font_size_heading,
-										fontWeight: '600',
-										marginBottom: theme.v_spacing_sm
+										fontSize: theme.font_size_base,
+										fontWeight: '600'
 									}}
 								>
-									{{
-										'bullying': 'Bullying',
-										'cheating': 'Cheating',
-										'disruptive_behavior': 'Disruptive Behavior',
-										'fraud': 'Fraud',
-										'gambling': 'Gambling',
-										'harassment': 'Harassment',
-										'improper_uniform': 'Improper Uniform',
-										'littering': 'Littering',
-										'plagiarism': 'Plagiarism',
-										'prohibited_items': 'Possession of Prohibited Items',
-										'vandalism': 'Vandalism',
-										'other': 'Other',
-									}[caseItem.violation]}
+									{caseItem.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
 								</Text>
-								<Text style={{ fontSize: theme.font_size_base, color: theme.color_text_secondary }}>
+								<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
 									{caseItem.content}
 								</Text>
 							</Flex>
-						))}
-								</Flex>
-					)}
+
+							<Flex direction='column' align='end' justify='center' style={{ gap: theme.v_spacing_sm }}>
+								<Tag>{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}</Tag>
+								<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
+									{new Date(caseItem.created_at).toLocaleDateString()}
+								</Text>
+							</Flex>
+						</Flex>
+					))}
 				</RNScrollView>
 			</Modal>
 
-			{id && (
-				<ContentPage
-					fetchUrl={`${API_Route}/users/student/${id}/records`}
-					cacheKey='records'
-					pageSize={10}
-					transformData={(data) => {
-						const records = data.records || [];
-						// sort so that ongoing records come first, then by date (newest first)
-						return [...records].sort((a, b) => {
-							const aOngoing = a.tags?.status === 'ongoing';
-							const bOngoing = b.tags?.status === 'ongoing';
-							if (aOngoing && !bOngoing) return -1;
-							if (bOngoing && !aOngoing) return 1;
-							const aTime = Date.parse(a.date) || 0;
-							const bTime = Date.parse(b.date) || 0;
-							return bTime - aTime;
-						});
-					}}
-					renderItem={(record, index) => <Case key={record.id} record={record} />}
-					emptyText='No records found'
-					ListHeaderComponent={ListHeaderComponent}
-					refreshControl={
-						<RefreshControl
-							refreshing={false}
-							onRefresh={async () => {
-								setRefresh({
-									key: 'user',
-									seed: Math.random()
-								});
-							}}
-							colors={[theme.brand_primary]}
-							tintColor={theme.brand_primary}
-						/>
-					}
-				/>
-			)}
+			<ContentPage
+				fetchUrl={`${API_Route}/users/student/${cache.user?.id}/records`}
+				header={header}
+				transformItem={(item) => item.records || []}
+				cacheKey='records'
+				limit={10}
+				renderItem={(record) => <Case key={record.id} record={record} />}
+				refreshControl={(
+					<RefreshControl
+						refreshing={loadingCases}
+						onRefresh={() => {
+							setRefresh({
+								key: 'records',
+								seeds: Date.now()
+							});
+						}}
+					/>
+				)}
+			/>
 		</View>
 	);
 };
