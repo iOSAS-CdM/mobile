@@ -55,6 +55,9 @@
       "eas": {
         "projectId": "5e83bcd4-20b8-43a2-998d-934ca4c89ca1"
       }
-    }
-  }
+	},
+	"experiments": {
+		"reactCanary": true
+}
+}
 }

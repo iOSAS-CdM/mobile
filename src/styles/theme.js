@@ -40,11 +40,11 @@ export default {
 	border_color_base: '#dddddd',
 
 	font_size_icontext: 12,
-	font_size_caption_sm: 14,
 	font_size_base: 14,
-	font_size_subhead: 16,
+	font_size_caption_sm: 16,
 	font_size_caption: 18,
-	font_size_heading: 22,
+	font_size_subhead: 20,
+	font_size_heading: 24,
 
 	radius_xs: 2,
 	radius_sm: 3,
