@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # --- CHECKOUT REPO ---
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
 
+      # --- SETUP ENVIRONMENT ---
       - name: 🏗 Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -35,34 +37,48 @@ jobs:
       - name: ✅ Accept Android SDK licenses
         run: yes | sdkmanager --licenses
 
-      - name: 🔑 Create Keystore file
+      # --- DECODE KEYSTORE ---
+      - name: 🔑 Create Keystore File
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: echo $KEYSTORE_BASE64 | base64 -d > android/app/upload-keystore.jks
+        run: |
+          echo "$KEYSTORE_BASE64" | tr -d '\n' | base64 -d > android/app/upload-keystore.jks
 
-      - name: ⚙️ Setup Gradle properties
+      # --- CONFIGURE GRADLE SIGNING ---
+      - name: ⚙️ Setup Gradle Properties
         run: |
           echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.jks" >> android/gradle.properties
           echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> android/gradle.properties
           echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> android/gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> android/gradle.properties
 
-      - name: ⚡ Bundle React Native assets
+      # --- PREBUILD + BUNDLE EXPO ASSETS ---
+      - name: ⚡ Prebuild Expo and Bundle Assets
         run: |
-          mkdir -p android/app/src/main/assets
-          npx react-native bundle \
-            --platform android \
-            --dev false \
-            --entry-file index.js \
-            --bundle-output android/app/src/main/assets/index.android.bundle \
-            --assets-dest android/app/src/main/res
+          if [ -f "app.json" ]; then
+            echo "Running Expo prebuild/export..."
+            npx expo prebuild --platform android
+            npx expo export --platform android
+          else
+            echo "No app.json found; assuming bare React Native project."
+            mkdir -p android/app/src/main/assets
+            npm install --no-save @react-native-community/cli
+            npx react-native bundle \
+              --platform android \
+              --dev false \
+              --entry-file index.js \
+              --bundle-output android/app/src/main/assets/index.android.bundle \
+              --assets-dest android/app/src/main/res
+          fi
 
+      # --- BUILD SIGNED APK ---
       - name: 🚀 Build release APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
 
+      # --- UPLOAD ARTIFACT ---
       - name: ⬆️ Upload signed APK
         uses: actions/upload-artifact@v4
         with:
