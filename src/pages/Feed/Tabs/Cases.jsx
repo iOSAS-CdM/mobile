@@ -65,7 +65,7 @@ const Cases = () => {
 						fontWeight: '600'
 					}}
 				>
-					{cache.records.filter(record => record.tags.status === 'ongoing').length} ongoing case{cache.records.filter(record => record.tags.status === 'ongoing').length !== 1 ? 's' : ''}
+					{cache.user?.ongoingCases} ongoing case{cache.user?.ongoingCases !== 1 ? 's' : ''}
 				</Text>
 
 				<Flex direction='row' justify='center' align='center' style={{ gap: theme.h_spacing_sm }}>
@@ -145,11 +145,12 @@ const Cases = () => {
 			</Modal>
 
 			<ContentPage
-				fetchUrl={`${API_Route}/users/student/${cache.user?.id}/records`}
 				header={header}
-				transformItem={(item) => item.records || []}
+				fetchUrl={`${API_Route}/users/student/${cache.user?.id}/records`}
 				cacheKey='records'
+				transformItem={(item) => item.records || []}
 				limit={10}
+				contentPadding={0}
 				renderItem={(record) => <Case key={record.id} record={record} />}
 				refreshControl={(
 					<RefreshControl
@@ -177,6 +178,8 @@ const Case = ({ record }) => (
 		justify='between'
 		align='center'
 		style={{
+			width: '100%',
+			flex: 1,
 			position: 'relative',
 			padding: 16,
 			backgroundColor: theme.fill_base,
@@ -217,14 +220,16 @@ const Case = ({ record }) => (
 				{record.description}
 			</Text>
 			<Flex direction='row' justify='between' align='center' style={{ gap: theme.h_spacing_sm }}>
-				<ScrollView horizontal style={{ flex: 1, gap: theme.h_spacing_sm }}>
-					{[...record.complainants, ...record.complainees.map(c => c.student)].map((person, index) => (
-						<Avatar
-							key={index}
-							size='small'
-							uri={person.profilePicture}
-						/>
-					))}
+				<ScrollView horizontal style={{ flex: 1 }}>
+					<Flex direction='row' align='center' style={{ gap: theme.h_spacing_sm }}>
+						{[...record.complainants, ...record.complainees.map(c => c.student)].map((person, index) => (
+							<Avatar
+								key={index}
+								size='small'
+								uri={person.profilePicture}
+							/>
+						))}
+					</Flex>
 				</ScrollView>
 				<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
 					{new Date(record.date).toLocaleDateString()}

@@ -46,8 +46,6 @@ const Feed = () => {
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
 	const [user, setUser] = React.useState(null);
 	React.useEffect(() => {
-		if (cache.user && refresh?.key !== 'user') return;
-
 		const controller = new AbortController();
 
 		const fetchUser = async () => {
@@ -71,7 +69,7 @@ const Feed = () => {
 		};
 		fetchUser();
 		return () => { controller.abort(); };
-	}, [cache, refresh, tabNavigatorRef]);
+	}, [refresh, tabNavigatorRef]);
 
 	if (!user) return (
 		<Flex
@@ -178,7 +176,7 @@ const Feed = () => {
 							options={{
 								tabBarIcon: ({ focused }) => (
 									<Badge
-										dot={cache.records.some(record => record.tags.status === 'ongoing')}
+										dot={cache.user?.ongoingCases > 0}
 									>
 										<Icon
 											name='file-text'
