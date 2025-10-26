@@ -20,7 +20,6 @@ import { API_Route } from '../../../../main';
 
 import theme from '../../../../styles/theme';
 
-
 /**
  * @type {React.FC<{
  * 	route: import('@react-navigation/native').RouteProp<any, 'ViewRecord'>;
