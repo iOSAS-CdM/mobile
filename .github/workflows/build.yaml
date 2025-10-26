@@ -21,9 +21,29 @@ jobs:
           node-version: 20.x
           cache: 'npm'
 
-      - name: 📦 Install dependencies
-        run: npm install --legacy-peer-deps
+      # --- RESTORE NPM CACHE ---
+      - name: ⚡ Restore npm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
+      # --- INSTALL DEPENDENCIES ---
+      - name: 📦 Install Dependencies (with clean cache)
+        run: |
+          # Clean old caches to avoid corrupted tarballs
+          rm -rf ~/.npm
+          npm cache clean --force
+
+          # Retry installation safely with legacy peer deps
+          npm install --legacy-peer-deps || npm install --legacy-peer-deps --prefer-online
+
+          # Fix missing dependency for react-native-tab-view
+          npm install react-native-pager-view
+
+      # --- SETUP JAVA + ANDROID ---
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
@@ -42,6 +62,7 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
+          mkdir -p android/app
           echo "$KEYSTORE_BASE64" | tr -d '\n' | base64 -d > android/app/upload-keystore.jks
 
       # --- CONFIGURE GRADLE SIGNING ---
@@ -58,6 +79,7 @@ jobs:
           if [ -f "app.json" ]; then
             echo "Running Expo prebuild/export..."
             npx expo prebuild --platform android
+            npm install react-native-pager-view
             npx expo export --platform android
           else
             echo "No app.json found; assuming bare React Native project."
