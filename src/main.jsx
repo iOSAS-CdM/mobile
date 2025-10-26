@@ -147,12 +147,13 @@ const Main = () => {
 };
 
 const Entry = (props) => {
-	// WebSocket URL - replace with your actual WebSocket server URL
-	const wsUrl = __DEV__ ? 'ws://10.242.192.28:3001' : 'ws://47.130.158.40/api';
+	const wsProtocol = API_Route.startsWith('https') ? 'wss' : 'ws';
+	const host = API_Route.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+	const url = `${wsProtocol}://${host}/`;
 
 	return (
 		<KeyboardProvider>
-			<WebSocketProvider url={wsUrl}>
+			<WebSocketProvider url={url}>
 				<RefreshProvider>
 					<Main {...props} />
 				</RefreshProvider>

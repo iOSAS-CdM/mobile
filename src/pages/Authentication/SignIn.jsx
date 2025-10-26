@@ -220,9 +220,17 @@ const SignIn = () => {
 						Sign Up
 					</Button>
 
-					<Text style={{ textAlign: 'center' }}>
-						<Anchor to='SignUp'>Sign Up</Anchor> or <Anchor to='Recovery'>Recover your Account</Anchor>
+					<Flex direction='column' justify='center' align='center' gap={theme.v_spacing_xs}>
+						<Text style={{ textAlign: 'center', fontSize: theme.font_size_base }}>
+							<Anchor to='Recovery'>Forgot your password?</Anchor>
 					</Text>
+						<Text style={{ textAlign: 'center', fontSize: theme.font_size_base }}>
+							or
+						</Text>
+						<Text style={{ textAlign: 'center', fontSize: theme.font_size_base, textDecorationLine: 'underline' }}>
+							<Anchor to='SignUp'>Create a new account.</Anchor>
+						</Text>
+					</Flex>
 				</Flex>
 
 				{/***************************************** Footer *****************************************/}

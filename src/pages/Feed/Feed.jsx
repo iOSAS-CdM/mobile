@@ -5,11 +5,13 @@ import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-nativ
 import { Flex, Icon, Toast, Badge } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
+import Text from '../../components/Text';
+import Anchor from '../../components/Anchor';
+import Button from '../../components/Button';
 
 import Home from './Tabs/Home';
 import Cases from './Tabs/Cases';
 import Calendar from './Tabs/Calendar';
-import Repository from './Tabs/Repository';
 import Organizations from './Tabs/Organizations';
 import Profile from './Tabs/Profile';
 import Menu from './Tabs/Menu';
@@ -17,15 +19,17 @@ import Menu from './Tabs/Menu';
 import { useKeyboard } from '../../contexts/useKeyboard';
 
 import Logo from '../../../assets/public/logo.png';
+import Sadbot from '../../../assets/public/sadbot.png';
 import AppIcon from '../../../assets/icon.png';
 
 import { useCache } from '../../contexts/CacheContext';
 import { WebSocketProvider, useWebSocket } from '../../contexts/WebSocketContext';
 import authFetch from '../../utils/authFetch';
+import supabase from '../../utils/supabase';
 
 const Tab = createMaterialTopTabNavigator();
 
-import { API_Route } from '../../main';
+import { API_Route, navigationRef } from '../../main';
 
 import theme from '../../styles/theme';
 
@@ -86,6 +90,36 @@ const Feed = () => {
 		</Flex>
 	);
 
+	if (!['student', 'unverified-student'].includes(user?.role)) return (
+		<Flex direction='column' justify='center' align='center' style={{ flex: 1 }}>
+			<Flex direction='column' justify='center' align='center' style={{ padding: theme.v_spacing_lg, gap: theme.v_spacing_md }}>
+				<Image
+					source={Sadbot}
+					style={{ width: 128, height: 128, objectFit: 'contain' }}
+					contentFit='contain'
+				/>
+				<Text style={{ textAlign: 'center' }}>
+					Your account is currently not permitted to access the app.
+					If you believe this is an error, please contact support at{' '}
+					<Anchor href='mailto:danieljohnbyns@gmail.com'>
+						danieljohnbyns@gmail.com
+					</Anchor>
+				</Text>
+				<Button
+					type='primary'
+					onPress={async () => {
+						await supabase.auth.signOut();
+						navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+						updateCache('user', null);
+						setUser(null);
+					}}
+				>
+					Sign Out
+				</Button>
+			</Flex>
+		</Flex>
+	);
+
 	return (
 		<>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -121,7 +155,7 @@ const Feed = () => {
 				<Tab.Navigator
 					ref={tabNavigatorRef}
 					tabBarPosition={Platform.OS === 'ios' ? 'bottom' : 'top'}
-					initialRouteName='Home'
+					initialRouteName={user?.role === 'student' ? 'Home' : 'Cases'}
 					swipeEnabled={!keyboardShown}
 					style={{
 						position: 'relative',
@@ -152,46 +186,46 @@ const Feed = () => {
 						animationEnabled: false
 					}}
 				>
-					<Tab.Screen
-						name='Home'
-						component={Home}
-						options={{
-							tabBarIcon: ({ focused }) => (
-								<Icon
-									name='home'
-									size={theme.icon_size_sm}
-									color={
-										focused
-											? theme.brand_primary
-											: theme.color_icon_base
-									}
-								/>
-							)
-						}}
-					/>
-					{['student', 'unverified-student'].includes(user?.role) && (
+					{user?.role === 'student' && (
 						<Tab.Screen
-							name='Cases'
-							component={Cases}
+							name='Home'
+							component={Home}
 							options={{
 								tabBarIcon: ({ focused }) => (
-									<Badge
-										dot={cache.user?.ongoingCases > 0}
-									>
-										<Icon
-											name='file-text'
-											size={theme.icon_size_sm}
-											color={
-												focused
-													? theme.brand_primary
-													: theme.color_icon_base
-											}
-										/>
-									</Badge>
+									<Icon
+										name='home'
+										size={theme.icon_size_sm}
+										color={
+											focused
+												? theme.brand_primary
+												: theme.color_icon_base
+										}
+									/>
 								)
 							}}
 						/>
 					)}
+					<Tab.Screen
+						name='Cases'
+						component={Cases}
+						options={{
+							tabBarIcon: ({ focused }) => (
+								<Badge
+									dot={cache.user?.ongoingCases > 0}
+								>
+									<Icon
+										name='file-text'
+										size={theme.icon_size_sm}
+										color={
+											focused
+												? theme.brand_primary
+												: theme.color_icon_base
+										}
+									/>
+								</Badge>
+							)
+						}}
+					/>
 					{user?.role === 'student' && (
 						<Tab.Screen
 							name='Calendar'
@@ -211,23 +245,6 @@ const Feed = () => {
 							}}
 						/>
 					)}
-					<Tab.Screen
-						name='Repository'
-						component={Repository}
-						options={{
-							tabBarIcon: ({ focused }) => (
-								<Icon
-									name='folder'
-									size={theme.icon_size_sm}
-									color={
-										focused
-											? theme.brand_primary
-											: theme.color_icon_base
-									}
-								/>
-							)
-						}}
-					/>
 					{user?.organizations?.length > 0 && (
 						<Tab.Screen
 							name='Organizations'
@@ -287,16 +304,4 @@ const Feed = () => {
 	);
 };
 
-const Entry = () => {
-	const wsProtocol = API_Route.startsWith('https') ? 'wss' : 'ws';
-	const host = API_Route.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
-	const url = `${wsProtocol}://${host}/`;
-
-	return (
-		<WebSocketProvider url={url}>
-			<Feed />
-		</WebSocketProvider>
-	);
-};
-
-export default Entry;
+export default Feed;
