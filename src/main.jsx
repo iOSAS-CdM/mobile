@@ -24,6 +24,7 @@ import Recovery from './pages/Authentication/Recovery';
 import Feed from './pages/Feed/Feed';
 
 import NewCase from './pages/Feed/Tabs/cases/New';
+import ViewCase from './pages/Feed/Tabs/cases/View';
 
 import { CacheProvider } from './contexts/CacheContext';
 const CachedFeed = (props) => (
@@ -134,6 +135,14 @@ const Main = () => {
 						<Stack.Screen
 							name='NewCase'
 							component={NewCase}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
+						<Stack.Screen
+							name='ViewCase'
+							component={ViewCase}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'

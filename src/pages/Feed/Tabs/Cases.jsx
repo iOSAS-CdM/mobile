@@ -143,6 +143,10 @@ const Cases = () => {
 							direction='row'
 							align='start'
 							justify='between'
+							onPress={() => {
+								setModalVisible(false);
+								navigationRef.current?.navigate('ViewCase', { caseData: caseItem });
+							}}
 							style={{
 								width: '100%',
 								padding: theme.v_spacing_sm,
