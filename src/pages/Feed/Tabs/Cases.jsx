@@ -27,6 +27,38 @@ const Cases = () => {
 	const [modalVisible, setModalVisible] = React.useState(false);
 	const [loadingCases, setLoadingCases] = React.useState(false);
 
+	// Listen for refresh events from manual refresh
+	React.useEffect(() => {
+		if (refresh?.key === 'cases' || refresh?.key === 'all') {
+			fetchCases();
+		}
+	}, [refresh]);
+
+	// Listen for WebSocket refresh events
+	useWebSocketRefresh('cases', ({ resource, timestamp }) => {
+		console.log('WebSocket refresh received for cases:', { resource, timestamp });
+		fetchCases();
+	});
+
+	const fetchCases = async () => {
+		try {
+			setLoadingCases(true);
+			const response = await authFetch(API_Route + '/cases');
+			const data = await response.json();
+
+			if (response.ok) {
+				updateCache(prev => ({
+					...prev,
+					cases: data
+				}));
+			};
+		} catch (error) {
+			console.error('Error fetching cases:', error);
+		} finally {
+			setLoadingCases(false);
+		};
+	};
+
 	React.useEffect(() => { console.log(cache.records.length) }, [cache.records]);
 
 	React.useEffect(() => {
@@ -187,18 +219,23 @@ const Case = ({ record }) => (
 			opacity: record.tags.status === 'ongoing' ? 1 : 0.5
 		}}
 	>
-		{record.tags.status !== 'ongoing' && (
-			<Tag
-				style={{
-					position: 'absolute',
-					top: 8,
-					right: 8,
-					zIndex: 10
-				}}
-			>
-				{record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}
+		<Flex
+			style={{
+				position: 'absolute',
+				top: 8,
+				right: 8,
+				zIndex: 10
+			}}
+		>
+			{record.tags.status !== 'ongoing' && (
+				<Tag small>
+					{record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}
+				</Tag>
+			)}
+			<Tag small>
+				{record.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
 			</Tag>
-		)}
+		</Flex>
 		<Flex
 			direction='column'
 			align='start'

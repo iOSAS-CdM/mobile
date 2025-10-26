@@ -135,9 +135,7 @@ const ContentPage = ({
 				{loadingMore && (
 					Array.from({ length: columns }).map((_, index) => (
 						<View key={`more-${index}`} style={{ width: `${100 / columns - 2}%` }}>
-							<Skeleton height={120} style={{ marginBottom: 8 }} />
-							<Skeleton width="80%" height={16} style={{ marginBottom: 4 }} />
-							<Skeleton width="60%" height={14} />
+							<Skeleton height={120} />
 						</View>
 					))
 				)}
