@@ -1,109 +1,51 @@
-name: Expo React Native APK Build
+name: 🧱 Build Expo Android APK
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  android_build:
+  build-android:
     runs-on: ubuntu-latest
 
     steps:
-      # --- CHECKOUT REPO ---
-      - name: 🏗 Checkout repository
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v4
 
-      # --- SETUP ENVIRONMENT ---
-      - name: 🏗 Setup Node.js
+      - name: 🧰 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-          cache: 'npm'
+          node-version: 18
+          cache: "npm"
 
-      # --- RESTORE NPM CACHE ---
-      - name: ⚡ Restore npm cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      # --- INSTALL DEPENDENCIES ---
-      - name: 📦 Install Dependencies (with clean cache)
+      - name: 🧹 Clean old caches (to prevent corrupted tarballs)
         run: |
-          # Clean old caches to avoid corrupted tarballs
           rm -rf ~/.npm
+          rm -rf node_modules
+          rm -rf package-lock.json
           npm cache clean --force
 
-          # Retry installation safely with legacy peer deps
-          npm install --legacy-peer-deps || npm install --legacy-peer-deps --prefer-online
+      - name: 📦 Fresh Install Dependencies
+        run: |
+          npm install --legacy-peer-deps --prefer-online
 
-          # Fix missing dependency for react-native-tab-view
+      - name: ⚙️ Fix missing dependencies
+        run: |
           npm install react-native-pager-view
 
-      # --- SETUP JAVA + ANDROID ---
-      - name: ☕ Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: 🤖 Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: ✅ Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
-
-      # --- DECODE KEYSTORE ---
-      - name: 🔑 Create Keystore File
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          mkdir -p android/app
-          echo "$KEYSTORE_BASE64" | tr -d '\n' | base64 -d > android/app/upload-keystore.jks
-
-      # --- CONFIGURE GRADLE SIGNING ---
-      - name: ⚙️ Setup Gradle Properties
-        run: |
-          echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.jks" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> android/gradle.properties
-
-      # --- PREBUILD + BUNDLE EXPO ASSETS ---
       - name: ⚡ Prebuild Expo and Bundle Assets
         run: |
-          if [ -f "app.json" ]; then
-            echo "Running Expo prebuild/export..."
-            npx expo prebuild --platform android
-            npm install react-native-pager-view
-            npx expo export --platform android
-          else
-            echo "No app.json found; assuming bare React Native project."
-            mkdir -p android/app/src/main/assets
-            npm install --no-save @react-native-community/cli
-            npx react-native bundle \
-              --platform android \
-              --dev false \
-              --entry-file index.js \
-              --bundle-output android/app/src/main/assets/index.android.bundle \
-              --assets-dest android/app/src/main/res
-          fi
+          npx expo prebuild --platform android
+          npx expo export --platform android
 
-      # --- BUILD SIGNED APK ---
-      - name: 🚀 Build release APK
+      - name: 🏗️ Build Android APK
         run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleRelease
+          npx expo run:android --variant release
 
-      # --- UPLOAD ARTIFACT ---
-      - name: ⬆️ Upload signed APK
+      - name: 📤 Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk-${{ github.sha }}
-          path: android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 7
+          name: android-apk
+          path: android/app/build/outputs/apk/release/*.apk
