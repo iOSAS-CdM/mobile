@@ -60,8 +60,7 @@
 					}
 				],
 				"expo-web-browser",
-		"expo-font",
-		"expo-build-properties"
+			"expo-font"
 	],
 	"extra": {
 		"eas": {
