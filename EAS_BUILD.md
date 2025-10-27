@@ -46,8 +46,82 @@ Notes about the Gradle change
 - For Play Store uploads use the `production` profile (AAB). For internal testing you can use the `preview` profile which builds an APK.
 
 CI / Non-interactive builds
+- This project now includes a GitHub Actions workflow (`.github/workflows/eas-build.yml`) that automatically triggers EAS builds when you push to the `release` branch.
 - For non-interactive builds you can configure credentials in the EAS dashboard or use `eas credentials` beforehand (interactive) to upload keys.
 - You may also script uploading credentials via the EAS API or the CLI if needed (see EAS docs).
+
+## GitHub Actions Setup
+
+This repository is configured to automatically build your app using EAS when you push to the `release` branch.
+
+### Required GitHub Secret
+
+You must add an `EXPO_TOKEN` secret to your GitHub repository:
+
+1. **Generate an Expo Access Token**:
+   - Log in to your Expo account at https://expo.dev
+   - Go to Access Tokens: https://expo.dev/accounts/[your-username]/settings/access-tokens
+   - Click "Create Token"
+   - Give it a descriptive name (e.g., "GitHub Actions")
+   - Copy the generated token (you won't be able to see it again!)
+
+2. **Add the token to GitHub Secrets**:
+   - Go to your GitHub repository: https://github.com/iOSAS-CdM/mobile
+   - Navigate to Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `EXPO_TOKEN`
+   - Value: Paste the token you copied from Expo
+   - Click "Add secret"
+
+### How the Workflow Works
+
+The workflow in `.github/workflows/eas-build.yml`:
+- Triggers automatically on every push to the `release` branch
+- Checks out your code
+- Sets up Node.js and Yarn
+- Installs dependencies using Yarn
+- Authenticates with EAS using your `EXPO_TOKEN`
+- Builds both:
+  - An APK (preview profile) for internal testing
+  - An AAB (production profile) for Play Store uploads
+
+### Using the Release Branch
+
+1. **Make changes on master/main**:
+   ```bash
+   git checkout master
+   # Make your changes, commit them
+   git add .
+   git commit -m "Your changes"
+   git push origin master
+   ```
+
+2. **Merge to release to trigger a build**:
+   ```bash
+   git checkout release
+   git merge master
+   git push origin release
+   ```
+
+3. **Monitor the build**:
+   - Go to the "Actions" tab in your GitHub repository
+   - Click on the running workflow to see progress
+   - Or check the EAS dashboard: https://expo.dev/accounts/[your-username]/projects/iOSAS/builds
+
+### Build Artifacts
+
+After the build completes:
+- Go to the EAS dashboard to download your APK/AAB
+- Or use `eas build:list` to see recent builds
+- Share the APK link directly for internal testing
+
+### Customizing the Workflow
+
+To modify the workflow behavior, edit `.github/workflows/eas-build.yml`:
+- Change the trigger branch by editing the `branches` list
+- Add iOS builds by duplicating the build step with `--platform ios`
+- Add environment variables or build-time configuration
+- Customize build profiles by editing `eas.json`
 
 Troubleshooting
 - If Gradle complains about missing keystore values locally, either create `android/keystore.properties` or let the code fall back to `debug.keystore` (this is the default behavior).
