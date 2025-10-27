@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Automatically bump version before commit
+echo "🔄 Auto-bumping version..."
+yarn version:bump
