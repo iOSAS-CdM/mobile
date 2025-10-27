@@ -1,6 +1,6 @@
 {
   "name": "iosas",
-  "version": "1.0.6",
+  "version": "1.0.9",
   "main": "index.js",
   "scripts": {
     "start": "expo start",
@@ -30,6 +30,7 @@
     "expo-splash-screen": "^31.0.10",
     "expo-status-bar": "~3.0.8",
     "expo-system-ui": "^6.0.8",
+    "expo-updates": "29.1.0-canary-20251023-4c86f95",
     "expo-web-browser": "^15.0.8",
     "react": "19.1.0",
     "react-hook-form": "^7.65.0",

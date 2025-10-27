@@ -143,4 +143,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 📱 Publish Update to Expo
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+        run: |
+          echo "📱 Publishing update to Expo..."
+          npx eas-cli update --auto --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
 

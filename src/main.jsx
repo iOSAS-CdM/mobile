@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import supabase from './utils/supabase';
+import { checkForUpdates } from './utils/checkForUpdates';
 
 import { Platform, KeyboardAvoidingView, Dimensions, LogBox, StatusBar } from 'react-native';
 
@@ -45,6 +46,9 @@ const Main = () => {
 	React.useEffect(() => {
 		StatusBar.setBarStyle('dark-content');
 		StatusBar.setBackgroundColor('#ffffff');
+
+		// Check for updates on app startup
+		checkForUpdates();
 
 		// Check active session and set
 		supabase.auth.getSession().then(({ data: { session }, error }) => {
