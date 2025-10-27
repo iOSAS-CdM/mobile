@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 /**
  * @typedef {Object} WebSocketContextValue
@@ -13,7 +13,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 /**
  * @type {React.Context<WebSocketContextValue | null>}
  */
-const WebSocketContext = createContext(null);
+const WebSocketContext = React.createContext(null);
 
 /**
  * WebSocket Provider Component
@@ -23,14 +23,14 @@ const WebSocketContext = createContext(null);
  * @returns {React.ReactElement}
  */
 export const WebSocketProvider = ({ children, url }) => {
-	const [isConnected, setIsConnected] = useState(false);
-	const [lastMessage, setLastMessage] = useState(null);
-	const ws = useRef(null);
-	const reconnectTimeout = useRef(null);
-	const reconnectAttempts = useRef(0);
+	const [isConnected, setIsConnected] = React.useState(false);
+	const [lastMessage, setLastMessage] = React.useState(null);
+	const ws = React.useRef(null);
+	const reconnectTimeout = React.useRef(null);
+	const reconnectAttempts = React.useRef(0);
 	const maxReconnectAttempts = 5;
 	const reconnectDelay = 3000;
-	const subscribers = useRef(new Set());
+	const subscribers = React.useRef(new Set());
 
 	/**
 	 * Establishes WebSocket connection
@@ -55,24 +55,22 @@ export const WebSocketProvider = ({ children, url }) => {
 				try {
 					const data = JSON.parse(event.data);
 					setLastMessage(data);
-					// Notify all subscribers
-					subscribers.current.forEach(callback => {
+					for (const callback of subscribers.current) {
 						try {
 							callback(data);
 						} catch (error) {
 							console.error('Error in WebSocket subscriber:', error);
-						}
-					});
+						};
+					};
 				} catch (error) {
 					setLastMessage(event.data);
-					// Notify subscribers even for non-JSON messages
-					subscribers.current.forEach(callback => {
+					for (const callback of subscribers.current) {
 						try {
 							callback(event.data);
 						} catch (error) {
 							console.error('Error in WebSocket subscriber:', error);
-						}
-					});
+						};
+					};
 				};
 			};
 
@@ -157,7 +155,7 @@ export const WebSocketProvider = ({ children, url }) => {
 		};
 	};
 
-	useEffect(() => {
+	React.useEffect(() => {
 		connect();
 
 		return () => {
@@ -187,7 +185,7 @@ export const WebSocketProvider = ({ children, url }) => {
  * @throws {Error} If used outside of WebSocketProvider
  */
 export const useWebSocket = () => {
-	const context = useContext(WebSocketContext);
+	const context = React.useContext(WebSocketContext);
 	if (!context) {
 		throw new Error('useWebSocket must be used within a WebSocketProvider');
 	};
