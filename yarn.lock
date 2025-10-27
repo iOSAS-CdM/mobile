@@ -931,13 +931,33 @@
     wrap-ansi "^7.0.0"
     ws "^8.12.1"
 
-"@expo/code-signing-certificates@^0.0.5":
+"@expo/code-signing-certificates@0.0.5", "@expo/code-signing-certificates@^0.0.5":
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@expo/code-signing-certificates/-/code-signing-certificates-0.0.5.tgz#a693ff684fb20c4725dade4b88a6a9f96b02496c"
   integrity sha512-BNhXkY1bblxKZpltzAx98G2Egj9g1Q+JRcvR7E99DOj862FTCX+ZPsAUtPTr7aHxwtrL7+fL3r0JSmM9kBm+Bw==
   dependencies:
     node-forge "^1.2.1"
     nullthrows "^1.1.1"
+
+"@expo/config-plugins@54.0.3-canary-20251023-4c86f95":
+  version "54.0.3-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-54.0.3-canary-20251023-4c86f95.tgz#ee753b732aed2202002f8b90a4f8bde7089bfa84"
+  integrity sha512-qpMSQ3kuwy76hkxH2M9BmdbuYQP1mJBA3YViW3vmms7sHGW5aU+7JUzahUtr8LQ27CHL3Az37V9E1lIjrRmp3w==
+  dependencies:
+    "@expo/config-types" "55.0.0-canary-20251023-4c86f95"
+    "@expo/json-file" "10.0.8-canary-20251023-4c86f95"
+    "@expo/plist" "0.4.8-canary-20251023-4c86f95"
+    "@expo/sdk-runtime-versions" "^1.0.0"
+    chalk "^4.1.2"
+    debug "^4.3.5"
+    getenv "^2.0.0"
+    glob "^10.4.2"
+    resolve-from "^5.0.0"
+    semver "^7.5.4"
+    slash "^3.0.0"
+    slugify "^1.6.6"
+    xcode "^3.0.1"
+    xml2js "0.6.0"
 
 "@expo/config-plugins@~54.0.2":
   version "54.0.2"
@@ -959,10 +979,34 @@
     xcode "^3.0.1"
     xml2js "0.6.0"
 
+"@expo/config-types@55.0.0-canary-20251023-4c86f95":
+  version "55.0.0-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/@expo/config-types/-/config-types-55.0.0-canary-20251023-4c86f95.tgz#798641ee27d3ff7f8f6f4f273667fd7e7099d182"
+  integrity sha512-XkdeGcQuT6zn282qHKNMz+RIZUg+G6YDZ9bscZJSr8UxlWZFmp41bvjpfDaOyq9LUwJOecq47ucMecZ7NvsNSw==
+
 "@expo/config-types@^54.0.8":
   version "54.0.8"
   resolved "https://registry.yarnpkg.com/@expo/config-types/-/config-types-54.0.8.tgz#2aa1f96e0abad6a125d0ff1092b303280f7962e9"
   integrity sha512-lyIn/x/Yz0SgHL7IGWtgTLg6TJWC9vL7489++0hzCHZ4iGjVcfZmPTUfiragZ3HycFFj899qN0jlhl49IHa94A==
+
+"@expo/config@12.0.11-canary-20251023-4c86f95":
+  version "12.0.11-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/@expo/config/-/config-12.0.11-canary-20251023-4c86f95.tgz#1e13369d18c471e0220e2990a9be84704424744b"
+  integrity sha512-jVRVOPD5/Jddsvf1EquUbodd7ws6JXNOog5+88gBGrRjDKAhrWejBHDrDFbJxp+beSOsmaBx24LgWaQXemCabA==
+  dependencies:
+    "@babel/code-frame" "~7.10.4"
+    "@expo/config-plugins" "54.0.3-canary-20251023-4c86f95"
+    "@expo/config-types" "55.0.0-canary-20251023-4c86f95"
+    "@expo/json-file" "10.0.8-canary-20251023-4c86f95"
+    deepmerge "^4.3.1"
+    getenv "^2.0.0"
+    glob "^10.4.2"
+    require-from-string "^2.0.2"
+    resolve-from "^5.0.0"
+    resolve-workspace-root "^2.0.0"
+    semver "^7.6.0"
+    slugify "^1.3.4"
+    sucrase "3.35.0"
 
 "@expo/config@~12.0.10", "@expo/config@~12.0.8":
   version "12.0.10"
@@ -1042,6 +1086,14 @@
     semver "^7.6.0"
     temp-dir "~2.0.0"
     unique-string "~2.0.0"
+
+"@expo/json-file@10.0.8-canary-20251023-4c86f95":
+  version "10.0.8-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/@expo/json-file/-/json-file-10.0.8-canary-20251023-4c86f95.tgz#cd2f62ef312b19eee78a5556a656ad4c6568ac64"
+  integrity sha512-3qKM7TyF03nc7WpyHmFzc9JZKJfQHP33peze7d+qJenXHhE2SzjRhE4SwLHQkI2ZoekY/Y+7mEj41IUmzXigbQ==
+  dependencies:
+    "@babel/code-frame" "~7.10.4"
+    json5 "^2.2.3"
 
 "@expo/json-file@^10.0.7", "@expo/json-file@~10.0.7":
   version "10.0.7"
@@ -1124,6 +1176,15 @@
     npm-package-arg "^11.0.0"
     ora "^3.4.0"
     resolve-workspace-root "^2.0.0"
+
+"@expo/plist@0.4.8-canary-20251023-4c86f95":
+  version "0.4.8-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/@expo/plist/-/plist-0.4.8-canary-20251023-4c86f95.tgz#c2cc8ff9fc674007a7fa192529a7fca05f961d77"
+  integrity sha512-s03bJO083FatJlE7UAdSXhKXuVsNKHRrgaId1Z7wqXsGfbu63eqhQe/1VmxqI7VohnQ06uGS5z/TLUnUmbTj/Q==
+  dependencies:
+    "@xmldom/xmldom" "^0.8.8"
+    base64-js "^1.2.3"
+    xmlbuilder "^15.1.1"
 
 "@expo/plist@^0.4.7":
   version "0.4.7"
@@ -1885,6 +1946,11 @@ anymatch@^3.0.3:
   dependencies:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
+
+arg@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/arg/-/arg-4.1.0.tgz#583c518199419e0037abb74062c37f8519e575f0"
+  integrity sha512-ZWc51jO3qegGkVh8Hwpv636EkbesNV5ZNQPCtRa+0qytRYPEs9IYT9qITY9buezqUH5uqyzlWLcufrzU2rffdg==
 
 arg@^5.0.2:
   version "5.0.2"
@@ -2823,6 +2889,11 @@ expo-document-picker@^14.0.7:
   resolved "https://registry.yarnpkg.com/expo-document-picker/-/expo-document-picker-14.0.7.tgz#d8c4d4874509e96f3e26fa66ad9ab2d2ae6706db"
   integrity sha512-81Jh8RDD0GYBUoSTmIBq30hXXjmkDV1ZY2BNIp1+3HR5PDSh2WmdhD/Ezz5YFsv46hIXHsQc+Kh1q8vn6OLT9Q==
 
+expo-eas-client@1.0.8-canary-20251023-4c86f95:
+  version "1.0.8-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/expo-eas-client/-/expo-eas-client-1.0.8-canary-20251023-4c86f95.tgz#2569bf15bd2af154ccc1bdc427c366272260525c"
+  integrity sha512-ACcgdSugvkWHsD2KLE5isddiwFk/zXYc4eyqHoaYdIwpQN7ujzuMo9ImgpkjMA0Zh1qnR4aWtm1+i7Fiv+SIRw==
+
 expo-file-system@~19.0.17:
   version "19.0.17"
   resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-19.0.17.tgz#2555c05c26a19038d005f281b11dbda9722d0c0d"
@@ -2839,6 +2910,11 @@ expo-image@^3.0.10:
   version "3.0.10"
   resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-3.0.10.tgz#a589098c3688d76c6e238ae90e1efc06ac4902b0"
   integrity sha512-i4qNCEf9Ur7vDqdfDdFfWnNCAF2efDTdahuDy9iELPS2nzMKBLeeGA2KxYEPuRylGCS96Rwm+SOZJu6INc2ADQ==
+
+expo-json-utils@0.15.1-canary-20251023-4c86f95:
+  version "0.15.1-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/expo-json-utils/-/expo-json-utils-0.15.1-canary-20251023-4c86f95.tgz#89bc0caf9450a11038fa8bfd25c0dfd624f71a8f"
+  integrity sha512-LTPrjBCpg9QF9LoWCpfec+EguR6JeV+bulfy6bwmIbCn2t6G+qb1M2Xj8IOmUkfznuoNpyN4uAudgzHcOAWFTg==
 
 expo-json-utils@~0.15.0:
   version "0.15.0"
@@ -2857,6 +2933,14 @@ expo-linking@~8.0.8:
   dependencies:
     expo-constants "~18.0.8"
     invariant "^2.2.4"
+
+expo-manifests@1.0.9-canary-20251023-4c86f95:
+  version "1.0.9-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/expo-manifests/-/expo-manifests-1.0.9-canary-20251023-4c86f95.tgz#1dca1c9e34c20a3d2dcbdd9bb975112978201fc4"
+  integrity sha512-RF9RvOzO5gIKz2m0m2ssujzZ+mmfk+Cje4laEiYbRITofA+3EJGlAFb/Axu2EcILAXOkWnUvqB+EJNWBLuCUAQ==
+  dependencies:
+    "@expo/config" "12.0.11-canary-20251023-4c86f95"
+    expo-json-utils "0.15.1-canary-20251023-4c86f95"
 
 expo-manifests@~1.0.8:
   version "1.0.8"
@@ -2904,6 +2988,11 @@ expo-status-bar@~3.0.8:
   dependencies:
     react-native-is-edge-to-edge "^1.2.1"
 
+expo-structured-headers@5.0.1-canary-20251023-4c86f95:
+  version "5.0.1-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/expo-structured-headers/-/expo-structured-headers-5.0.1-canary-20251023-4c86f95.tgz#3f9f7811f5a884f40d40f038fd7a528ed57b5b96"
+  integrity sha512-T+wPC5KGUNM44/Sva65AtVkz6JAiBcCh7Yu3EwxzRIrAXbOSEIfDlcvkILr6TqT2aNsyqps1Kv3z8wDiIMBObQ==
+
 expo-system-ui@^6.0.8:
   version "6.0.8"
   resolved "https://registry.yarnpkg.com/expo-system-ui/-/expo-system-ui-6.0.8.tgz#283930826719c67118722669d7e31b3a334465f5"
@@ -2912,10 +3001,35 @@ expo-system-ui@^6.0.8:
     "@react-native/normalize-colors" "0.81.5"
     debug "^4.3.2"
 
+expo-updates-interface@2.0.1-canary-20251023-4c86f95:
+  version "2.0.1-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-2.0.1-canary-20251023-4c86f95.tgz#327927123f0493fc87ce5e5652ff523d00c3da6a"
+  integrity sha512-dFcwZ8bSPm/qsNYtvE6gL/8AYIAeyHzUfpkalJf8aRIrkQ28fLSGxazX/vMINaHS8BM0ag7UC1oY8MZ/P5D8FQ==
+
 expo-updates-interface@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-2.0.0.tgz#7721cb64c37bcb46b23827b2717ef451a9378749"
   integrity sha512-pTzAIufEZdVPKql6iMi5ylVSPqV1qbEopz9G6TSECQmnNde2nwq42PxdFBaUEd8IZJ/fdJLQnOT3m6+XJ5s7jg==
+
+expo-updates@29.1.0-canary-20251023-4c86f95:
+  version "29.1.0-canary-20251023-4c86f95"
+  resolved "https://registry.yarnpkg.com/expo-updates/-/expo-updates-29.1.0-canary-20251023-4c86f95.tgz#e35a2922de21b8286c0f8ae5567d37eef72dcd88"
+  integrity sha512-N1DaQAKjfhtFEczixGWP572/N14lKCS7T3iZSp9lOqhtbPi+mYBR6Y2doVLgTItfh0YFaWP64dWvO9dVwiHgMw==
+  dependencies:
+    "@expo/code-signing-certificates" "0.0.5"
+    "@expo/plist" "0.4.8-canary-20251023-4c86f95"
+    "@expo/spawn-async" "^1.7.2"
+    arg "4.1.0"
+    chalk "^4.1.2"
+    debug "^4.3.4"
+    expo-eas-client "1.0.8-canary-20251023-4c86f95"
+    expo-manifests "1.0.9-canary-20251023-4c86f95"
+    expo-structured-headers "5.0.1-canary-20251023-4c86f95"
+    expo-updates-interface "2.0.1-canary-20251023-4c86f95"
+    getenv "^2.0.0"
+    glob "^10.4.2"
+    ignore "^5.3.1"
+    resolve-from "^5.0.0"
 
 expo-web-browser@^15.0.8, expo-web-browser@~15.0.7:
   version "15.0.8"
