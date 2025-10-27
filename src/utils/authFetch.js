@@ -26,8 +26,8 @@ const authFetch = async (...args) => {
 					'Authorization': `Bearer ${session.access_token}`
 				}
 			};
-		}
-	}
+		};
+	};
 
 	const response = await fetch(...args);
 
@@ -36,7 +36,7 @@ const authFetch = async (...args) => {
 		await supabase.auth.signOut();
 		console.log('unauthorized');
 		navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
-	}
+	};
 	return response;
 };
 
