@@ -29,9 +29,29 @@ function exec(command, options = {}) {
 			...options
 		});
 	} catch (error) {
-		console.error(`❌ Error executing: ${command}`);
-		console.error(error.message);
+		if (!options.silent) {
+			console.error(`❌ Error executing: ${command}`);
+			if (error.stderr) {
+				console.error(error.stderr.toString());
+			}
+		}
+		if (options.throwError) {
+			throw error;
+		}
 		process.exit(1);
+	}
+}
+
+function getRemoteName() {
+	try {
+		const remotes = exec('git remote', { silent: true }).trim().split('\n');
+		// Prefer 'origin', but fall back to first available remote
+		if (remotes.includes('origin')) {
+			return 'origin';
+		}
+		return remotes[0] || 'origin';
+	} catch {
+		return 'origin';
 	}
 }
 
@@ -53,6 +73,20 @@ async function main() {
 	// Get current branch
 	const currentBranch = exec('git rev-parse --abbrev-ref HEAD', { silent: true }).trim();
 	console.log(`📍 Current branch: ${currentBranch}`);
+
+	// Detect remote name
+	const remoteName = getRemoteName();
+	console.log(`🌐 Using remote: ${remoteName}`);
+
+	// Check remote URL
+	try {
+		const remoteUrl = exec(`git remote get-url ${remoteName}`, { silent: true }).trim();
+		console.log(`📡 Remote URL: ${remoteUrl}`);
+	} catch {
+		console.error(`❌ Remote '${remoteName}' not found`);
+		console.log('\n💡 Run: git remote add origin <your-repo-url>');
+		process.exit(1);
+	}
 
 	// Check for uncommitted changes
 	const status = exec('git status --porcelain', { silent: true }).trim();
@@ -88,7 +122,20 @@ async function main() {
 	try {
 		// Push current branch first
 		console.log(`\n⬆️  Pushing ${currentBranch} to remote...`);
-		exec(`git push origin ${currentBranch}`);
+		try {
+			exec(`git push ${remoteName} ${currentBranch}`);
+		} catch (error) {
+			console.error('\n❌ Failed to push. This is usually an authentication issue.');
+			console.log('\n💡 Solutions:');
+			console.log('   1. Set up Git credentials:');
+			console.log('      git config --global credential.helper store');
+			console.log('      git push (enter username and token when prompted)');
+			console.log('\n   2. Or use SSH keys:');
+			console.log('      https://docs.github.com/en/authentication/connecting-to-github-with-ssh');
+			console.log('\n   3. Or create a Personal Access Token:');
+			console.log('      https://github.com/settings/tokens');
+			throw error;
+		}
 
 		// Switch to release branch
 		console.log('\n🔀 Switching to release branch...');
@@ -96,7 +143,11 @@ async function main() {
 
 		// Pull latest from release
 		console.log('⬇️  Pulling latest release...');
-		exec('git pull origin release');
+		try {
+			exec(`git pull ${remoteName} release`, { silent: true });
+		} catch {
+			console.log('   (No existing remote branch, will create on push)');
+		}
 
 		// Merge master into release
 		console.log(`\n🔀 Merging ${currentBranch} into release...`);
@@ -104,7 +155,7 @@ async function main() {
 
 		// Push release branch
 		console.log('\n🚀 Pushing release branch to trigger build...');
-		exec('git push origin release');
+		exec(`git push ${remoteName} release`);
 
 		// Switch back to original branch
 		console.log(`\n🔙 Switching back to ${currentBranch}...`);

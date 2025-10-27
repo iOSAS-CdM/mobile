@@ -19,6 +19,7 @@ git commit -m "feat: Add new feature"
 ```bash
 yarn release
 # ✅ Automatically triggers build on GitHub Actions
+# ✅ Uses your existing Git authentication (SSH/HTTPS)
 ```
 
 That's it! 🎉

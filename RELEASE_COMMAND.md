@@ -6,7 +6,7 @@
 yarn release
 ```
 
-This command automates the entire release process!
+This bash script automates the entire release process using your existing Git authentication!
 
 ## What It Does
 
@@ -74,6 +74,18 @@ Before triggering the release:
 
 - Answer **yes** - Proceeds with release
 - Answer **no** - Cancels the release
+
+## Authentication
+
+The bash script uses your **existing Git authentication**, so:
+
+- ✅ **SSH keys**: Works automatically if you have SSH keys set up
+- ✅ **Credential helper**: Uses stored credentials if configured
+- ✅ **GitHub CLI**: Works with `gh auth login`
+- ✅ **Git credential manager**: Uses any system credential manager
+- ✅ **No PAT needed**: Unlike the Node.js version, no Personal Access Token required!
+
+If push fails, the script suggests authentication options.
 
 ## Error Handling
 
