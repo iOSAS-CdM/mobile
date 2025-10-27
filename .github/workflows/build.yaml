@@ -1,9 +1,12 @@
-name: 🧱 Build Expo Android APK
+name: 🧱 Build Android APK/AAB
 
 on:
   push:
     branches:
-      - master
+      - release
+  pull_request:
+    branches:
+      - release
   workflow_dispatch:
 
 jobs:
@@ -18,34 +21,126 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "npm"
+          cache: "yarn"
 
-      - name: 🧹 Clean old caches (to prevent corrupted tarballs)
+      - name: 📦 Install Dependencies with Yarn
+        run: yarn install --frozen-lockfile
+
+      - name: ⚙️ Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: � Create debug keystore (fallback)
         run: |
-          rm -rf ~/.npm
-          rm -rf node_modules
-          rm -rf package-lock.json
-          npm cache clean --force
+          mkdir -p android/app
+          if [ ! -f android/app/debug.keystore ]; then
+            keytool -genkey -v -keystore android/app/debug.keystore \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
 
-      - name: 📦 Fresh Install Dependencies
+      - name: ⚡ Prebuild Expo for Android
+        run: npx expo prebuild --platform android --clean
+
+      - name: 🏗️ Build Android APK (Release)
         run: |
-          npm install --legacy-peer-deps --prefer-online
+          cd android
+          ./gradlew assembleRelease --no-daemon --stacktrace
 
-      - name: ⚙️ Fix missing dependencies
+      - name: 🏗️ Build Android AAB (Release Bundle for Play Store)
         run: |
-          npm install react-native-pager-view
+          cd android
+          ./gradlew bundleRelease --no-daemon --stacktrace
 
-      - name: ⚡ Prebuild Expo and Bundle Assets
-        run: |
-          npx expo prebuild --platform android
-          npx expo export --platform android
-
-      - name: 🏗️ Build Android APK
-        run: |
-          cd android && ./gradlew assembleRelease
-
-      - name: 📤 Upload build artifact
+      - name: 📤 Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+      - name: 📤 Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+
+      - name: 📊 Build Summary
+        if: success()
+        run: |
+          echo "### ✅ Build Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**APK Location:** \`android/app/build/outputs/apk/release/\`" >> $GITHUB_STEP_SUMMARY
+          echo "**AAB Location:** \`android/app/build/outputs/bundle/release/\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download artifacts from the Actions tab above." >> $GITHUB_STEP_SUMMARY
+
+      - name: 📋 Get version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: 📝 Generate Release Notes
+        id: release_notes
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          COMMIT_HASH=$(git log -1 --pretty=format:'%h')
+          
+          cat << EOF > release_notes.md
+          ## 🚀 Release v${{ steps.get_version.outputs.version }}
+          
+          ### 📦 Build Information
+          - **Build Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          - **Commit**: ${COMMIT_HASH}
+          - **Author**: ${COMMIT_AUTHOR}
+          
+          ### 📝 Latest Commit
+          ${COMMIT_MSG}
+          
+          ### 📥 Downloads
+          - **APK**: For direct installation on Android devices (testing)
+          - **AAB**: For uploading to Google Play Store (production)
+          
+          ### 🔧 Installation Instructions
+          
+          **APK (Testing)**:
+          1. Download the \`app-release.apk\` file below
+          2. Transfer to your Android device
+          3. Enable "Install from Unknown Sources" in settings
+          4. Open and install the APK
+          
+          **AAB (Play Store)**:
+          1. Download the \`app-release.aab\` file below
+          2. Upload to Google Play Console
+          3. Follow Google's release process
+          
+          ---
+          Built with ❤️ by GitHub Actions
+          EOF
+          
+          cat release_notes.md
+
+      - name: 🏷️ Create GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}-${{ github.run_number }}
+          name: Release v${{ steps.get_version.outputs.version }} (Build ${{ github.run_number }})
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
