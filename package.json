@@ -1,6 +1,6 @@
 {
   "name": "iosas",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "scripts": {
     "start": "expo start",
@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "version:bump": "node scripts/bump-version.js",
+    "release": "node scripts/trigger-release.js",
     "prepare": "husky"
   },
   "dependencies": {

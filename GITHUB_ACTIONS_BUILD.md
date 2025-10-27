@@ -38,19 +38,41 @@ The workflow uses the debug keystore by default, so you can start building immed
 
 ## Usage
 
-### 1. Develop on Master Branch
+### Quick Release (Recommended)
+
+Use the built-in release command to trigger a build with one command:
 
 ```bash
+# Make your changes and commit them
+git add .
+git commit -m "feat: Add new feature"
+
+# Trigger release build
+yarn release
+```
+
+The script will:
+1. ✅ Check for uncommitted changes
+2. ✅ Push your current branch
+3. ✅ Switch to release branch
+4. ✅ Merge master into release
+5. ✅ Push release to trigger build
+6. ✅ Switch back to your original branch
+7. ✅ Show build monitoring links
+
+### Manual Release (Alternative)
+
+Or trigger manually with Git commands:
+
+```bash
+# 1. Develop on Master Branch
 git checkout master
 # Make your changes
 git add .
 git commit -m "feat: Add new feature"
 git push origin master
-```
 
-### 2. Trigger Build by Pushing to Release
-
-```bash
+# 2. Trigger Build by Pushing to Release
 git checkout release
 git merge master
 git push origin release
@@ -58,14 +80,16 @@ git push origin release
 
 The GitHub Actions workflow will automatically start building.
 
-### 3. Monitor Build Progress
+### Monitor Build Progress
 
 1. Go to your repository on GitHub: https://github.com/iOSAS-CdM/mobile
 2. Click the **Actions** tab
 3. Click on the running workflow
 4. Watch real-time logs as it builds
 
-### 4. Download Your Build
+Or if you used `yarn release`, the script will show you the direct links!
+
+### Download Your Build
 
 After the build completes successfully, you have **two ways** to download:
 
@@ -91,7 +115,7 @@ After the build completes successfully, you have **two ways** to download:
    - **android-aab** - For uploading to Google Play Store
 5. Note: Artifacts expire after 30 days
 
-### 5. Install and Test
+### Install and Test
 
 **For APK (Testing)**:
 - Transfer the APK to your Android device
@@ -103,6 +127,15 @@ After the build completes successfully, you have **two ways** to download:
 - Go to Google Play Console
 - Upload the AAB to a release track
 - Follow Google's release process
+
+## Available Commands
+
+- **`yarn release`** - Trigger a release build (automatic merge and push)
+- **`yarn start`** - Start Metro bundler for development
+- **`yarn android`** - Run on Android device/emulator
+- **`yarn ios`** - Run on iOS device/simulator
+- **`yarn web`** - Run in web browser
+- **`yarn version:bump`** - Manually bump version (usually automatic)
 
 ## Version Management
 
