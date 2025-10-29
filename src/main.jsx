@@ -29,11 +29,6 @@ import ViewCase from './pages/Feed/Tabs/cases/View';
 import ViewRecord from './pages/Feed/Tabs/records/View';
 
 import { CacheProvider } from './contexts/CacheContext';
-const CachedFeed = (props) => (
-	<CacheProvider>
-		<Feed {...props} />
-	</CacheProvider>
-);
 
 const height = Dimensions.get('window').height;
 
@@ -131,7 +126,7 @@ const Main = () => {
 
 						<Stack.Screen
 							name='Feed'
-							component={CachedFeed}
+							component={Feed}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'
@@ -177,7 +172,9 @@ const Entry = (props) => {
 		<KeyboardProvider>
 			<WebSocketProvider url={url}>
 				<RefreshProvider>
-					<Main {...props} />
+					<CacheProvider>
+						<Main {...props} />
+					</CacheProvider>
 				</RefreshProvider>
 			</WebSocketProvider>
 		</KeyboardProvider>

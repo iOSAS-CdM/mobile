@@ -15,6 +15,7 @@ const CacheContext = React.createContext();
  * 	highlights: Object[] | null;
  * 	records: RecordProps[];
  * 	peers: UserProps[] | null;
+ * 	repositories: RepositoryProps[] | null;
  * }} Cache
  */
 /** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
@@ -47,6 +48,7 @@ export const CacheProvider = ({ children }) => {
 		user: null,
 		records: [],
 		cases: [],
+		repositories: [],
 		highlights: null,
 		peers: null
 	});
