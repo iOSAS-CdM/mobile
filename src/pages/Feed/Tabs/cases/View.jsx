@@ -58,10 +58,10 @@ const New = ({ route }) => {
 					justify='space-between'
 					align='center'
 					style={{
-						height: Platform.OS === 'ios' ? 32 * 1.5 : 32,
 						width: '100%',
-						paddingHorizontal: 16,
+						padding: theme.v_spacing_md,
 						borderBottomWidth: 0.25,
+						borderBottomColor: theme.border_color_base,
 						backgroundColor: theme.fill_base
 					}}
 				>
@@ -69,7 +69,7 @@ const New = ({ route }) => {
 						navigationRef.current?.goBack();
 					}} />
 					<Text style={{ fontSize: theme.font_size_subhead, fontWeight: '600' }}>
-						Case Details
+						Report Details
 					</Text>
 					<Button size='small' icon='left' style={{ opacity: 0 }} />
 				</Flex>

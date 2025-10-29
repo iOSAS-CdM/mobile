@@ -21,8 +21,9 @@ export default {
 
 	fill_base: '#ffffff',
 	fill_body: '#f5f5f9',
-	fill_tap: '#dddddd',
-	fill_disabled: '#dddddd',
+	fill_background: '#e7f5e7ff',
+	fill_tap: '#bbbbbb',
+	fill_disabled: '#bbbbbb',
 	fill_mask: 'rgba(0, 0, 0, .4)',
 	color_icon_base: '#595959',
 	fill_grey: '#f7f7f7',
@@ -37,7 +38,7 @@ export default {
 	brand_important: '#ff5b05',
 	brand_wait: '#108ee9',
 
-	border_color_base: '#dddddd',
+	border_color_base: '#bbbbbb',
 
 	font_size_icontext: 12,
 	font_size_base: 14,

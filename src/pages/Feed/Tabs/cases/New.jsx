@@ -12,6 +12,7 @@ import Button from '../../../../components/Button';
 import IconButton from '../../../../components/IconButton';
 import Input from '../../../../components/forms/Input';
 import Picker from '../../../../components/forms/Picker';
+import { useCache } from '../../../../contexts/CacheContext';
 
 import { navigationRef } from '../../../../main';
 
@@ -20,8 +21,8 @@ import { API_Route } from '../../../../main';
 
 import theme from '../../../../styles/theme';
 
-
 const New = () => {
+	const { pushToCache } = useCache();
 	const {
 		control,
 		handleSubmit,
@@ -83,6 +84,8 @@ const New = () => {
 			setSubmitting(false);
 			return;
 		};
+		const responseData = await response.json();
+		pushToCache('cases', responseData, true);
 		Toast.success('Case submitted successfully', 2);
 		navigationRef.current?.goBack();
 		
@@ -97,10 +100,10 @@ const New = () => {
 					justify='space-between'
 					align='center'
 					style={{
-						height: Platform.OS === 'ios' ? 32 * 1.5 : 32,
 						width: '100%',
-						paddingHorizontal: 16,
+						padding: theme.v_spacing_md,
 						borderBottomWidth: 0.25,
+						borderBottomColor: theme.border_color_base,
 						backgroundColor: theme.fill_base
 					}}
 				>

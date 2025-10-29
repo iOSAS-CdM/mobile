@@ -115,7 +115,7 @@ const ContentPage = ({
 	return (
 		<ScrollView
 			refreshControl={refreshControl}
-			style={{ flex: 1 }}
+			style={{ flex: 1, backgroundColor: theme.fill_background }}
 			contentContainerStyle={{ gap: headerGap }}
 			onScroll={handleScroll}
 			scrollEventThrottle={16}

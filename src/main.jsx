@@ -26,6 +26,7 @@ import Feed from './pages/Feed/Feed';
 
 import NewCase from './pages/Feed/Tabs/cases/New';
 import ViewCase from './pages/Feed/Tabs/cases/View';
+import ViewRecord from './pages/Feed/Tabs/records/View';
 
 import { CacheProvider } from './contexts/CacheContext';
 const CachedFeed = (props) => (
@@ -82,7 +83,7 @@ const Main = () => {
 
 	if (!fontsLoaded || !sessionChecked) return null;
 
-	LogBox.ignoreLogs(['AbortError']);
+	LogBox.ignoreLogs(['AbortError', 'WebSocket']);
 
 	if (!fontsLoaded || !sessionChecked) return null;
 
@@ -147,6 +148,14 @@ const Main = () => {
 						<Stack.Screen
 							name='ViewCase'
 							component={ViewCase}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
+						<Stack.Screen
+							name='ViewRecord'
+							component={ViewRecord}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'
