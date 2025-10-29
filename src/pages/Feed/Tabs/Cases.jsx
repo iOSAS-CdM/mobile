@@ -131,48 +131,53 @@ const Cases = () => {
 					{ text: 'Close', onPress: () => setModalVisible(false) }
 				]}
 			>
-				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm, gap: theme.v_spacing_sm }}>
-					{cache.cases.sort((a, b) => {
-						if (a.status === 'open' && b.status !== 'open') return -1;
-						if (b.status === 'open' && a.status !== 'open') return 1;
-						// fallback: newest first
-						return new Date(b.created_at) - new Date(a.created_at);
-					}).map((caseItem) => (
-						<Flex
-							key={caseItem.id}
-							direction='row'
-							align='start'
-							justify='between'
-							style={{
-								width: '100%',
-								padding: theme.v_spacing_sm,
-								backgroundColor: caseItem.status !== 'closed' && theme.fill_base,
-								borderRadius: theme.v_spacing_sm,
-								opacity: caseItem.status === 'closed' ? 0.25 : 1
-							}}
-						>
-							<Flex direction='column' align='start'>
-								<Text
-									style={{
-										fontSize: theme.font_size_base,
-										fontWeight: '600'
-									}}
-								>
-									{caseItem.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-								</Text>
-								<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
-									{caseItem.content}
-								</Text>
+				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm }}>
+					<Flex direction='column' align='stretch' style={{ gap: theme.v_spacing_sm }}>
+						{cache.cases.sort((a, b) => {
+							if (a.status === 'open' && b.status !== 'open') return -1;
+							if (b.status === 'open' && a.status !== 'open') return 1;
+							// fallback: newest first
+							return new Date(b.created_at) - new Date(a.created_at);
+						}).map((caseItem) => (
+							<Flex
+								key={caseItem.id}
+								direction='row'
+								align='start'
+								justify='between'
+								style={{
+									width: '100%',
+									padding: theme.v_spacing_sm,
+									backgroundColor: caseItem.status !== 'closed' && theme.fill_base,
+									borderRadius: theme.v_spacing_sm,
+									opacity: caseItem.status === 'closed' ? 0.25 : 1
+								}}
+								onPress={() => {
+									setModalVisible(false);
+									navigationRef.current?.navigate('ViewCase', { caseData: caseItem });
+								}}
+							>
+								<Flex direction='column' align='start'>
+									<Text
+										style={{
+											fontSize: theme.font_size_base,
+											fontWeight: '600'
+										}}
+									>
+										{caseItem.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+									</Text>
+									<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
+										{caseItem.content}
+									</Text>
+								</Flex>
+								<Flex direction='column' align='end' justify='center' style={{ gap: theme.v_spacing_sm }}>
+									<Button type='ghost' size='small'>{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}</Button>
+									<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
+										{new Date(caseItem.created_at).toLocaleDateString()}
+									</Text>
+								</Flex>
 							</Flex>
-
-							<Flex direction='column' align='end' justify='center' style={{ gap: theme.v_spacing_sm }}>
-								<Tag>{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}</Tag>
-								<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
-									{new Date(caseItem.created_at).toLocaleDateString()}
-								</Text>
-							</Flex>
-						</Flex>
-					))}
+						))}
+					</Flex>
 				</RNScrollView>
 			</Modal>
 
@@ -182,6 +187,7 @@ const Cases = () => {
 				cacheKey='records'
 				transformItem={(item) => item.records || []}
 				limit={10}
+				contentGap={0}
 				contentPadding={0}
 				renderItem={(record) => <Case key={record.id} record={record} />}
 				refreshControl={(
@@ -214,9 +220,13 @@ const Case = ({ record }) => (
 			flex: 1,
 			position: 'relative',
 			padding: 16,
-			backgroundColor: theme.fill_base,
+			backgroundColor: record.tags.status !== 'ongoing' ? theme.fill_base : 'transparent',
 			filter: record.tags.status === 'ongoing' ? 'none' : 'grayscale(100%)',
-			opacity: record.tags.status === 'ongoing' ? 1 : 0.5
+			borderBottomColor: theme.border_color_base,
+			borderBottomWidth: theme.border_width_sm
+		}}
+		onPress={() => {
+			navigationRef.current?.navigate('ViewRecord', { id: record.id });
 		}}
 	>
 		<Flex
@@ -224,17 +234,18 @@ const Case = ({ record }) => (
 				position: 'absolute',
 				top: 8,
 				right: 8,
+				gap: theme.h_spacing_sm,
 				zIndex: 10
 			}}
 		>
+			<Tag small>
+				{record.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+			</Tag>
 			{record.tags.status !== 'ongoing' && (
 				<Tag small>
 					{record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}
 				</Tag>
 			)}
-			<Tag small>
-				{record.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-			</Tag>
 		</Flex>
 		<Flex
 			direction='column'
@@ -257,17 +268,6 @@ const Case = ({ record }) => (
 				{record.description}
 			</Text>
 			<Flex direction='row' justify='between' align='center' style={{ gap: theme.h_spacing_sm }}>
-				<ScrollView horizontal style={{ flex: 1 }}>
-					<Flex direction='row' align='center' style={{ gap: theme.h_spacing_sm }}>
-						{[...record.complainants, ...record.complainees.map(c => c.student)].map((person, index) => (
-							<Avatar
-								key={index}
-								size='small'
-								uri={person.profilePicture}
-							/>
-						))}
-					</Flex>
-				</ScrollView>
 				<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
 					{new Date(record.date).toLocaleDateString()}
 				</Text>

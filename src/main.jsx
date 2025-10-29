@@ -26,13 +26,9 @@ import Feed from './pages/Feed/Feed';
 
 import NewCase from './pages/Feed/Tabs/cases/New';
 import ViewCase from './pages/Feed/Tabs/cases/View';
+import ViewRecord from './pages/Feed/Tabs/records/View';
 
 import { CacheProvider } from './contexts/CacheContext';
-const CachedFeed = (props) => (
-	<CacheProvider>
-		<Feed {...props} />
-	</CacheProvider>
-);
 
 const height = Dimensions.get('window').height;
 
@@ -82,7 +78,7 @@ const Main = () => {
 
 	if (!fontsLoaded || !sessionChecked) return null;
 
-	LogBox.ignoreLogs(['AbortError']);
+	LogBox.ignoreLogs(['AbortError', 'WebSocket']);
 
 	if (!fontsLoaded || !sessionChecked) return null;
 
@@ -130,7 +126,7 @@ const Main = () => {
 
 						<Stack.Screen
 							name='Feed'
-							component={CachedFeed}
+							component={Feed}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'
@@ -152,6 +148,14 @@ const Main = () => {
 								animation: 'slide_from_right'
 							}}
 						/>
+						<Stack.Screen
+							name='ViewRecord'
+							component={ViewRecord}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
 					</Stack.Navigator>
 				</NavigationContainer>
 			</Provider>
@@ -168,7 +172,9 @@ const Entry = (props) => {
 		<KeyboardProvider>
 			<WebSocketProvider url={url}>
 				<RefreshProvider>
-					<Main {...props} />
+					<CacheProvider>
+						<Main {...props} />
+					</CacheProvider>
 				</RefreshProvider>
 			</WebSocketProvider>
 		</KeyboardProvider>
