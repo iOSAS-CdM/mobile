@@ -2,72 +2,11 @@
 	"expo": {
 		"name": "iOSAS",
 		"slug": "iOSAS",
-		"scheme": "com.iosas",
 		"version": "0.1.0",
-		"orientation": "portrait",
-		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
 		"newArchEnabled": true,
-		"splash": {
-			"image": "./assets/splash-screen.png",
-			"resizeMode": "cover",
-			"backgroundColor": "#ffffff"
-		},
-		"ios": {
-			"supportsTablet": true,
-			"bundleIdentifier": "com.anonymous.iOSAS",
-			"splash": {
-				"image": "./assets/splash-screen.png",
-				"resizeMode": "cover",
-				"backgroundColor": "#ffffff"
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png",
-				"backgroundColor": "#ffffff"
-			},
-			"splash": {
-				"image": "./assets/splash-screen.png",
-				"resizeMode": "cover",
-				"backgroundColor": "#ffffff"
-			},
-			"edgeToEdgeEnabled": true,
-			"package": "com.anonymous.iOSAS"
-		},
 		"web": {
 			"favicon": "./assets/favicon.png"
 		},
-		"plugins": [
-			[
-				"expo-build-properties",
-				{
-					"android": {
-						"usesCleartextTraffic": true // ? enable HTTP requests
-					},
-					"ios": {
-						"flipper": true
-					}
-				}
-			],
-			[
-				"expo-asset",
-				{
-					"assets": [
-						"./assets/public/banner.png",
-						"./assets/public/logo.png"
-					]
-				}
-			],
-			"expo-web-browser",
-			"expo-font",
-			[
-				"expo-updates",
-				{
-					"username": "iosas-cdm"
-				}
-			]
-		],
 		"updates": {
 			"url": "https://u.expo.dev/5e83bcd4-20b8-43a2-998d-934ca4c89ca1"
 		},
