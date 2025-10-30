@@ -129,8 +129,7 @@ jobs:
 
           - name: Set release version from package.json
             id: set_version
-            run: |
-                echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
+            run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
             shell: bash
 
           - name: Create GitHub Release and upload APK(s)
