@@ -14,7 +14,6 @@ import Cases from './Tabs/Cases';
 import Calendar from './Tabs/Calendar';
 import Organizations from './Tabs/Organizations';
 import Profile from './Tabs/Profile';
-import Menu from './Tabs/Menu';
 
 import { useKeyboard } from '../../contexts/useKeyboard';
 
@@ -272,23 +271,6 @@ const Feed = () => {
 							tabBarIcon: ({ focused }) => (
 								<Icon
 									name='user'
-									size={theme.icon_size_sm}
-									color={
-										focused
-											? theme.brand_primary
-											: theme.color_icon_base
-									}
-								/>
-							)
-						}}
-					/>
-					<Tab.Screen
-						name='Menu'
-						component={Menu}
-						options={{
-							tabBarIcon: ({ focused }) => (
-								<Icon
-									name='menu'
 									size={theme.icon_size_sm}
 									color={
 										focused
