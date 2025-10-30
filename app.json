@@ -68,9 +68,14 @@
         }
       ]
     ],
-	"runtimeVersion": {
-		"policy": "appVersion"
-	},
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/7f320da7-56af-4944-a480-146a792233fa"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "experiments": {},
     "extra": {
       "eas": {

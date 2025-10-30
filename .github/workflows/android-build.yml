@@ -134,6 +134,12 @@ jobs:
             run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
             shell: bash
 
+          - name: Publish OTA update to EAS
+            if: github.ref == 'refs/heads/release' # only on release branch
+            run: |
+              npx expo login -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }} --non-interactive
+              npx eas update --branch production --message "Auto OTA update from GitHub CI"
+
           - name: Create GitHub Release and upload APK(s)
             uses: ncipollo/release-action@v1
             with:

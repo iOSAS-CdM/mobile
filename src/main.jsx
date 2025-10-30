@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import supabase from './utils/supabase';
-import { checkForUpdates } from './utils/checkForUpdates';
+import * as Updates from 'expo-updates';
 
 import { Platform, KeyboardAvoidingView, Dimensions, LogBox, StatusBar } from 'react-native';
 
@@ -15,7 +15,7 @@ import { KeyboardProvider, useKeyboard } from './contexts/useKeyboard';
 import { RefreshProvider } from './contexts/useRefresh';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 
-import { Provider } from '@ant-design/react-native';
+import { Provider, Modal } from '@ant-design/react-native';
 
 const Stack = createStackNavigator();
 
@@ -47,11 +47,24 @@ const Main = () => {
 		// an exception won't crash the app on startup.
 		let subscription = null;
 		(async () => {
+			(async () => {
 			try {
-				await checkForUpdates();
-			} catch (err) {
-				console.error('checkForUpdates failed:', err);
-			};
+					const update = await Updates.checkForUpdateAsync();
+					if (update.isAvailable) {
+						await Updates.fetchUpdateAsync();
+						Modal.alert('Update Available', 'Restarting the app to apply the latest updates.', [
+							{
+								text: 'OK',
+								onPress: async () => {
+									await Updates.reloadAsync();
+								}
+							}
+						]);
+					};
+				} catch (e) {
+					console.log('Update check failed:', e);
+				};
+			})();
 
 			try {
 				const { data: { session: currentSession }, error } = await supabase.auth.getSession();
