@@ -30,7 +30,18 @@ jobs:
                     ${{ runner.os }}-node-
 
           - name: Install dependencies
-            run: npm ci
+            run: |
+                # Use yarn if project has a yarn.lock, otherwise prefer npm ci when lockfile exists
+                if [ -f yarn.lock ]; then
+                  echo "yarn.lock found — installing with yarn (frozen lockfile)"
+                  yarn --frozen-lockfile
+                elif [ -f package-lock.json ]; then
+                  echo "package-lock.json found — installing with npm ci"
+                  npm ci
+                else
+                  echo "No lockfile found — running npm install"
+                  npm install
+                fi
 
           - name: Setup Java (JDK 11)
             uses: actions/setup-java@v4
