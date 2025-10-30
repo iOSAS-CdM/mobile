@@ -8,113 +8,112 @@ on:
 jobs:
     build-android:
       runs-on: ubuntu-latest
+      steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+          - name: Set ANDROID_SDK_ROOT
+            run: |
+              echo "ANDROID_SDK_ROOT=$RUNNER_TEMP/android-sdk" >> $GITHUB_ENV
 
-            - name: Set ANDROID_SDK_ROOT
-              run: |
-                echo "ANDROID_SDK_ROOT=$RUNNER_TEMP/android-sdk" >> $GITHUB_ENV
+          - name: Setup Node.js
+            uses: actions/setup-node@v4
+            with:
+                node-version: '18'
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: '18'
+          - name: Cache node modules
+            uses: actions/cache@v4
+            with:
+                path: ~/.npm
+                key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-node-
 
-            - name: Cache node modules
-              uses: actions/cache@v4
-              with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+          - name: Install dependencies
+            run: npm ci
 
-            - name: Install dependencies
-              run: npm ci
+          - name: Setup Java (JDK 11)
+            uses: actions/setup-java@v4
+            with:
+                distribution: 'temurin'
+                java-version: '11'
 
-            - name: Setup Java (JDK 11)
-              uses: actions/setup-java@v4
-              with:
-                  distribution: 'temurin'
-                  java-version: '11'
+          - name: Install Android SDK commandline tools and required packages
+            run: |
+                sudo apt-get update -y
+                sudo apt-get install -y unzip wget tar
+                mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+                cd /tmp
+                # download commandline tools (version may change over time)
+                wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+                unzip -q cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+                mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest || true
+                export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+                yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-            - name: Install Android SDK commandline tools and required packages
-              run: |
-                  sudo apt-get update -y
-                  sudo apt-get install -y unzip wget tar
-                  mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-                  cd /tmp
-                  # download commandline tools (version may change over time)
-                  wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-                  unzip -q cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
-                  mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest || true
-                  export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
-                  yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          - name: Prebuild Android (expo prebuild)
+            run: npx expo prebuild -p android --no-install
 
-            - name: Prebuild Android (expo prebuild)
-              run: npx expo prebuild -p android --no-install
+          - name: Build Android (Gradle assembleRelease)
+            run: |
+                cd android
+                chmod +x ./gradlew
+                ./gradlew assembleRelease --no-daemon
 
-            - name: Build Android (Gradle assembleRelease)
-              run: |
-                  cd android
-                  chmod +x ./gradlew
-                  ./gradlew assembleRelease --no-daemon
+          - name: Conditionally sign APK (if keystore secret provided)
+            # uses the repository secrets you said you already have:
+            # KEYSTORE_BASE64, KEY_ALIAS, KEY_PASSWORD, STORE_PASSWORD
+            env:
+                ANDROID_KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+                ANDROID_KEYSTORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+                ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+                ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+            run: |
+                # Only run signing if the keystore secret exists (secrets are injected as env vars)
+                if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+                  echo "No keystore provided; skipping signing step"
+                  exit 0
+                fi
+                set -e
+                mkdir -p android/keystore
+                echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/keystore.jks
+                APK_UNSIGNED=$(ls android/app/build/outputs/apk/release/*-unsigned*.apk 2>/dev/null | head -n1 || true)
+                if [ -z "$APK_UNSIGNED" ]; then
+                  APK_UNSIGNED=$(ls android/app/build/outputs/apk/release/*.apk 2>/dev/null | head -n1 || true)
+                fi
+                if [ -z "$APK_UNSIGNED" ]; then
+                  echo "No APK found to sign"
+                  exit 1
+                fi
+                APKSIGNER=$ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner
+                if [ ! -f "$APKSIGNER" ]; then
+                  echo "apksigner not found at $APKSIGNER"
+                  exit 1
+                fi
+                KS_ALIAS_FLAG=""
+                if [ -n "$ANDROID_KEY_ALIAS" ]; then
+                  KS_ALIAS_FLAG="--ks-key-alias $ANDROID_KEY_ALIAS"
+                fi
+                OUT_APK="${APK_UNSIGNED%.apk}-signed.apk"
+                # shellcheck disable=SC2086
+                $APKSIGNER sign --ks android/keystore/keystore.jks $KS_ALIAS_FLAG --ks-pass pass:$ANDROID_KEYSTORE_PASSWORD --key-pass pass:$ANDROID_KEY_PASSWORD --out "$OUT_APK" "$APK_UNSIGNED"
 
-            - name: Conditionally sign APK (if keystore secret provided)
-              # uses the repository secrets you said you already have:
-              # KEYSTORE_BASE64, KEY_ALIAS, KEY_PASSWORD, STORE_PASSWORD
-              env:
-                  ANDROID_KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-                  ANDROID_KEYSTORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-                  ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-                  ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-              run: |
-                  # Only run signing if the keystore secret exists (secrets are injected as env vars)
-                  if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
-                    echo "No keystore provided; skipping signing step"
-                    exit 0
-                  fi
-                  set -e
-                  mkdir -p android/keystore
-                  echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/keystore.jks
-                  APK_UNSIGNED=$(ls android/app/build/outputs/apk/release/*-unsigned*.apk 2>/dev/null | head -n1 || true)
-                  if [ -z "$APK_UNSIGNED" ]; then
-                    APK_UNSIGNED=$(ls android/app/build/outputs/apk/release/*.apk 2>/dev/null | head -n1 || true)
-                  fi
-                  if [ -z "$APK_UNSIGNED" ]; then
-                    echo "No APK found to sign"
-                    exit 1
-                  fi
-                  APKSIGNER=$ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner
-                  if [ ! -f "$APKSIGNER" ]; then
-                    echo "apksigner not found at $APKSIGNER"
-                    exit 1
-                  fi
-                  KS_ALIAS_FLAG=""
-                  if [ -n "$ANDROID_KEY_ALIAS" ]; then
-                    KS_ALIAS_FLAG="--ks-key-alias $ANDROID_KEY_ALIAS"
-                  fi
-                  OUT_APK="${APK_UNSIGNED%.apk}-signed.apk"
-                  # shellcheck disable=SC2086
-                  $APKSIGNER sign --ks android/keystore/keystore.jks $KS_ALIAS_FLAG --ks-pass pass:$ANDROID_KEYSTORE_PASSWORD --key-pass pass:$ANDROID_KEY_PASSWORD --out "$OUT_APK" "$APK_UNSIGNED"
+          - name: Upload APK artifact
+            uses: actions/upload-artifact@v4
+            with:
+                name: android-artifacts
+                path: |
+                    android/app/build/outputs/**/*.apk
 
-            - name: Upload APK artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: android-artifacts
-                  path: |
-                      android/app/build/outputs/**/*.apk
+          - name: Set release version from package.json
+            id: set_version
+            run: |
+                echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
 
-            - name: Set release version from package.json
-              id: set_version
-              run: |
-                  echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
-
-            - name: Create GitHub Release and upload APK(s)
-              uses: ncipollo/release-action@v1
-              with:
-                  tag: v${{ env.VERSION }}
-                  name: Release v${{ env.VERSION }}
-                  files: android/app/build/outputs/**/*.apk
-                  token: ${{ secrets.GITHUB_TOKEN }}
+          - name: Create GitHub Release and upload APK(s)
+            uses: ncipollo/release-action@v1
+            with:
+                tag: v${{ env.VERSION }}
+                name: Release v${{ env.VERSION }}
+                files: android/app/build/outputs/**/*.apk
+                token: ${{ secrets.GITHUB_TOKEN }}
