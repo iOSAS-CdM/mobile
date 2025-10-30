@@ -53,18 +53,19 @@ const ContentPage = ({
 			setLoading(true);
 
 		try {
-			const request = await authFetch(`${fetchUrl}?limit=${limit}&offset=${currentOffset}`, {
+			const response = await authFetch(`${fetchUrl}?limit=${limit}&offset=${currentOffset}`, {
 				signal: new AbortController().signal
 			});
+			if (response?.status === 0) return;
 
-			const response = await request.json();
-			if (!response || !response.length) {
+			const data = await response.json();
+			if (!data || !data.length) {
 				if (isLoadingMore) setLoadingMore(false);
 				else setLoading(false);
 				return;
 			};
 
-			const transformedData = transformItem(response) || [];
+			const transformedData = transformItem(data) || [];
 
 			if (isLoadingMore) {
 				// Append new items to existing items
@@ -74,11 +75,11 @@ const ContentPage = ({
 				setItems(transformedData);
 			};
 
-			setTotalLength(response.length);
+			setTotalLength(data.length);
 			updateCache(cacheKey, transformedData);
 
 			console.log({
-				totalLength: response.length,
+				totalLength: data.length,
 				transformedData: transformedData.length,
 				offset: currentOffset,
 				isLoadingMore
@@ -114,7 +115,7 @@ const ContentPage = ({
 	return (
 		<ScrollView
 			refreshControl={refreshControl}
-			style={{ flex: 1, backgroundColor: theme.fill_background }}
+			style={{ flex: 1 }}
 			contentContainerStyle={{ gap: headerGap }}
 			onScroll={handleScroll}
 			scrollEventThrottle={16}

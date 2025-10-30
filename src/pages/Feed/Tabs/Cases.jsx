@@ -45,6 +45,7 @@ const Cases = () => {
 			setLoadingCases(true);
 			const response = await authFetch(API_Route + '/cases');
 			const data = await response.json();
+			if (response?.status === 0) return;
 
 			if (response.ok) {
 				updateCache(prev => ({
@@ -66,13 +67,14 @@ const Cases = () => {
 
 		const fetchCases = async () => {
 			setLoadingCases(true);
-			const request = await authFetch(`${API_Route}/users/student/${cache.user?.id}/cases`, {
+			const response = await authFetch(`${API_Route}/users/student/${cache.user?.id}/cases`, {
 				signal: controller.signal
 			}).catch((error) => {
 				console.error('Error fetching cases data:', error);
 			});
+			if (response?.status === 0) return;
 
-			const data = await request.json();
+			const data = await response.json();
 			if (!data) {
 				console.error('Invalid cases data received');
 				setLoadingCases(false);
@@ -125,7 +127,7 @@ const Cases = () => {
 				title='Your reports'
 				animateAppear
 				animationType='fade'
-				onRequestClose={() => setModalVisible(false)}
+				onresponseClose={() => setModalVisible(false)}
 				style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8 }}
 				footer={[
 					{ text: 'Close', onPress: () => setModalVisible(false) }
@@ -220,7 +222,7 @@ const Case = ({ record }) => (
 			flex: 1,
 			position: 'relative',
 			padding: 16,
-			backgroundColor: record.tags.status !== 'ongoing' ? theme.fill_base : 'transparent',
+			backgroundColor: record.tags.status !== 'ongoing' ? theme.fill_base : theme.fill_background,
 			filter: record.tags.status === 'ongoing' ? 'none' : 'grayscale(100%)',
 			borderBottomColor: theme.border_color_base,
 			borderBottomWidth: theme.border_width_sm

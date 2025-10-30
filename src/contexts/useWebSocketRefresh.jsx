@@ -37,7 +37,7 @@ export const useWebSocketRefresh = (resources, onRefresh) => {
 			if (message?.type === 'refresh') {
 				const { resource, timestamp } = message.payload || {};
 
-				// If no specific resources requested, or resource matches, or it's a broadcast
+				// If no specific resources responseed, or resource matches, or it's a broadcast
 				const shouldRefresh =
 					resourceArray === null ||
 					!resource ||

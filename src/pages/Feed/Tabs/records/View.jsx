@@ -1,10 +1,9 @@
 import React from 'react';
-import moment from 'moment';
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableWithoutFeedback, Keyboard, View, Linking } from 'react-native';
 
-import { ActivityIndicator, Flex, Steps, Badge } from '@ant-design/react-native';
+import { ActivityIndicator, Flex, Steps, Badge, Tooltip } from '@ant-design/react-native';
 
 import Text from '../../../../components/Text';
 import Button from '../../../../components/Button';
@@ -78,6 +77,7 @@ const New = ({ route }) => {
 		const fetchRecordData = async () => {
 			setLoadingRecord(true);
 			const response = await authFetch(`${API_Route}/records/${id}`, { signal: controller.signal });
+			if (response?.status === 0) return;
 			setLoadingRecord(false);
 			const data = await response.json();
 			if (!response?.ok) {
@@ -90,6 +90,7 @@ const New = ({ route }) => {
 		const fetchRepositoryData = async () => {
 			setLoadingRepository(true);
 			const response = await authFetch(`${API_Route}/repositories/record/${id}`, { signal: controller.signal });
+			if (response?.status === 0) return;
 			setLoadingRepository(false);
 			const data = await response.json();
 			if (!response?.ok) {
@@ -349,11 +350,13 @@ const New = ({ route }) => {
 								}}
 							>
 								{complainee.id === cache.user?.id && (
-									<Badge
-										text={complainee.occurrences}
-										color={theme.brand_warning}
-										style={{ position: 'absolute', top: 0, right: 0 }}
-									/>
+									<Tooltip content={`You have been reported ${complainee.occurrences} time(s).`} placement='bottom'>
+										<Badge
+											text={complainee.occurrences}
+											color={theme.brand_warning}
+											style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}
+										/>
+									</Tooltip>
 								)}
 								<Avatar
 									source={{ uri: complainee.student.profilePicture }}
@@ -392,7 +395,7 @@ const New = ({ route }) => {
 						</Text>
 						{loadingRepository ? (
 							<ActivityIndicator size='large' />
-						) : repository?.data && repository.data.map((item, index) => (
+						) : repository?.data && repository.data.length > 0 ? repository.data.map((item, index) => (
 							<Flex
 								key={index}
 								direction='column'
@@ -417,7 +420,11 @@ const New = ({ route }) => {
 									View Document
 								</Button>
 							</Flex>
-						))}
+						)) : (
+							<Text style={{ fontSize: theme.font_size_base }}>
+								No files found for this record.
+							</Text>
+						)}
 					</Flex>
 				</Flex>
 			</ScrollView>

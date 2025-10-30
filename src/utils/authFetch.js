@@ -29,15 +29,34 @@ const authFetch = async (...args) => {
 		};
 	};
 
-	const response = await fetch(...args);
+	try {
+		const response = await fetch(...args);
 
-	// If we have a session but get a 403/401 response, sign out
-	if (response.status === 403 || response.status === 401) {
-		await supabase.auth.signOut();
-		console.log('unauthorized');
-		navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+		// If we have a session but get a 403/401 response, sign out
+		if (response.status === 403 || response.status === 401) {
+			await supabase.auth.signOut();
+			console.log('unauthorized');
+			navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+		}
+		return response;
+	} catch (err) {
+		// Suppress AbortError (fetch aborted) so callers don't get noisy errors.
+		// Treat other errors as before.
+		if (err && (err.name === 'AbortError' || String(err).toLowerCase().includes('aborted'))) {
+			// Return a minimal Response-like object so callers can still await json()/text()
+			return {
+				ok: false,
+				status: 0,
+				headers: {
+					get: () => null
+				},
+				json: async () => null,
+				text: async () => '',
+				clone: () => ({ ok: false, status: 0, json: async () => null, text: async () => '' })
+			};
+		};
+		throw err;
 	};
-	return response;
 };
 
 export default authFetch;

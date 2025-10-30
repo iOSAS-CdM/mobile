@@ -53,14 +53,15 @@ const Feed = () => {
 		const controller = new AbortController();
 
 		const fetchUser = async () => {
-			const request = await authFetch(`${API_Route}/auth/me`, {
+			const response = await authFetch(`${API_Route}/auth/me`, {
 				signal: controller.signal
 			}).catch((error) => {
 				console.error('Error fetching user data:', error);
 				Toast.fail('Network error. Please try again.', 1);
 			});
+			if (response?.status === 0) return;
 
-			const data = await request.json();
+			const data = await response.json();
 			if (!data) {
 				Toast.fail('Invalid user data received', 1);
 				return;

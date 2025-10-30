@@ -58,7 +58,7 @@ const SignUp = () => {
 	 */
 	const onSubmit = async (data) => {
 		setSigningUp(true);
-		const request = await fetch(`${API_Route}/auth/student/sign-up`, {
+		const response = await fetch(`${API_Route}/auth/student/sign-up`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -67,10 +67,10 @@ const SignUp = () => {
 		}).catch((error) => {
 			Toast.fail('Network error. Please try again.', 2);
 		});
-		if (!request) return setSigningUp(false);
+		if (!response) return setSigningUp(false);
 
-		if (!request.ok) {
-			const response = await request.json();
+		if (!response.ok) {
+			const response = await response.json();
 			if (response?.key && response?.message)
 				setError(response.key, { type: 'server', message: response.message });
 			Toast.fail(response?.message ?? 'An error occurred. Please try again.', 2);
@@ -345,29 +345,6 @@ const SignUp = () => {
 											<Text
 												style={{ color: theme.brand_error }}
 											>{`${errors?.email?.message}`}</Text>
-										}
-									/>
-								)}
-							/>
-							<Controller
-								control={control}
-								name='phone'
-								rules={{}}
-								render={({
-									field: { onChange, onBlur, value }
-								}) => (
-									<Input
-										placeholder='Phone number'
-										type='phone-pad'
-										name='phone'
-										onBlur={onBlur}
-										onChangeText={onChange}
-										value={value}
-										withError={!!errors?.phone}
-										errorComponent={
-											<Text
-												style={{ color: theme.brand_error }}
-											>{`${errors?.phone?.message}`}</Text>
 										}
 									/>
 								)}

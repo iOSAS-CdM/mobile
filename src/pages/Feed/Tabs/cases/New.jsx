@@ -79,6 +79,7 @@ const New = () => {
 			},
 			body: formData
 		});
+		if (response?.status === 0) return;
 		if (!response?.ok) {
 			Toast.fail('Failed to submit case', 2);
 			setSubmitting(false);
@@ -202,7 +203,7 @@ const New = () => {
 								name='content'
 								required
 								multiline
-								numberOfLines={8}
+								numberOfLines={2}
 								textAlignVertical='top'
 								onBlur={onBlur}
 								onChangeText={onChange}

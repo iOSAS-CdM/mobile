@@ -65,7 +65,7 @@ const Main = () => {
 
 			setSessionChecked(true);
 			try {
-				await SplashScreen.hide();
+				await SplashScreen.hideAsync();
 			} catch (err) {
 				console.warn('SplashScreen.hide failed:', err);
 			};
@@ -100,7 +100,7 @@ const Main = () => {
 
 	if (!fontsLoaded || !sessionChecked) return null;
 
-	LogBox.ignoreLogs(['AbortError', 'WebSocket']);
+	LogBox.ignoreAllLogs(true);
 
 	if (!fontsLoaded || !sessionChecked) return null;
 
