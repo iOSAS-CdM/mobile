@@ -15,6 +15,9 @@ jobs:
           - name: Set ANDROID_SDK_ROOT
             run: |
               echo "ANDROID_SDK_ROOT=$RUNNER_TEMP/android-sdk" >> $GITHUB_ENV
+              echo "ANDROID_HOME=$RUNNER_TEMP/android-sdk" >> $GITHUB_ENV
+              echo "PATH=$RUNNER_TEMP/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
+              echo "Set ANDROID_SDK_ROOT and ANDROID_HOME to $RUNNER_TEMP/android-sdk"
 
           - name: Setup Node.js
             uses: actions/setup-node@v4
