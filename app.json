@@ -2,12 +2,11 @@
 	"expo": {
 		"name": "iOSAS",
 		"slug": "iOSAS",
-		"scheme": "com.iosas",
+		"scheme": "com.danieljohnbyns.iosas",
 		"version": "0.1.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "light",
-		"newArchEnabled": true,
 		"splash": {
 			"image": "./assets/splash-screen.png",
 			"resizeMode": "cover",
@@ -15,7 +14,7 @@
 		},
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.anonymous.iOSAS",
+			"bundleIdentifier": "com.danieljohnbyns.iosas",
 			"splash": {
 				"image": "./assets/splash-screen.png",
 				"resizeMode": "cover",
@@ -32,8 +31,7 @@
 				"resizeMode": "cover",
 				"backgroundColor": "#ffffff"
 			},
-			"edgeToEdgeEnabled": true,
-			"package": "com.anonymous.iOSAS"
+			"package": "com.danieljohnbyns.iosas"
 		},
 		"web": {
 			"favicon": "./assets/favicon.png"
@@ -59,7 +57,6 @@
 					]
 				}
 			],
-			"expo-web-browser",
 			"expo-font",
 			[
 				"expo-updates",
@@ -77,8 +74,6 @@
 				"projectId": "5e83bcd4-20b8-43a2-998d-934ca4c89ca1"
 			}
 		},
-		"experiments": {
-			"reactCanary": true
-		}
+		"experiments": {}
 	}
 }
