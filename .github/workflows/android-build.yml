@@ -8,6 +8,8 @@ on:
 jobs:
     build-android:
       runs-on: ubuntu-latest
+      permissions:
+        contents: write
       steps:
           - name: Checkout repository
             uses: actions/checkout@v4
@@ -138,5 +140,5 @@ jobs:
                 tag: v${{ env.VERSION }}
                 name: Release v${{ env.VERSION }}
                 generateReleaseNotes: true
-                files: android/app/build/outputs/**/*.apk
+                artifacts: android/app/build/outputs/**/*.apk
                 token: ${{ secrets.GITHUB_TOKEN }}

@@ -43,30 +43,52 @@ const Main = () => {
 		StatusBar.setBarStyle('dark-content');
 		StatusBar.setBackgroundColor('#ffffff');
 
-		// Check for updates on app startup
-		checkForUpdates();
-
-		// Check active session and set
-		supabase.auth.getSession().then(({ data: { session }, error }) => {
-			if (error) {
-				console.error('Error getting session:', error);
-				setSessionChecked(true);
-				SplashScreen.hide();
-				return;
+		// Run startup work inside an async IIFE with robust error handling so
+		// an exception won't crash the app on startup.
+		let subscription = null;
+		(async () => {
+			try {
+				await checkForUpdates();
+			} catch (err) {
+				console.error('checkForUpdates failed:', err);
 			};
-			setSession(session);
-			setSessionChecked(true);
-			SplashScreen.hide();
-		});
 
-		// Listen for auth changes
-		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-			setSession(session);
-			setSessionChecked(true);
-			SplashScreen.hide();
-		});
+			try {
+				const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+				if (error)
+					console.error('Error getting session:', error);
+				else
+					setSession(currentSession);
+			} catch (err) {
+				console.error('Exception while getting session:', err);
+			};
 
-		return () => subscription.unsubscribe();
+			setSessionChecked(true);
+			try {
+				await SplashScreen.hide();
+			} catch (err) {
+				console.warn('SplashScreen.hide failed:', err);
+			};
+
+			try {
+				const res = supabase.auth.onAuthStateChange((_event, newSession) => {
+					setSession(newSession);
+					setSessionChecked(true);
+					try { SplashScreen.hide(); } catch (e) { /* ignore */ }
+				});
+				subscription = res?.data?.subscription ?? null;
+			} catch (err) {
+				console.error('Error subscribing to auth changes:', err);
+			};
+		})();
+
+		return () => {
+			try {
+				if (subscription && typeof subscription.unsubscribe === 'function') subscription.unsubscribe();
+			} catch (err) {
+				console.warn('Failed to unsubscribe auth subscription:', err);
+			};
+		};
 	}, []);
 
 	const [fontsLoaded] = useFonts({
@@ -164,9 +186,14 @@ const Main = () => {
 };
 
 const Entry = (props) => {
-	const wsProtocol = API_Route.startsWith('https') ? 'wss' : 'ws';
-	const host = API_Route.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
-	const url = `${wsProtocol}://${host}/`;
+	// Build a conservative websocket URL: strip any trailing `/api` path
+	// because API HTTP endpoints commonly live under `/api` while the
+	// websocket endpoint usually sits on the root or a different path.
+	const apiRoute = (API_Route || '').toString();
+	const wsProtocol = apiRoute.startsWith('https') ? 'wss' : 'ws';
+	// remove protocol and trailing slashes, then remove a trailing '/api'
+	const host = apiRoute.replace(/^https?:\/\//i, '').replace(/\/+$/, '').replace(/\/api$/i, '');
+	const url = `${wsProtocol}://${host}`;
 
 	return (
 		<KeyboardProvider>

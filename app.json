@@ -68,7 +68,9 @@
         }
       ]
     ],
-    "runtimeVersion": "1.0.0",
+	"runtimeVersion": {
+		"policy": "appVersion"
+	},
     "experiments": {},
     "extra": {
       "eas": {
