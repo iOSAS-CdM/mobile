@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 
 import { Flex, View } from '@ant-design/react-native';
@@ -35,13 +36,8 @@ const Home = () => {
 		>
 			<Text>{greeting ? `Good ${greeting},` : 'Hello,'}</Text>
 			<Flex direction='row' align='center' gap={8}>
-				<Avatar
-					size='large'
-					uri={cache.user?.profilePicture}
-				/>
-				<Title level={2}>
-					{cache.user?.name?.first || ''}
-				</Title>
+				<Avatar size='large' uri={cache.user?.profilePicture} />
+				<Title level={2}>{cache.user?.name?.first || ''}</Title>
 			</Flex>
 		</Flex>
 	);
@@ -51,12 +47,17 @@ const Home = () => {
 			header={header}
 			fetchUrl={`${API_Route}/announcements`}
 			cacheKey='announcements'
-			transformItem={items => items.announcements || []}
+			transformItem={(items) => items.announcements || []}
 			limit={10}
 			contentGap={theme.v_spacing_sm}
 			contentPadding={0}
-			renderItem={(announcement) => <Announcement key={announcement.id} announcement={announcement} />}
-			refreshControl={(
+			renderItem={(announcement) => (
+				<Announcement
+					key={announcement.id}
+					announcement={announcement}
+				/>
+			)}
+			refreshControl={
 				<RefreshControl
 					refreshing={false}
 					onRefresh={() => {
@@ -66,7 +67,7 @@ const Home = () => {
 						});
 					}}
 				/>
-			)}
+			}
 		/>
 	);
 };
@@ -76,70 +77,49 @@ const Home = () => {
  */
 const Announcement = ({ announcement }) => {
 	return (
-		<>
-			<View
-				style={{
-					padding: 16,
-					borderBottomColor: theme.border_color_base,
-					borderBottomWidth: theme.border_width_sm,
-					backgroundColor: theme.fill_base
-				}}
-			>
-				<Title level={4}>
-					{announcement.title}
-				</Title>
-				<Flex>
-					<Markdown>
-						{announcement.content.split('\n')[0]}
-					</Markdown>
-				</Flex>
-				<Flex direction='row' justify='between' align='center'>
-					<Flex direction='row' align='center' gap={8}>
-						<Avatar
-							size='small'
-							uri={announcement.author.profilePicture}
-						/>
-						<Text>
-							{announcement.author.name.first} {announcement.author.name.last}
-						</Text>
-					</Flex>
-					<Text>
-						{new Date(announcement.created_at).toLocaleDateString()}
-					</Text>
-				</Flex>
-			</View>
-			<View
-				style={{
-					padding: 16,
-					borderBottomColor: theme.border_color_base,
-					borderBottomWidth: theme.border_width_sm,
-					backgroundColor: theme.fill_base
-				}}
-			>
-				<Title level={4}>
-					{announcement.title}
-				</Title>
-				<Flex>
-					<Markdown>
-						{announcement.content.split('\n')[0]}
-					</Markdown>
-				</Flex>
-				<Flex direction='row' justify='between' align='center'>
-					<Flex direction='row' align='center' gap={8}>
-						<Avatar
-							size='small'
-							uri={announcement.author.profilePicture}
-						/>
-						<Text>
-							{announcement.author.name.first} {announcement.author.name.last}
-						</Text>
-				</Flex>
-					<Text>
-						{new Date(announcement.created_at).toLocaleDateString()}
-					</Text>
+		<Flex
+			direction='column'
+			justify='flex-start'
+			align='stretch'
+			style={{
+				gap: theme.v_spacing_lg,
+				padding: theme.h_spacing_md,
+				borderBottomColor: theme.border_color_base,
+				borderBottomWidth: theme.border_width_sm,
+				backgroundColor: theme.fill_base
+			}}
+		>
+			<Flex direction='column' justify='flex-start' align='stretch'>
+				<Title level={4}>{announcement.title}</Title>
+				<Markdown>{announcement.content.split('\n')[0]}</Markdown>
 			</Flex>
-			</View>
-		</>
+
+			<Image
+				source={{ uri: announcement.cover }}
+				style={{
+					width: '100%',
+					height: 128,
+					borderRadius: 8
+				}}
+				resizeMode='cover'
+			/>
+
+			<Flex direction='row' justify='between' align='center'>
+				<Flex direction='row' align='center' gap={8}>
+					<Avatar
+						size='small'
+						uri={announcement.author.profilePicture}
+					/>
+					<Text>
+						{announcement.author.name.first}{' '}
+						{announcement.author.name.last}
+					</Text>
+				</Flex>
+				<Text>
+					{new Date(announcement.created_at).toLocaleDateString()}
+				</Text>
+			</Flex>
+		</Flex>
 	);
 };
 
