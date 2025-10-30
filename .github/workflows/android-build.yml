@@ -135,10 +135,14 @@ jobs:
             shell: bash
 
           - name: Publish OTA update to EAS
-            if: github.ref == 'refs/heads/release' # only on release branch
+            if: github.ref == 'refs/heads/release'
+            env:
+              EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+              CI: true
             run: |
-              npx expo login -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }} --non-interactive
-              npx eas update --branch production --message "Auto OTA update from GitHub CI"
+              echo "Authenticated with Expo token: $EXPO_TOKEN"
+              npx --yes eas whoami
+              npx --yes eas update --branch production --message "Auto OTA update from GitHub CI ($GITHUB_SHA)" --platform android --non-interactive
 
           - name: Create GitHub Release and upload APK(s)
             uses: ncipollo/release-action@v1
