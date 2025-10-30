@@ -59,7 +59,6 @@ const ContentPage = ({
 
 			const response = await request.json();
 			if (!response || !response.length) {
-				console.error('Invalid response received');
 				if (isLoadingMore) setLoadingMore(false);
 				else setLoading(false);
 				return;
