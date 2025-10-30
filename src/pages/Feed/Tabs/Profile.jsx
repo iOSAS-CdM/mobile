@@ -1,6 +1,7 @@
 import React from 'react';
-import { ImageBackground } from 'react-native';
+import { ImageBackground, Image } from 'react-native';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
+import moment from 'moment';
 
 import { useCache } from '../../../contexts/CacheContext';
 import { useRefresh } from '../../../contexts/useRefresh';
@@ -93,21 +94,23 @@ const Profile = () => {
 							}} />
 						</View>
 
-						<Text
-							style={{
-								position: 'absolute',
-								bottom: 0,
-								right: 0,
-								paddingVertical: theme.v_spacing_sm,
-								paddingHorizontal: theme.h_spacing_md,
-								backgroundColor: theme.brand_warning,
-								borderTopLeftRadius: theme.radius_lg,
-								fontSize: theme.font_size_icontext,
-								color: theme.fill_base
-							}}
-						>
-							Unverified Student
-						</Text>
+						{cache.user?.role === 'unverified-student' && (
+							<Text
+								style={{
+									position: 'absolute',
+									bottom: 0,
+									right: 0,
+									paddingVertical: theme.v_spacing_sm,
+									paddingHorizontal: theme.h_spacing_md,
+									backgroundColor: theme.brand_warning,
+									borderTopLeftRadius: theme.radius_lg,
+									fontSize: theme.font_size_icontext,
+									color: theme.fill_base
+								}}
+							>
+								Unverified Student
+							</Text>
+						)}
 					</ImageBackground>
 					<Flex
 						direction='column'
@@ -144,6 +147,27 @@ const Profile = () => {
 						</Flex>
 					</Flex>
 				</Flex>
+
+				{cache.user?.role === 'student' && (
+					<Flex
+						direction='column'
+						align='stretch'
+						justify='start'
+						style={{
+							width: '100%',
+							padding: 16,
+							gap: 16,
+							backgroundColor: theme.fill_base
+						}}
+					>
+						<Text style={{ fontWeight: 'bold', fontSize: theme.font_size_subhead, textAlign: 'center' }}>Verified Student</Text>
+						<Image
+							source={{ uri: `https://barcode.orcascan.com/?type=qrcode&data=${cache.user?.id}&fontsize=Fit&format=png&padding=0` }}
+							style={{ width: 128, height: 128, alignSelf: 'center' }}
+						/>
+						<Text style={{ textAlign: 'center' }}>Since {moment(cache.user?.verifiedSince).format('MMMM DD YYYY')}</Text>
+					</Flex>
+				)}
 
 				<Flex
 					direction='column'
