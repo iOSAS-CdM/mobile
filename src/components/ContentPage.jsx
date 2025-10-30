@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Image } from 'react-native';
 
 import Text from './Text';
 import Skeleton from './Skeleton';
@@ -130,7 +130,7 @@ const ContentPage = ({
 						</View>
 					))
 				) : (
-					items.map(withGridItem(renderItem, columns))
+					items.map(withGridItem(renderItem, columns, contentGap))
 				)}
 				{loadingMore && (
 					Array.from({ length: columns }).map((_, index) => (
@@ -155,10 +155,10 @@ const styles = StyleSheet.create({
 });
 
 // Wrap the renderItem with grid item styling
-const withGridItem = (renderItem, columns) => (item) => {
+const withGridItem = (renderItem, columns, contentGap) => (item) => {
 	const itemWidth = `${100 / columns - 2}%`;
 	return (
-		<View key={item.id} style={{ width: itemWidth }}>
+		<View key={item.id} style={{ width: itemWidth, gap: contentGap }}>
 			{renderItem(item)}
 		</View>
 	);

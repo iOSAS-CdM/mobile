@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ScrollView as RNScrollView, Dimensions } from 'react-native';
-import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 import { Flex, Icon, Tag, Modal } from '@ant-design/react-native';
 

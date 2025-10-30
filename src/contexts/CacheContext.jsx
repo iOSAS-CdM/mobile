@@ -12,10 +12,10 @@ const CacheContext = React.createContext();
  * @typedef {{
  * 	user: UserProps | null;
  * 	cases: CaseProps[];
- * 	highlights: Object[] | null;
  * 	records: RecordProps[];
  * 	peers: UserProps[] | null;
  * 	repositories: RepositoryProps[] | null;
+ * 	announcements: Object[];
  * }} Cache
  */
 /** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
@@ -49,7 +49,7 @@ export const CacheProvider = ({ children }) => {
 		records: [],
 		cases: [],
 		repositories: [],
-		highlights: null,
+		announcements: [],
 		peers: null
 	});
 
