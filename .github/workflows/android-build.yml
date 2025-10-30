@@ -11,6 +11,8 @@ jobs:
       steps:
           - name: Checkout repository
             uses: actions/checkout@v4
+            with:
+                fetch-depth: 0
 
           - name: Set ANDROID_SDK_ROOT
             run: |
@@ -129,11 +131,13 @@ jobs:
             id: set_version
             run: |
                 echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
+            shell: bash
 
           - name: Create GitHub Release and upload APK(s)
             uses: ncipollo/release-action@v1
             with:
                 tag: v${{ env.VERSION }}
                 name: Release v${{ env.VERSION }}
+                generateReleaseNotes: true
                 files: android/app/build/outputs/**/*.apk
                 token: ${{ secrets.GITHUB_TOKEN }}
