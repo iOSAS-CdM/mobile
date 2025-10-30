@@ -7,13 +7,15 @@ on:
 
 jobs:
     build-android:
-        runs-on: ubuntu-latest
-        env:
-            ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+      runs-on: ubuntu-latest
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Set ANDROID_SDK_ROOT
+              run: |
+                echo "ANDROID_SDK_ROOT=$RUNNER_TEMP/android-sdk" >> $GITHUB_ENV
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -62,13 +64,17 @@ jobs:
             - name: Conditionally sign APK (if keystore secret provided)
               # uses the repository secrets you said you already have:
               # KEYSTORE_BASE64, KEY_ALIAS, KEY_PASSWORD, STORE_PASSWORD
-              if: ${{ secrets.KEYSTORE_BASE64 != '' }}
               env:
                   ANDROID_KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
                   ANDROID_KEYSTORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
                   ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
                   ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
               run: |
+                  # Only run signing if the keystore secret exists (secrets are injected as env vars)
+                  if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+                    echo "No keystore provided; skipping signing step"
+                    exit 0
+                  fi
                   set -e
                   mkdir -p android/keystore
                   echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/keystore.jks
