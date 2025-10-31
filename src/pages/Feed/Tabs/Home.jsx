@@ -147,7 +147,7 @@ const Announcement = ({
 					...(prev.likes || []),
 					{ author: cache.user, date: new Date() }
 				];
-			}
+			};
 			return {
 				...prev,
 				likes: updatedLikes
