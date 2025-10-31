@@ -16,6 +16,8 @@ const { execSync } = require('child_process');
 
 // Path to package.json
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
+// Path to app.json
+const appJsonPath = path.join(__dirname, '..', 'app.json');
 
 try {
 	// Read package.json
@@ -38,8 +40,22 @@ try {
 
 	console.log(`✅ Version bumped: ${currentVersion} → ${newVersion}`);
 
-	// Stage the updated package.json
-	execSync('git add package.json', { stdio: 'inherit' });
+	// Read app.json
+	const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'));
+
+	// Update expo.version
+	appJson.expo.version = newVersion;
+
+	// Update expo.runtimeVersion
+	appJson.expo.runtimeVersion = newVersion;
+
+	// Write back app.json
+	fs.writeFileSync(appJsonPath, JSON.stringify(appJson, null, 2) + '\n');
+
+	console.log(`✅ App.json version updated`);
+
+	// Stage the updated files
+	execSync('git add package.json app.json', { stdio: 'inherit' });
 
 	// Update yarn.lock if it exists
 	const yarnLockPath = path.join(__dirname, '..', 'yarn.lock');
@@ -47,11 +63,11 @@ try {
 		console.log('📦 Updating yarn.lock...');
 		execSync('yarn install --mode update-lockfile', { stdio: 'inherit' });
 		execSync('git add yarn.lock', { stdio: 'inherit' });
-	}
+	};
 
 	console.log('✨ Version files staged for commit');
 
 } catch (error) {
 	console.error('❌ Error bumping version:', error.message);
 	process.exit(1);
-}
+};
