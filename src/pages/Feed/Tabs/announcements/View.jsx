@@ -125,31 +125,32 @@ const ViewAnnouncement = ({ route }) => {
 					direction='column'
 					justify='center'
 					align='stretch'
-					gap={theme.v_spacing_lg}
 					style={{
 						width: '100%',
-						padding: 16,
-						backgroundColor: theme.fill_base
+						backgroundColor: theme.fill_base,
+						gap: theme.v_spacing_md
 					}}
 				>
 					<Image
 						source={{ uri: announcement.cover }}
 						style={{
 							width: '100%',
-							height: 200,
-							borderRadius: 8
+							height: 256,
+							marginTop: theme.v_spacing_md
 						}}
 						resizeMode='cover'
 					/>
-					<Title level={3}>{announcement.title}</Title>
+					<Title level={3} style={{ paddingHorizontal: theme.h_spacing_md }}>{announcement.title}</Title>
 
-					<Markdown>{announcement.content}</Markdown>
+					<View style={{ paddingHorizontal: theme.h_spacing_md }}>
+						<Markdown>{announcement.content}</Markdown>
+					</View>
 
 					<Flex
 						direction='row'
 						justify='between'
 						align='center'
-						style={{ marginTop: theme.v_spacing_md }}
+						style={{ paddingHorizontal: theme.h_spacing_md }}
 					>
 						<Flex direction='row' align='center' gap={8}>
 							<Avatar
@@ -165,7 +166,7 @@ const ViewAnnouncement = ({ route }) => {
 						</Text>
 					</Flex>
 
-					<Flex direction='row' justify='between' align='center' gap={16}>
+					<Flex direction='row' justify='between' align='center' gap={16} style={{ marginBottom: theme.v_spacing_md }}>
 						<Pressable
 							onPress={like}
 							android_ripple={{
@@ -173,27 +174,28 @@ const ViewAnnouncement = ({ route }) => {
 								borderless: true
 							}}
 							style={{
+								flex: 1,
 								backgroundColor: 'transparent',
 								paddingHorizontal: theme.h_spacing_md,
-								paddingVertical: theme.v_spacing_sm
+								paddingBottom: theme.v_spacing_sm
 							}}
 						>
 							<Flex
 								direction='row'
-								justify='center'
+								justify='start'
 								align='center'
 								gap={8}
 							>
 								<Ionicons
 									name={
-										currentAnnouncement?.likes?.find(
+										announcement.likes?.find(
 											(like) => like.author.id === cache.user?.id
 										)
 											? 'heart'
 											: 'heart-outline'
 									}
 									color={
-										currentAnnouncement?.likes?.find(
+										announcement.likes?.find(
 											(like) => like.author.id === cache.user?.id
 										)
 											? theme.brand_primary
@@ -201,21 +203,36 @@ const ViewAnnouncement = ({ route }) => {
 									}
 								/>
 								<Text>
-									{currentAnnouncement?.likes?.length || 0} like{(currentAnnouncement?.likes?.length || 0) !== 1 && 's'}
+									{announcement.likes?.length} like
+									{announcement.likes?.length !== 1 && 's'}
 								</Text>
 							</Flex>
 						</Pressable>
+						<Pressable
+							android_ripple={{
+								color: theme.fill_mask,
+								borderless: true
+							}}
+							style={{
+								flex: 1,
+								backgroundColor: 'transparent',
+								paddingHorizontal: theme.h_spacing_md,
+								paddingVertical: theme.v_spacing_sm
+							}}
+						>
 						<Flex
 							direction='row'
-							justify='center'
+								justify='end'
 							align='center'
 							gap={8}
 						>
 							<Ionicons name='chatbubble-outline' />
 							<Text>
-								{announcement.comments?.length || 0} comment{(announcement.comments?.length || 0) !== 1 && 's'}
-							</Text>
-						</Flex>
+									{announcement.comments?.length} comment
+									{announcement.comments?.length !== 1 && 's'}
+								</Text>
+							</Flex>
+						</Pressable>
 					</Flex>
 
 					{currentAnnouncement?.comments && currentAnnouncement.comments.length > 0 && (
