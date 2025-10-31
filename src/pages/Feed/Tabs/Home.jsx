@@ -2,6 +2,8 @@ import React from 'react';
 import { Image, Pressable } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { Flex } from '@ant-design/react-native';
 import Markdown from 'react-native-markdown-display';
@@ -17,7 +19,6 @@ import { useRefresh } from '../../../contexts/useRefresh';
 import { API_Route } from '../../../main';
 
 import theme from '../../../styles/theme';
-import IconButton from '../../../components/IconButton';
 import authFetch from '../../../utils/authFetch';
 const Home = () => {
 	const greeting = React.useMemo(() => {
@@ -45,58 +46,115 @@ const Home = () => {
 		</Flex>
 	);
 
+	const bottomSheetRef = React.useRef(null);
+	const handleSheetChanges = React.useCallback((index) => {
+		console.log('handleSheetChanges', index);
+	}, []);
+
 	return (
-		<ContentPage
-			header={header}
-			fetchUrl={`${API_Route}/announcements`}
-			cacheKey='announcements'
-			transformItem={(items) => items.announcements || []}
-			limit={10}
-			contentGap={theme.v_spacing_sm}
-			contentPadding={0}
-			renderItem={(announcement) => (
-				<Announcement
-					key={announcement.id}
-					announcement={announcement}
-				/>
-			)}
-			refreshControl={
-				<RefreshControl
-					refreshing={false}
-					onRefresh={() => {
-						setRefresh({
-							key: 'announcements',
-							seeds: Date.now()
-						});
-					}}
-				/>
-			}
-		/>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<ContentPage
+				header={header}
+				fetchUrl={`${API_Route}/announcements`}
+				cacheKey='announcements'
+				transformItem={(items) => items.announcements || []}
+				limit={10}
+				contentGap={theme.v_spacing_sm}
+				contentPadding={0}
+				renderItem={(announcement) => (
+					<Announcement
+						key={announcement.id}
+						announcement={announcement}
+						viewLikers={() => { }}
+						viewComments={() => { }}
+					/>
+				)}
+				refreshControl={
+					<RefreshControl
+						refreshing={false}
+						onRefresh={() => {
+							setRefresh({
+								key: 'announcements',
+								seeds: Date.now()
+							});
+						}}
+					/>
+				}
+			/>
+
+			<BottomSheet
+				ref={bottomSheetRef}
+				onChange={handleSheetChanges}
+			>
+				<BottomSheetView>
+					<Text>Bottom Sheet Content</Text>
+				</BottomSheetView>
+			</BottomSheet>
+		</GestureHandlerRootView>
 	);
 };
 
 /**
- * @type {React.FC<{announcement: import('../../../classes/Announcement').AnnouncementProps}>}
+ * @type {React.FC<{
+ * 	announcement: import('../../../classes/Announcement').AnnouncementProps,
+ * 	viewLikers?: () => void
+ * 	viewComments?: () => void
+ * }>}
  */
-const Announcement = ({ announcement }) => {
-	const [liked, setLiked] = React.useState(false);
-
+const Announcement = ({
+	announcement: rawAnnouncement,
+	viewLikers,
+	viewComments
+}) => {
 	const { cache } = useCache();
+	const [announcement, setAnnouncement] = React.useState(rawAnnouncement);
 
 	const like = async () => {
 		if (!cache.user) return;
-		setLiked(!liked);
-
-		const response = await authFetch(`${API_Route}/announcements/${announcement.id}/like`, {
-			method: liked ? 'DELETE' : 'POST',
-			signal: new AbortController().signal
+		setAnnouncement((prev) => {
+			const hasLiked = prev.likes?.find(
+				(like) => like.author === cache.user?.id
+			);
+			let updatedLikes;
+			if (hasLiked) {
+				// Unlike
+				updatedLikes = prev.likes.filter(
+					(like) => like.author !== cache.user?.id
+				);
+			} else {
+				// Like
+				updatedLikes = [
+					...(prev.likes || []),
+					{ author: cache.user.id }
+				];
+			}
+			return {
+				...prev,
+				likes: updatedLikes
+			};
 		});
+
+		const response = await authFetch(
+			`${API_Route}/announcements/${rawAnnouncement.id}/like`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({})
+			}
+		);
 		if (response?.status === 0) return;
-		if (!response?.ok) return;
+
+		const data = await response.json();
+		if (!data) return;
 	};
 
 	return (
-		<Pressable android_ripple={{ color: theme.fill_mask }}>
+		<Pressable
+			android_ripple={{ color: theme.fill_mask }}
+			onLongPress={like}
+		>
 			<Flex
 				direction='column'
 				justify='flex-start'
@@ -108,7 +166,15 @@ const Announcement = ({ announcement }) => {
 					backgroundColor: theme.fill_base
 				}}
 			>
-				<Flex direction='column' justify='flex-start' align='stretch' style={{ paddingHorizontal: theme.h_spacing_md, paddingTop: theme.v_spacing_md }}>
+				<Flex
+					direction='column'
+					justify='flex-start'
+					align='stretch'
+					style={{
+						paddingHorizontal: theme.h_spacing_md,
+						paddingTop: theme.v_spacing_md
+					}}
+				>
 					<Title level={4}>{announcement.title}</Title>
 					<Markdown>{announcement.content.split('\n')[0]}</Markdown>
 				</Flex>
@@ -121,7 +187,12 @@ const Announcement = ({ announcement }) => {
 					}}
 					resizeMode='cover'
 				/>
-				<Flex direction='row' justify='between' align='center' style={{ paddingHorizontal: theme.h_spacing_md }}>
+				<Flex
+					direction='row'
+					justify='between'
+					align='center'
+					style={{ paddingHorizontal: theme.h_spacing_md }}
+				>
 					<Flex direction='row' align='center' gap={8}>
 						<Avatar
 							size='small'
@@ -137,16 +208,70 @@ const Announcement = ({ announcement }) => {
 					</Text>
 				</Flex>
 				<Flex direction='row' justify='between' align='center' gap={16}>
-					<Pressable onPress={like} android_ripple={{ color: theme.fill_mask, borderless: true }} style={{ backgroundColor: 'transparent', paddingHorizontal: theme.h_spacing_md, paddingBottom: theme.v_spacing_sm }}>
-						<Flex direction='row' justify='center' align='center' gap={8}>
-							<Ionicons name={liked ? 'heart' : 'heart-outline'} />
-							<Text>{liked ? announcement.likes?.length + 1 : announcement.likes?.length} like{announcement.likes?.length !== 1 && 's'}</Text>
+					<Pressable
+						onPress={like}
+						android_ripple={{
+							color: theme.fill_mask,
+							borderless: true
+						}}
+						style={{
+							backgroundColor: 'transparent',
+							paddingHorizontal: theme.h_spacing_md,
+							paddingBottom: theme.v_spacing_sm
+						}}
+						onLongPress={viewLikers}
+					>
+						<Flex
+							direction='row'
+							justify='center'
+							align='center'
+							gap={8}
+						>
+							<Ionicons
+								name={
+									announcement.likes?.find(
+										(like) => like.author === cache.user?.id
+									)
+										? 'heart'
+										: 'heart-outline'
+								}
+								color={
+									announcement.likes?.find(
+										(like) => like.author === cache.user?.id
+									)
+										? theme.brand_primary
+										: theme.text_color_base
+								}
+							/>
+							<Text>
+								{announcement.likes?.length} like
+								{announcement.likes?.length !== 1 && 's'}
+							</Text>
 						</Flex>
 					</Pressable>
-					<Pressable android_ripple={{ color: theme.fill_mask, borderless: true }} style={{ backgroundColor: 'transparent', paddingHorizontal: theme.h_spacing_md, paddingVertical: theme.v_spacing_sm }}>
-						<Flex direction='row' justify='center' align='center' gap={8}>
+					<Pressable
+						android_ripple={{
+							color: theme.fill_mask,
+							borderless: true
+						}}
+						style={{
+							backgroundColor: 'transparent',
+							paddingHorizontal: theme.h_spacing_md,
+							paddingVertical: theme.v_spacing_sm
+						}}
+						onPress={viewComments}
+					>
+						<Flex
+							direction='row'
+							justify='center'
+							align='center'
+							gap={8}
+						>
 							<Ionicons name='chatbubble-outline' />
-							<Text>{announcement.comments?.length} comment{announcement.comments?.length !== 1 && 's'}</Text>
+							<Text>
+								{announcement.comments?.length} comment
+								{announcement.comments?.length !== 1 && 's'}
+							</Text>
 						</Flex>
 					</Pressable>
 				</Flex>
