@@ -134,6 +134,9 @@ jobs:
             run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
             shell: bash
 
+          - name: Install EAS CLI
+            run: npm install -g eas-cli
+
           - name: Publish OTA update to EAS
             if: github.ref == 'refs/heads/release'
             env:
