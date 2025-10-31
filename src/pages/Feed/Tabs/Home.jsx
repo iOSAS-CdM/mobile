@@ -16,7 +16,7 @@ import ContentPage from '../../../components/ContentPage';
 import { useCache } from '../../../contexts/CacheContext';
 import { useRefresh } from '../../../contexts/useRefresh';
 
-import { API_Route } from '../../../main';
+import { API_Route, navigationRef } from '../../../main';
 
 import theme from '../../../styles/theme';
 import authFetch from '../../../utils/authFetch';
@@ -30,6 +30,8 @@ const Home = () => {
 
 	const { cache } = useCache();
 	const { setRefresh } = useRefresh();
+
+	const [likers, setLikers] = React.useState([]);
 
 	const header = (
 		<Flex
@@ -50,6 +52,11 @@ const Home = () => {
 	const handleSheetChanges = React.useCallback((index) => {
 		console.log('handleSheetChanges', index);
 	}, []);
+	const viewLikers = (announcement) => {
+		setLikers(announcement.likes || []);
+		bottomSheetRef.current?.snapToIndex(1);
+	};
+	const viewComments = (announcement) => { };
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
@@ -65,8 +72,8 @@ const Home = () => {
 					<Announcement
 						key={announcement.id}
 						announcement={announcement}
-						viewLikers={() => { }}
-						viewComments={() => { }}
+						viewLikers={() => viewLikers(announcement)}
+						viewComments={() => viewComments(announcement)}
 					/>
 				)}
 				refreshControl={
@@ -85,9 +92,22 @@ const Home = () => {
 			<BottomSheet
 				ref={bottomSheetRef}
 				onChange={handleSheetChanges}
+				enablePanDownToClose={true}
+				index={-1}
+				snapPoints={['25%', '50%']}
 			>
-				<BottomSheetView>
-					<Text>Bottom Sheet Content</Text>
+				<BottomSheetView style={{ padding: 16 }}>
+					<Title level={4} style={{ marginBottom: 16 }}>Likers</Title>
+					{likers.length === 0 ? (
+						<Text>No likes yet</Text>
+					) : (
+						likers.map((like) => (
+							<Flex key={like.author.id} direction='row' align='center' gap={8} style={{ marginBottom: 8 }}>
+								<Avatar size='small' uri={like.author.profilePicture} />
+								<Text>{like.author.name.first} {like.author.name.last}</Text>
+							</Flex>
+						))
+					)}
 				</BottomSheetView>
 			</BottomSheet>
 		</GestureHandlerRootView>
@@ -113,19 +133,19 @@ const Announcement = ({
 		if (!cache.user) return;
 		setAnnouncement((prev) => {
 			const hasLiked = prev.likes?.find(
-				(like) => like.author === cache.user?.id
+				(like) => like.author.id === cache.user?.id
 			);
 			let updatedLikes;
 			if (hasLiked) {
 				// Unlike
 				updatedLikes = prev.likes.filter(
-					(like) => like.author !== cache.user?.id
+					(like) => like.author.id !== cache.user?.id
 				);
 			} else {
 				// Like
 				updatedLikes = [
 					...(prev.likes || []),
-					{ author: cache.user.id }
+					{ author: cache.user, date: new Date() }
 				];
 			}
 			return {
@@ -153,7 +173,7 @@ const Announcement = ({
 	return (
 		<Pressable
 			android_ripple={{ color: theme.fill_mask }}
-			onLongPress={like}
+			onLongPress={viewLikers}
 		>
 			<Flex
 				direction='column'
@@ -215,6 +235,7 @@ const Announcement = ({
 							borderless: true
 						}}
 						style={{
+							flex: 1,
 							backgroundColor: 'transparent',
 							paddingHorizontal: theme.h_spacing_md,
 							paddingBottom: theme.v_spacing_sm
@@ -223,21 +244,21 @@ const Announcement = ({
 					>
 						<Flex
 							direction='row'
-							justify='center'
+							justify='start'
 							align='center'
 							gap={8}
 						>
 							<Ionicons
 								name={
 									announcement.likes?.find(
-										(like) => like.author === cache.user?.id
+										(like) => like.author.id === cache.user?.id
 									)
 										? 'heart'
 										: 'heart-outline'
 								}
 								color={
 									announcement.likes?.find(
-										(like) => like.author === cache.user?.id
+										(like) => like.author.id === cache.user?.id
 									)
 										? theme.brand_primary
 										: theme.text_color_base
@@ -255,6 +276,7 @@ const Announcement = ({
 							borderless: true
 						}}
 						style={{
+							flex: 1,
 							backgroundColor: 'transparent',
 							paddingHorizontal: theme.h_spacing_md,
 							paddingVertical: theme.v_spacing_sm
@@ -272,6 +294,31 @@ const Announcement = ({
 								{announcement.comments?.length} comment
 								{announcement.comments?.length !== 1 && 's'}
 							</Text>
+						</Flex>
+					</Pressable>
+					<Pressable
+						android_ripple={{
+							color: theme.fill_mask,
+							borderless: true
+						}}
+						style={{
+							flex: 1,
+							backgroundColor: 'transparent',
+							paddingHorizontal: theme.h_spacing_md,
+							paddingVertical: theme.v_spacing_sm
+						}}
+						onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement })}
+					>
+						<Flex
+							direction='row'
+							justify='end'
+							align='center'
+							gap={8}
+						>
+							<Text>
+								Read More
+							</Text>
+							<Ionicons name='chevron-forward-outline' />
 						</Flex>
 					</Pressable>
 				</Flex>
