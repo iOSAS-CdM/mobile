@@ -26,13 +26,13 @@ import theme from '../../../../styles/theme';
 const ViewAnnouncement = ({ route }) => {
 	/** @type {import('../../../../classes/Announcement').AnnouncementProps | null} */
 	const announcement = route.params?.announcement || null;
+	const setAnnouncement = route.params?.setAnnouncement || (() => {});
 	const { cache } = useCache();
 	const [currentAnnouncement, setCurrentAnnouncement] = React.useState(announcement);
 
 	const like = async () => {
 		if (!cache.user || !currentAnnouncement) return;
-		setCurrentAnnouncement((prev) => {
-			if (!prev) return prev;
+		const update  = (prev) => {
 			const hasLiked = prev.likes?.find(
 				(like) => like.author.id === cache.user?.id
 			);
@@ -53,7 +53,9 @@ const ViewAnnouncement = ({ route }) => {
 				...prev,
 				likes: updatedLikes
 			};
-		});
+		};
+		setCurrentAnnouncement(update);
+		setAnnouncement(update);
 
 		const response = await authFetch(
 			`${API_Route}/announcements/${currentAnnouncement.id}/like`,
@@ -171,7 +173,7 @@ const ViewAnnouncement = ({ route }) => {
 							onPress={like}
 							android_ripple={{
 								color: theme.fill_mask,
-								borderless: true
+								borderless: false
 							}}
 							style={{
 								flex: 1,
@@ -188,14 +190,14 @@ const ViewAnnouncement = ({ route }) => {
 							>
 								<Ionicons
 									name={
-										announcement.likes?.find(
+										currentAnnouncement.likes?.find(
 											(like) => like.author.id === cache.user?.id
 										)
 											? 'heart'
 											: 'heart-outline'
 									}
 									color={
-										announcement.likes?.find(
+										currentAnnouncement.likes?.find(
 											(like) => like.author.id === cache.user?.id
 										)
 											? theme.brand_primary
@@ -203,15 +205,15 @@ const ViewAnnouncement = ({ route }) => {
 									}
 								/>
 								<Text>
-									{announcement.likes?.length} like
-									{announcement.likes?.length !== 1 && 's'}
+									{currentAnnouncement.likes?.length} like
+									{currentAnnouncement.likes?.length !== 1 && 's'}
 								</Text>
 							</Flex>
 						</Pressable>
 						<Pressable
 							android_ripple={{
 								color: theme.fill_mask,
-								borderless: true
+								borderless: false
 							}}
 							style={{
 								flex: 1,
@@ -228,8 +230,8 @@ const ViewAnnouncement = ({ route }) => {
 						>
 							<Ionicons name='chatbubble-outline' />
 							<Text>
-									{announcement.comments?.length} comment
-									{announcement.comments?.length !== 1 && 's'}
+									{currentAnnouncement.comments?.length} comment
+									{currentAnnouncement.comments?.length !== 1 && 's'}
 								</Text>
 							</Flex>
 						</Pressable>

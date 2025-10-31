@@ -232,13 +232,13 @@ const Announcement = ({
 						onPress={like}
 						android_ripple={{
 							color: theme.fill_mask,
-							borderless: true
+							borderless: false
 						}}
 						style={{
 							flex: 1,
 							backgroundColor: 'transparent',
 							paddingHorizontal: theme.h_spacing_md,
-							paddingBottom: theme.v_spacing_sm
+							paddingVertical: theme.v_spacing_sm
 						}}
 						onLongPress={viewLikers}
 					>
@@ -273,7 +273,7 @@ const Announcement = ({
 					<Pressable
 						android_ripple={{
 							color: theme.fill_mask,
-							borderless: true
+							borderless: false
 						}}
 						style={{
 							flex: 1,
@@ -299,7 +299,7 @@ const Announcement = ({
 					<Pressable
 						android_ripple={{
 							color: theme.fill_mask,
-							borderless: true
+							borderless: false
 						}}
 						style={{
 							flex: 1,
@@ -307,7 +307,7 @@ const Announcement = ({
 							paddingHorizontal: theme.h_spacing_md,
 							paddingVertical: theme.v_spacing_sm
 						}}
-						onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement })}
+						onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement })}
 					>
 						<Flex
 							direction='row'
