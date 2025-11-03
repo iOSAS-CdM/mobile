@@ -132,7 +132,17 @@ const Main = () => {
 		>
 			<Provider theme={theme}>
 				<StatusBar style='auto' translucent />
-				<NavigationContainer ref={navigationRef}>
+				<NavigationContainer
+					ref={navigationRef}
+					linking={{
+						prefixes: ['com.danieljohnbyns.iosas://', 'exp://', 'https://'],
+						config: {
+							screens: {
+								'oauth-callback': '*'
+							}
+						}
+					}}
+				>
 					<Stack.Navigator initialRouteName={session && session.access_token ? 'Feed' : 'SignIn'}>
 						<Stack.Screen
 							name='SignIn'

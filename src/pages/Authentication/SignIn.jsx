@@ -6,7 +6,7 @@ import { makeRedirectUri } from 'expo-auth-session';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as WebBrowser from 'expo-web-browser';
 
-import { Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { Flex, Toast } from '@ant-design/react-native';
 
@@ -21,7 +21,20 @@ import LogoBanner from '../../../assets/public/banner.png';
 import { navigationRef } from '../../main';
 import { useKeyboard } from '../../contexts/useKeyboard';
 
-const redirectTo = makeRedirectUri();
+// Generate appropriate redirect URI based on build type and platform
+const getRedirectUri = () => {
+	// For native builds (not Expo Go), use the custom scheme
+	if (Platform.OS === 'ios' || Platform.OS === 'android') {
+		return makeRedirectUri({
+			scheme: 'com.danieljohnbyns.iosas',
+			path: 'oauth-callback'
+		});
+	};
+	// For web and Expo Go
+	return makeRedirectUri();
+};
+
+const redirectTo = getRedirectUri();
 console.log('Redirect URI:', redirectTo);
 /** @type {(url: string) => Promise<import('@supabase/supabase-js').Session | null>} */
 const createSessionFromUrl = (url) =>
@@ -217,7 +230,7 @@ const SignIn = () => {
 						loading={signingIn}
 						onPress={handleSubmit(onSubmit)}
 					>
-						Sign Up
+						Sign In
 					</Button>
 
 					<Flex direction='column' justify='center' align='center' gap={theme.v_spacing_xs}>
