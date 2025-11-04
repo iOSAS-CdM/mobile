@@ -27,7 +27,7 @@ const getRedirectUri = () => {
 	if (Platform.OS === 'ios' || Platform.OS === 'android') {
 		return makeRedirectUri({
 			scheme: 'com.danieljohnbyns.iosas',
-			path: 'oauth-callback'
+			path: 'oauth'
 		});
 	};
 	// For web and Expo Go
