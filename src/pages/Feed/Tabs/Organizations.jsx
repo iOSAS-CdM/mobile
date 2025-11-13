@@ -20,7 +20,6 @@ const Organizations = () => {
 
 	const fetchUrl = `${API_Route}/users/student/${cache?.user?.id}/organizations`;
 
-
 	return (
 		<ContentPage
 			fetchUrl={fetchUrl}

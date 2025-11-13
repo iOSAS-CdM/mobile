@@ -73,78 +73,92 @@ const ViewOrganization = ({ route }) => {
 				>
 					<Button size='small' icon='left' onPress={() => { navigationRef.current?.goBack(); }} />
 					<Text style={{ fontSize: theme.font_size_subhead, fontWeight: '600' }}>Organization</Text>
-					<Button size='small' icon='left' style={{ opacity: 0 }} />
+					{
+						// show a publish button for organization publishers
+						(() => {
+							const userId = (cache && cache.user && cache.user.id) || null;
+							const isPublisher = !!(organization && organization.members && organization.members.find(m => ((m.id === userId) || (m.student && m.student.id === userId)) && m.publisher));
+							if (!isPublisher) return <Button size='small' icon='left' style={{ opacity: 0 }} />;
+							return <Button size='small' onPress={() => navigationRef.current?.navigate('NewOrgAnnouncement', { organization })}>Publish</Button>;
+						})()
+					}
 				</Flex>
 			</TouchableWithoutFeedback>
 
 			<ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps='handled'>
-				<View style={{ overflow: 'visible' }}>
-					{organization.cover && (
-						<Image source={{ uri: organization.cover }} width={Dimensions.get('window').width} />
-					)}
+				<Flex direction='column' align='stretch' style={{ gap: theme.v_spacing_md, backgroundColor: theme.fill_body }}>
+					<Flex direction='column' align='stretch' style={{ gap: theme.v_spacing_md, backgroundColor: theme.fill_base }}>
+						<View>
+							{organization.cover && (
+								<Image source={{ uri: organization.cover }} width={Dimensions.get('window').width} />
+							)}
+							<Avatar
+								size={64}
+								uri={organization.logo}
+								style={{
+									position: 'absolute',
+									bottom: 8,
+									left: 16,
+									borderWidth: 1,
+									borderColor: theme.border_color_base,
+									backgroundColor: theme.fill_base
+								}}
+							/>
+						</View>
+						<Flex
+							direction='column'
+							justify='flex-start'
+							align='stretch'
+							style={{ padding: theme.v_spacing_md, backgroundColor: theme.fill_base }}
+						>
+							<Text style={{ fontSize: theme.font_size_heading, fontWeight: '600' }}>{organization.shortName}</Text>
+							<Text style={{ color: theme.color_text_secondary }}>{organization.fullName}</Text>
+						</Flex>
+					</Flex>
 
-					<Avatar
-						size={64}
-						uri={organization.logo}
-						style={{
-							position: 'absolute',
-							bottom: 8,
-							left: 16,
-							borderWidth: 1,
-							borderColor: theme.border_color_base,
-							backgroundColor: theme.fill_base
-						}}
-					/>
-				</View>
-				<Flex
-					direction='column'
-					justify='flex-start'
-					align='stretch'
-					style={{ padding: theme.v_spacing_md, backgroundColor: theme.fill_base }}
-				>
-					<Text style={{ fontSize: theme.font_size_heading, fontWeight: '600' }}>{organization.shortName}</Text>
-					<Text style={{ color: theme.color_text_secondary }}>{organization.fullName}</Text>
-				</Flex>
-				<Flex
-					direction='column'
-					justify='flex-start'
-					align='stretch'
-					style={{ padding: theme.v_spacing_md, gap: theme.v_spacing_sm, backgroundColor: theme.fill_base }}
-				>
-					<Text style={{ fontSize: theme.font_size_subhead, fontWeight: '600' }}>Members</Text>
-					{organization.members && organization.members.length > 0 ? (
-						organization.members.map((member) => (
-							<Flex
-								key={member.id}
-								direction='row'
-								justify='flex-start'
-								align='center'
-								style={{ gap: theme.h_spacing_sm }}
-							>
-								<Avatar size={32} uri={member.student.profilePicture} />
-								<Flex direction='column' justify='flex-start' align='stretch'>
-									<Text style={{ fontSize: theme.font_size_caption_sm, fontWeight: '600' }}>{`${member.student.name.first} ${member.student.name.last}`}</Text>
-									<Text style={{ color: theme.color_text_secondary }}>{member.role}</Text>
+
+
+					<Flex
+						direction='column'
+						justify='flex-start'
+						align='stretch'
+						style={{ padding: theme.v_spacing_md, gap: theme.v_spacing_sm, backgroundColor: theme.fill_base }}
+					>
+						<Text style={{ fontSize: theme.font_size_subhead, fontWeight: '600' }}>Members</Text>
+						{organization.members && organization.members.length > 0 ? (
+							organization.members.map((member) => (
+								<Flex
+									key={member.id}
+									direction='row'
+									justify='flex-start'
+									align='center'
+									style={{ gap: theme.h_spacing_sm }}
+								>
+									<Avatar size={32} uri={member.student.profilePicture} />
+									<Flex direction='column' justify='flex-start' align='stretch'>
+										<Text style={{ fontSize: theme.font_size_caption_sm, fontWeight: '600' }}>{`${member.student.name.first} ${member.student.name.last}`}</Text>
+										<Text style={{ color: theme.color_text_secondary }}>{member.role}</Text>
+									</Flex>
+
+									{member.publisher && (
+										<Tooltip
+											placement='bottom'
+											crossOffset={0}
+											content='This member has publishing privileges.'
+										>
+											<Icon
+												name='star'
+												color={theme.brand_warning}
+												style={{ position: 'absolute', right: 0, top: 0 }}
+											/>
+										</Tooltip>
+									)}
 								</Flex>
-
-								{member.publisher && (
-									<Tooltip
-										placement='bottom'
-										crossOffset={0}
-										content='This member has publishing privileges.'
-									>
-										<Icon
-											name='star'
-											color={theme.brand_warning}
-											style={{ position: 'absolute', right: 0, top: 0 }}
-										/>
-									</Tooltip>
-								)}
-							</Flex>
-						))
-					) : (
-						<Text style={{ color: theme.color_text_secondary }}>No members found.</Text>
-					)}
+							))
+						) : (
+							<Text style={{ color: theme.color_text_secondary }}>No members found.</Text>
+						)}
+					</Flex>
 				</Flex>
 			</ScrollView>
 		</>
