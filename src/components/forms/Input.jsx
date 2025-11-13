@@ -1,4 +1,5 @@
 import React from 'react';
+import { TextInput } from 'react-native-gesture-handler';
 
 import { Input as AntInput, Flex, InputProps } from '@ant-design/react-native';
 
@@ -10,10 +11,11 @@ import theme from '../../styles/theme';
  * @param {{
  * 	withError: Boolean;
  * 	errorComponent: import('react').JSX.Element;
+ * 	wrapperStyle: Object;
  * 	required: Boolean;
  * 	placeholder: string;
  * 	required: Boolean;
- * } & InputProps} props
+ * } & typeof TextInput} props
  */
 const Input = (props) => {
 	// Destructure the error prop
@@ -24,7 +26,7 @@ const Input = (props) => {
 	const [focused, setFocused] = React.useState(false);
 
 	return (
-		<Flex direction='column' justify='center' align='stretch'>
+		<Flex direction='column' justify='center' align='stretch' style={{ width: '100%', ...props.wrapperStyle }}>
 			<View
 				style={{
 					paddingHorizontal: theme.h_spacing_md,
@@ -34,7 +36,7 @@ const Input = (props) => {
 					backgroundColor: theme.fill_base
 				}}
 			>
-				<AntInput
+				<TextInput
 					{...props}
 					style={{
 						minHeight: theme.button_height,
@@ -50,6 +52,7 @@ const Input = (props) => {
 						setFocused(false);
 					}}
 				/>
+				{props.suffix && <View style={{ position: 'absolute', right: theme.h_spacing_md, top: '50%', transform: [{ translateY: -12 }] }}>{props.suffix}</View>}
 			</View>
 
 			{withError && errorComponent}

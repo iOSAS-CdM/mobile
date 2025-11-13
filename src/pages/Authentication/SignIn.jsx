@@ -200,7 +200,7 @@ const SignIn = () => {
 						}) => (
 							<Input
 								placeholder='Password'
-								type={showPassword ? 'text' : 'password'}
+								secureTextEntry={!showPassword}
 								name='password'
 								required
 								onBlur={onBlur}
