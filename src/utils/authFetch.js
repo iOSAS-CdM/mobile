@@ -37,7 +37,7 @@ const authFetch = async (...args) => {
 			await supabase.auth.signOut();
 			console.log('unauthorized');
 			navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
-		}
+		};
 		return response;
 	} catch (err) {
 		// Suppress AbortError (fetch aborted) so callers don't get noisy errors.

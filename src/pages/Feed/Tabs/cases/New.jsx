@@ -64,13 +64,13 @@ const New = () => {
 		const formData = new FormData();
 		formData.append('violation', data.violation);
 		formData.append('content', data.content);
-		selectedFiles.forEach((file, index) => {
+		for (const file of selectedFiles) {
 			formData.append('attachments', {
 				uri: file.uri,
 				name: file.name,
 				type: file.mimeType || 'application/octet-stream'
 			});
-		});
+		};
 
 		const response = await authFetch(`${API_Route}/cases`, {
 			method: 'POST',

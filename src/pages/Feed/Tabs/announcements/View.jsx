@@ -287,17 +287,28 @@ const ViewAnnouncement = ({ route }) => {
 						<Flex
 							direction='row'
 							justify='between'
-							align='center'
+							align='start'
 							style={{ paddingHorizontal: theme.h_spacing_md }}
 						>
 							<Flex direction='row' align='center' gap={8}>
 								<Avatar
-									size='small'
 									uri={announcement.author.profilePicture}
 								/>
-								<Text>
-									{announcement.author.name.first} {announcement.author.name.last}
-								</Text>
+								<Flex direction='column' justify='center' align='start'>
+									<Text style={{ fontWeight: '500' }}>
+										{announcement.author.name.first}{' '}
+										{announcement.author.name.last}
+									</Text>
+									<Text style={{ color: theme.color_text_secondary }}>{
+										{
+											'head': 'Head',
+											'guidance': 'Guidance Officer',
+											'prefect': 'Prefect of Discipline Officer',
+											'student-affairs': 'Student Affairs Officer',
+											'student': 'Student'
+										}[announcement.author?.role] || announcement.author?.role
+									}{announcement.organization && ` - ${announcement.organization.shortName}`}</Text>
+								</Flex>
 							</Flex>
 							<Text>
 								{new Date(announcement.created_at).toLocaleDateString()}

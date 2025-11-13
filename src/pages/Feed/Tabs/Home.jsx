@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Dimensions } from 'react-native';
+import { Pressable, Dimensions, Image, View } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,7 +7,6 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { Flex } from '@ant-design/react-native';
 import Markdown from 'react-native-markdown-display';
-import Image from 'react-native-scalable-image';
 
 import Text from '../../../components/Text';
 import Title from '../../../components/Title';
@@ -124,8 +123,7 @@ const Home = () => {
  */
 const Announcement = ({
 	announcement: rawAnnouncement,
-	viewLikers,
-	viewComments
+	viewLikers
 }) => {
 	const { cache } = useCache();
 	const [announcement, setAnnouncement] = React.useState(rawAnnouncement);
@@ -173,7 +171,7 @@ const Announcement = ({
 
 	return (
 		<Pressable
-			android_ripple={{ color: theme.fill_mask }}
+			android_ripple={{ color: theme.fill_mask, foreground: true }}
 			style={{ backgroundColor: theme.fill_base }}
 			onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement })}
 		>
@@ -199,15 +197,15 @@ const Announcement = ({
 					<Title level={4}>{announcement.title}</Title>
 					<Markdown>{announcement.content.split('\n')[0]}</Markdown>
 				</Flex>
-				<Image
-					source={{ uri: announcement.cover }}
-					width={Dimensions.get('window').width}
-					style={{
-						height: 128,
-						borderRadius: 8
-					}}
-					resizeMode='cover'
-				/>
+				<View style={{ overflow: 'hidden' }}>
+					<Image
+						source={{ uri: announcement.cover }}
+						style={{
+							width: Dimensions.get('window').width,
+							height: Dimensions.get('window').width
+						}}
+					/>
+				</View>
 				<Flex
 					direction='row'
 					justify='between'
@@ -216,13 +214,23 @@ const Announcement = ({
 				>
 					<Flex direction='row' align='center' gap={8}>
 						<Avatar
-							size='small'
 							uri={announcement.author.profilePicture}
 						/>
-						<Text>
-							{announcement.author.name.first}{' '}
-							{announcement.author.name.last}
-						</Text>
+						<Flex direction='column' justify='center' align='start'>
+							<Text style={{ fontWeight: '500' }}>
+								{announcement.author.name.first}{' '}
+								{announcement.author.name.last}
+							</Text>
+							<Text style={{ color: theme.color_text_secondary }}>{
+								{
+									'head': 'Head',
+									'guidance': 'Guidance Officer',
+									'prefect': 'Prefect of Discipline Officer',
+									'student-affairs': 'Student Affairs Officer',
+									'student': 'Student'
+								}[announcement.author?.role] || announcement.author?.role
+							}{announcement.organization && ` - ${announcement.organization.shortName}`}</Text>
+						</Flex>
 					</Flex>
 					<Text>
 						{new Date(announcement.created_at).toLocaleDateString()}

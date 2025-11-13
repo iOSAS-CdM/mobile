@@ -11,6 +11,8 @@ import Input from '../../../../components/forms/Input';
 import Picker from '../../../../components/forms/Picker';
 
 import { navigationRef, API_Route } from '../../../../main';
+import * as FileSystem from 'expo-file-system';
+import supabase from '../../../../utils/supabase';
 import { useCache } from '../../../../contexts/CacheContext';
 import authFetch from '../../../../utils/authFetch';
 
@@ -31,12 +33,21 @@ const NewAnnouncement = ({ route }) => {
 			if (!permission.granted) {
 				Toast.fail('Permission to access media library denied', 2);
 				return;
-			}
-			const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 });
-			if (!result.cancelled) {
-				setCoverPreview(result.uri);
-				setCoverAsset(result);
 			};
+			const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 });
+			// Newer expo-image-picker returns { canceled, assets: [{ uri, fileName, type, ...}] }
+			if (result && result.assets && result.assets.length > 0) {
+				const asset = result.assets[0];
+				setCoverPreview(asset.uri || null);
+				setCoverAsset(asset);
+				return;
+			};
+			// Fallback for older API shape
+			if (result && (result.uri || result.cancelled === false || result.canceled === false)) {
+				const uri = result.uri;
+				setCoverPreview(uri || null);
+				setCoverAsset({ uri });
+			}
 		} catch (e) {
 			console.error('ImagePicker error', e);
 			Toast.fail('Failed to pick image', 1);
@@ -52,7 +63,7 @@ const NewAnnouncement = ({ route }) => {
 			formData.append('content', values.content);
 			formData.append('type', values.type || 'information');
 			// attach organization id so backend can optionally handle it
-			formData.append('organizationId', organization.id);
+			formData.append('organization', organization.id);
 
 			if (values.type === 'event' && values.event_date) {
 				const iso = values.event_date instanceof Date ? values.event_date.toISOString() : String(values.event_date);
@@ -60,21 +71,68 @@ const NewAnnouncement = ({ route }) => {
 			};
 
 			if (coverAsset) {
-				const uri = coverAsset.uri;
-				const name = uri.split('/').pop();
-				const match = name.match(/\.(\w+)$/);
+				// coverAsset may already be the single asset (with uri/fileName/type)
+				const asset = coverAsset.assets ? coverAsset.assets[0] : coverAsset;
+				const uri = asset.uri;
+				const name = asset.fileName || asset.name || (uri ? uri.split('/').pop() : `photo.jpg`);
+				const match = (name || '').match(/\.(\w+)$/);
 				const ext = match ? match[1] : 'jpg';
-				const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
-				formData.append('cover', { uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri, name, type });
+				const mime = asset.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+				formData.append('cover', { uri: Platform.OS === 'ios' ? uri?.replace('file://', '') : uri, name, type: mime });
 			} else {
 				Toast.fail('Please select a cover image', 2);
 				setSubmitting(false);
 				return;
 			};
 
+			// Try using expo-file-system multipart upload which is more reliable for local file URIs
+			try {
+				const { data: { session } = {} } = await supabase.auth.getSession();
+				const token = session?.access_token;
+				const fileUri = (coverAsset.assets ? coverAsset.assets[0] : coverAsset).uri;
+				const uploadUrl = `${API_Route.replace(/\/$/, '')}/announcements`;
+				const params = {
+					title: values.title || '',
+					content: values.content || '',
+					type: values.type || 'information',
+					organization: organization.id
+				};
+				if (values.type === 'event' && values.event_date) params.event_date = values.event_date instanceof Date ? values.event_date.toISOString() : String(values.event_date);
+
+				const uploadResult = await FileSystem.uploadAsync(uploadUrl, fileUri, {
+					httpMethod: 'POST',
+					uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+					fieldName: 'cover',
+					parameters: params,
+					headers: {
+						...(token ? { Authorization: `Bearer ${token}` } : {})
+					}
+				});
+
+				if (!uploadResult || uploadResult.status < 200 || uploadResult.status >= 300) {
+					console.error('Upload failed', uploadResult);
+					Toast.fail('Failed to publish announcement (upload failed)', 2);
+					setSubmitting(false);
+					return;
+				}
+
+				// server returns JSON in body
+				let data = null;
+				try { data = JSON.parse(uploadResult.body || 'null'); } catch (e) { /* ignore */ }
+				if (data) pushToCache('announcements', data, true);
+				Toast.success('Announcement published', 2);
+				navigationRef.current?.goBack();
+				setSubmitting(false);
+				return;
+			} catch (uploadErr) {
+				console.error('FileSystem.uploadAsync error', uploadErr);
+				// fallthrough to fetch fallback below
+			};
+
+			// Fallback to fetch with FormData if uploadAsync isn't available or fails
+			console.log(`${API_Route}/announcements`);
 			const response = await authFetch(`${API_Route}/announcements`, {
 				method: 'POST',
-				headers: { 'Content-Type': 'multipart/form-data' },
 				body: formData
 			});
 			if (response?.status === 0) return;

@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, FlatList, TouchableOpacity } from 'react-native';
+import { View, FlatList, TouchableOpacity, Image } from 'react-native';
 import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 import { Calendar as RNCalendar } from 'react-native-calendars';
-import { ActivityIndicator, } from '@ant-design/react-native';
+import { ActivityIndicator, Flex } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import { useCache } from '../../../contexts/CacheContext';
@@ -22,7 +22,9 @@ const Calendar = () => {
 	const [loading, setLoading] = React.useState(true);
 	const [selectedDate, setSelectedDate] = React.useState(() => {
 		const d = new Date();
-		return d.toISOString().slice(0, 10);
+		// Use local date string to avoid timezone shifts when converting to ISO
+		const pad = (n) => String(n).padStart(2, '0');
+		return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 	});
 	const [events, setEvents] = React.useState([]);
 
@@ -58,20 +60,35 @@ const Calendar = () => {
 					}
 				};
 
-				// Normalize events to { id, type, title, date, raw }
+				// Normalize events to { id, type, title, date, raw, cover? }
 				const normalized = [];
-				announcements.forEach((a) => {
+				for (const a of announcements) {
 					const d = a.event_date || a.date || a.created_at || a.createdAt || a.created;
-					if (!d) return;
-					const iso = (new Date(d)).toISOString().slice(0, 10);
-					normalized.push({ id: a.id, type: 'announcement', title: a.title || a.description || 'Announcement', date: iso, raw: a });
-				});
-				records.forEach((r) => {
+					if (!d) continue;
+					// If the server already provides a date-only string (YYYY-MM-DD), use it directly.
+					let iso;
+					if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+						iso = d;
+					} else {
+						const dt = new Date(d);
+						const pad = (n) => String(n).padStart(2, '0');
+						iso = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+					};
+					normalized.push({ id: a.id, type: 'announcement', title: a.title || a.description || 'Announcement', date: iso, raw: a, cover: a.cover ? { uri: a.cover } : null });
+				};
+				for (const r of records) {
 					const d = r.date || r.created_at || r.createdAt || r.created;
-					if (!d) return;
-					const iso = (new Date(d)).toISOString().slice(0, 10);
+					if (!d) continue;
+					let iso;
+					if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+						iso = d;
+					} else {
+						const dt = new Date(d);
+						const pad = (n) => String(n).padStart(2, '0');
+						iso = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+					};
 					normalized.push({ id: r.id, type: 'record', title: r.title || r.violation || 'Record', date: iso, raw: r });
-				});
+				};
 
 				if (mounted)
 					setEvents(normalized);
@@ -174,12 +191,19 @@ const Calendar = () => {
 											navigationRef.current?.navigate('ViewAnnouncement', { announcement: item.raw, setAnnouncement });
 										} else {
 											navigationRef.current?.navigate('ViewRecord', { id: item.id });
-										}
+										};
 									}}
 									style={{ padding: 12, backgroundColor: theme.fill_body, marginBottom: 8, borderRadius: 8 }}
 								>
-									<Text style={{ fontWeight: '600' }}>{item.title}</Text>
-									<Text style={{ color: theme.color_text_secondary }}>{item.type === 'announcement' ? 'Announcement' : 'Record'}</Text>
+									<Flex direction='row' align='center' gap={8}>
+										{item.cover && (
+											<Image source={item.cover} style={{ width: 64, height: 64, borderRadius: 8 }} />
+										)}
+										<Flex direction='column' justify='center' align='start'>
+											<Text style={{ fontWeight: '600' }}>{item.title}</Text>
+											<Text style={{ color: theme.color_text_secondary }}>{item.type === 'announcement' ? 'Announcement' : 'Record'}</Text>
+										</Flex>
+									</Flex>
 								</TouchableOpacity>
 							)}
 						/>
