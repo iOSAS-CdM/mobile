@@ -29,6 +29,7 @@ import ViewCase from './pages/Feed/Tabs/cases/View';
 import ViewRecord from './pages/Feed/Tabs/records/View';
 
 import ViewAnnouncement from './pages/Feed/Tabs/announcements/View';
+import ViewOrganization from './pages/Feed/Tabs/organizations/View';
 
 import { CacheProvider } from './contexts/CacheContext';
 
@@ -207,6 +208,14 @@ const Main = () => {
 						<Stack.Screen
 							name='ViewAnnouncement'
 							component={ViewAnnouncement}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
+						<Stack.Screen
+							name='ViewOrganization'
+							component={ViewOrganization}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'

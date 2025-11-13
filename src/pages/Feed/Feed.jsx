@@ -75,6 +75,33 @@ const Feed = () => {
 		return () => { controller.abort(); };
 	}, [refresh, tabNavigatorRef]);
 
+	const [organizations, setOrganizations] = React.useState([]);
+	React.useEffect(() => {
+		if (!user) return;
+
+		const controller = new AbortController();
+
+		const fetchOrganizations = async () => {
+			const response = await authFetch(`${API_Route}/users/student/${user.id}/organizations`, {
+				signal: controller.signal
+			}).catch((error) => {
+				console.error('Error fetching organizations:', error);
+				Toast.fail('Network error. Please try again.', 1);
+			});
+			if (response?.status === 0) return;
+
+			const data = await response.json();
+			if (!data) {
+				Toast.fail('Invalid organizations data received', 1);
+				return;
+			};
+			setOrganizations(data.organizations || []);
+			updateCache('organizations', data.organizations || []);
+		};
+		fetchOrganizations();
+		return () => controller.abort();
+	}, [refresh, user]);
+
 	if (!user) return (
 		<Flex
 			direction='column'
@@ -245,7 +272,7 @@ const Feed = () => {
 							}}
 						/>
 					)}
-					{user?.organizations?.length > 0 && (
+					{organizations?.length > 0 && (
 						<Tab.Screen
 							name='Organizations'
 							component={Organizations}

@@ -7,6 +7,8 @@ const CacheContext = React.createContext();
 /**  @typedef {import('../classes/Student').StudentProps | import('../classes/Staff').StaffProps} UserProps */
 /**  @typedef {import('../classes/Record').RecordProps} RecordProps */
 /**  @typedef {import('../classes/Case').CaseProps} CaseProps */
+/**  @typedef {import('../classes/Repository').RepositoryProps} RepositoryProps */
+/**  @typedef {import('../classes/Organization').Organization} OrganizationProps */
 
 /**
  * @typedef {{
@@ -50,6 +52,7 @@ export const CacheProvider = ({ children }) => {
 		cases: [],
 		repositories: [],
 		announcements: [],
+		organizations: [],
 		peers: null
 	});
 
