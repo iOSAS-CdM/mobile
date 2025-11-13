@@ -357,10 +357,6 @@ const ViewAnnouncement = ({ route }) => {
 								</Flex>
 							</Pressable>
 							<Pressable
-								android_ripple={{
-									color: theme.fill_mask,
-									borderless: false
-								}}
 								style={{
 									flex: 1,
 									backgroundColor: 'transparent',
@@ -374,7 +370,6 @@ const ViewAnnouncement = ({ route }) => {
 									align='center'
 									gap={8}
 								>
-									<Ionicons name='chatbubble-outline' />
 									<Text>
 										{currentAnnouncement.comments?.length} comment
 										{currentAnnouncement.comments?.length !== 1 && 's'}
