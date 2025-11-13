@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
+import { ScrollView, RefreshControl } from 'react-native-gesture-handler';
 import { Calendar as RNCalendar } from 'react-native-calendars';
-import { ActivityIndicator, Badge } from '@ant-design/react-native';
+import { ActivityIndicator, } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import { useCache } from '../../../contexts/CacheContext';
+import { useRefresh } from '../../../contexts/useRefresh';
 import authFetch from '../../../utils/authFetch';
 import { API_Route, navigationRef } from '../../../main';
 import theme from '../../../styles/theme';
@@ -16,6 +18,7 @@ const colors = {
 
 const Calendar = () => {
 	const { cache, pushToCache, updateCacheItem } = useCache();
+	const { refresh, setRefresh } = useRefresh();
 	const [loading, setLoading] = React.useState(true);
 	const [selectedDate, setSelectedDate] = React.useState(() => {
 		const d = new Date();
@@ -53,7 +56,7 @@ const Calendar = () => {
 						records = data?.records || data || [];
 						pushToCache('records', records, false);
 					}
-				}
+				};
 
 				// Normalize events to { id, type, title, date, raw }
 				const normalized = [];
@@ -70,15 +73,14 @@ const Calendar = () => {
 					normalized.push({ id: r.id, type: 'record', title: r.title || r.violation || 'Record', date: iso, raw: r });
 				});
 
-				if (mounted) {
+				if (mounted)
 					setEvents(normalized);
-				}
 			} catch (err) {
 				if (String(err).toLowerCase().includes('aborted')) return;
 				console.error('Calendar load error:', err);
 			} finally {
 				if (mounted) setLoading(false);
-			}
+			};
 		};
 
 		load();
@@ -90,12 +92,12 @@ const Calendar = () => {
 
 	const buildMarkedDates = React.useMemo(() => {
 		const map = {};
-		events.forEach(ev => {
-			if (!map[ev.date]) map[ev.date] = { dots: [] };
-			const dot = { key: `${ev.type}-${ev.id}`, color: ev.type === 'announcement' ? colors.announcement : colors.record };
+		for (const event of events) {
+			if (!map[event.date]) map[event.date] = { dots: [] };
+			const dot = { key: `${event.type}-${event.id}`, color: event.type === 'announcement' ? colors.announcement : colors.record };
 			// Avoid duplicate keys
-			if (!map[ev.date].dots.some(d => d.key === dot.key)) map[ev.date].dots.push(dot);
-		});
+			if (!map[event.date].dots.some(d => d.key === dot.key)) map[event.date].dots.push(dot);
+		};
 		// mark selected
 		if (!map[selectedDate]) map[selectedDate] = { dots: [], selected: true };
 		map[selectedDate] = { ...(map[selectedDate] || {}), selected: true, selectedColor: theme.brand_primary };
@@ -111,61 +113,80 @@ const Calendar = () => {
 	);
 
 	return (
-		<View style={{ flex: 1, backgroundColor: theme.fill_base }}>
-			<View style={{ padding: 8 }}>
-				<RNCalendar
-					onDayPress={(day) => setSelectedDate(day.dateString)}
-					markedDates={buildMarkedDates}
-					markingType={'multi-dot'}
+		<ScrollView
+			refreshControl={
+				<RefreshControl
+					refreshing={false}
+					onRefresh={async () => {
+						setRefresh({
+							key: 'calendar',
+							callback: async () => {
+								// No-op, just trigger useEffect reload
+							}
+						});
+					}}
 				/>
-			</View>
-
-			<View style={{ flex: 1, padding: 12 }}>
-				<Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>Events for {selectedDate}</Text>
-				{eventsForSelectedDate.length === 0 ? (
-					<Text style={{ color: theme.color_text_secondary }}>No events for this day.</Text>
-				) : (
-					<FlatList
-						data={eventsForSelectedDate}
-						keyExtractor={(item) => `${item.type}-${item.id}`}
-						renderItem={({ item }) => (
-							<TouchableOpacity
-								onPress={() => {
-									if (item.type === 'announcement') {
-										// Provide the full announcement object and a setter so the detail
-										// screen can optimistically update this calendar list and cache
-										const setAnnouncement = (update) => {
-											// Compute the new announcement object
-											const newAnnouncement = typeof update === 'function' ? update(item.raw) : update;
-											// Update local events list
-											setEvents((prev) => prev.map(ev => {
-												if (ev.type === 'announcement' && ev.id === item.id)
-													return { ...ev, raw: newAnnouncement, title: newAnnouncement.title || ev.title };
-												return ev;
-											}));
-											// Update cache if available
-											try {
-												updateCacheItem && updateCacheItem('announcements', 'id', item.id, newAnnouncement);
-											} catch (e) {
-												// ignore cache update failures
-											};
-										};
-
-										navigationRef.current?.navigate('ViewAnnouncement', { announcement: item.raw, setAnnouncement });
-									} else {
-										navigationRef.current?.navigate('ViewRecord', { id: item.id });
-									}
-								}}
-								style={{ padding: 12, backgroundColor: theme.fill_body, marginBottom: 8, borderRadius: 8 }}
-							>
-								<Text style={{ fontWeight: '600' }}>{item.title}</Text>
-								<Text style={{ color: theme.color_text_secondary }}>{item.type === 'announcement' ? 'Announcement' : 'Record'}</Text>
-							</TouchableOpacity>
-						)}
+			}
+		>
+			<View style={{ flex: 1, backgroundColor: theme.fill_base }}>
+				<View style={{ padding: 8 }}>
+					<RNCalendar
+						onDayPress={(day) => setSelectedDate(day.dateString)}
+						markedDates={buildMarkedDates}
+						theme={{
+							todayTextColor: theme.brand_primary,
+							arrowColor: `${theme.brand_primary}80`
+						}}
+						markingType={'multi-dot'}
 					/>
-				)}
+				</View>
+
+				<View style={{ flex: 1, padding: 12 }}>
+					<Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>Events for {selectedDate}</Text>
+					{eventsForSelectedDate.length === 0 ? (
+						<Text style={{ color: theme.color_text_secondary }}>No events for this day.</Text>
+					) : (
+						<FlatList
+							data={eventsForSelectedDate}
+							keyExtractor={(item) => `${item.type}-${item.id}`}
+							renderItem={({ item }) => (
+								<TouchableOpacity
+									onPress={() => {
+										if (item.type === 'announcement') {
+											// Provide the full announcement object and a setter so the detail
+											// screen can optimistically update this calendar list and cache
+											const setAnnouncement = (update) => {
+												// Compute the new announcement object
+												const newAnnouncement = typeof update === 'function' ? update(item.raw) : update;
+												// Update local events list
+												setEvents((prev) => prev.map(ev => {
+													if (ev.type === 'announcement' && ev.id === item.id)
+														return { ...ev, raw: newAnnouncement, title: newAnnouncement.title || ev.title };
+													return ev;
+												}));
+												// Update cache if available
+												try {
+													updateCacheItem && updateCacheItem('announcements', 'id', item.id, newAnnouncement);
+												} catch (e) {
+													// ignore cache update failures
+												};
+											};
+											navigationRef.current?.navigate('ViewAnnouncement', { announcement: item.raw, setAnnouncement });
+										} else {
+											navigationRef.current?.navigate('ViewRecord', { id: item.id });
+										}
+									}}
+									style={{ padding: 12, backgroundColor: theme.fill_body, marginBottom: 8, borderRadius: 8 }}
+								>
+									<Text style={{ fontWeight: '600' }}>{item.title}</Text>
+									<Text style={{ color: theme.color_text_secondary }}>{item.type === 'announcement' ? 'Announcement' : 'Record'}</Text>
+								</TouchableOpacity>
+							)}
+						/>
+					)}
+				</View>
 			</View>
-		</View>
+		</ScrollView>
 	);
 };
 

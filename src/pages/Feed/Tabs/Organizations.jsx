@@ -53,14 +53,14 @@ const Organization = ({ organization, onPress }) => {
 			onPress={() => onPress && onPress(organization)}
 			style={{ backgroundColor: theme.fill_base, overflow: 'hidden' }}
 		>
-			{organization.cover ? (
+			{organization.cover && (
 				<Image source={{ uri: organization.cover }} width={Dimensions.get('window').width} />
-			) : null}
+			)}
 			<Flex direction='row' align='center' gap={12} style={{ paddingHorizontal: theme.h_spacing_md, paddingVertical: theme.v_spacing_sm }}>
 				<Avatar size='large' uri={organization.logo} />
 				<Flex direction='column' align='start'>
-					<Text style={{ fontWeight: 'bold' }}>{organization.fullName || organization.shortName}</Text>
-					<Text style={{ color: theme.color_text_secondary }}>{organization.type}</Text>
+					<Text style={{ fontWeight: 'bold' }}>{organization.shortName}</Text>
+					<Text style={{ color: theme.color_text_secondary }}>{organization.fullName}</Text>
 				</Flex>
 			</Flex>
 		</Pressable>
