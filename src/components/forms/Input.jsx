@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput } from 'react-native-gesture-handler';
+import { TextInput } from 'react-native';
 
 import { Input as AntInput, Flex, InputProps } from '@ant-design/react-native';
 
@@ -14,8 +14,8 @@ import theme from '../../styles/theme';
  * 	wrapperStyle: Object;
  * 	required: Boolean;
  * 	placeholder: string;
- * 	required: Boolean;
- * } & typeof TextInput} props
+ * 	inputRef: React.RefObject<import('react-native').TextInput>;
+ * } & import('react-native').TextInputProps} props
  */
 const Input = (props) => {
 	// Destructure the error prop
@@ -38,6 +38,7 @@ const Input = (props) => {
 			>
 				<TextInput
 					{...props}
+					ref={props.inputRef}
 					style={{
 						minHeight: theme.button_height,
 						...props.style

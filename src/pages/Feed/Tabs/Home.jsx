@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Pressable } from 'react-native';
+import { Pressable, Dimensions } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,6 +7,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { Flex } from '@ant-design/react-native';
 import Markdown from 'react-native-markdown-display';
+import Image from 'react-native-scalable-image';
 
 import Text from '../../../components/Text';
 import Title from '../../../components/Title';
@@ -173,7 +174,8 @@ const Announcement = ({
 	return (
 		<Pressable
 			android_ripple={{ color: theme.fill_mask }}
-			onLongPress={viewLikers}
+			style={{ backgroundColor: theme.fill_base }}
+			onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement })}
 		>
 			<Flex
 				direction='column'
@@ -182,8 +184,7 @@ const Announcement = ({
 				style={{
 					gap: theme.v_spacing_lg,
 					borderBottomColor: theme.border_color_base,
-					borderBottomWidth: theme.border_width_sm,
-					backgroundColor: theme.fill_base
+					borderBottomWidth: theme.border_width_sm
 				}}
 			>
 				<Flex
@@ -200,8 +201,8 @@ const Announcement = ({
 				</Flex>
 				<Image
 					source={{ uri: announcement.cover }}
+					width={Dimensions.get('window').width}
 					style={{
-						width: '100%',
 						height: 128,
 						borderRadius: 8
 					}}
@@ -281,11 +282,11 @@ const Announcement = ({
 							paddingHorizontal: theme.h_spacing_md,
 							paddingVertical: theme.v_spacing_sm
 						}}
-						onPress={viewComments}
+						onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement, focusComment: true })}
 					>
 						<Flex
 							direction='row'
-							justify='center'
+							justify='end'
 							align='center'
 							gap={8}
 						>
@@ -294,31 +295,6 @@ const Announcement = ({
 								{announcement.comments?.length} comment
 								{announcement.comments?.length !== 1 && 's'}
 							</Text>
-						</Flex>
-					</Pressable>
-					<Pressable
-						android_ripple={{
-							color: theme.fill_mask,
-							borderless: false
-						}}
-						style={{
-							flex: 1,
-							backgroundColor: 'transparent',
-							paddingHorizontal: theme.h_spacing_md,
-							paddingVertical: theme.v_spacing_sm
-						}}
-						onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement })}
-					>
-						<Flex
-							direction='row'
-							justify='end'
-							align='center'
-							gap={8}
-						>
-							<Text>
-								Read More
-							</Text>
-							<Ionicons name='chevron-forward-outline' />
 						</Flex>
 					</Pressable>
 				</Flex>

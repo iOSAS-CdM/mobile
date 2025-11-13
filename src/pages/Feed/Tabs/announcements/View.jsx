@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { ScrollView, Image, Pressable, TextInput, Alert } from 'react-native';
+import { ScrollView, Pressable, Dimensions } from 'react-native';
 import { TouchableWithoutFeedback, Keyboard, View } from 'react-native';
+import Image from 'react-native-scalable-image';
 
 import { Flex, Modal } from '@ant-design/react-native';
 import Markdown from 'react-native-markdown-display';
@@ -28,6 +29,8 @@ import theme from '../../../../styles/theme';
 const ViewAnnouncement = ({ route }) => {
 	/** @type {import('../../../../classes/Announcement').AnnouncementProps | null} */
 	const announcement = route.params?.announcement || null;
+	/** @type {Boolean | null} */
+	const focusComment = route.params?.focusComment || null;
 	const setAnnouncement = route.params?.setAnnouncement || (() => {});
 	const { cache, updateCacheItem, pushToCache } = useCache();
 	const [currentAnnouncement, setCurrentAnnouncement] = React.useState(announcement);
@@ -77,26 +80,63 @@ const ViewAnnouncement = ({ route }) => {
 		if (!data) return;
 	};
 
-	if (!announcement) {
-		return (
-			<View
-				style={{
-					flex: 1,
-					justifyContent: 'center',
-					alignItems: 'center',
-					padding: 16,
-					backgroundColor: theme.fill_base
-				}}
-			>
-				<Text style={{ fontSize: theme.font_size_heading, fontWeight: '600', marginBottom: 8 }}>
-					No Announcement Data
-				</Text>
-				<Text style={{ fontSize: theme.font_size_subhead, textAlign: 'center' }}>
-					Unable to display announcement details. Please go back and select a valid announcement.
-				</Text>
-			</View>
-		);
-	}
+	const deleteComment = async (commentId) => {
+		if (!cache.user || !currentAnnouncement) return;
+
+		// Find the comment and its index so we can restore it if needed
+		const priorComments = currentAnnouncement.comments || [];
+		const idx = priorComments.findIndex((c) => String(c.id) === String(commentId));
+		if (idx === -1) return;
+		const priorComment = priorComments[idx];
+
+		// Optimistically remove locally
+		setCurrentAnnouncement((prev) => ({
+			...prev,
+			comments: (prev.comments || []).filter((c) => String(c.id) !== String(commentId))
+		}));
+		try {
+			updateCacheItem && updateCacheItem('announcements', 'id', currentAnnouncement.id, { comments: (currentAnnouncement.comments || []).filter(c => String(c.id) !== String(commentId)) });
+		} catch (e) {
+			try { pushToCache('announcements', { ...currentAnnouncement, comments: (currentAnnouncement.comments || []).filter(c => String(c.id) !== String(commentId)) }, true); } catch (e) { /* ignore */ }
+		};
+
+		// Send delete request; assume success. If it fails, restore the comment and return it.
+		try {
+			const response = await authFetch(`${API_Route}/announcements/${currentAnnouncement.id}/comments/${commentId}`, {
+				method: 'DELETE'
+			});
+			if (!response || !response.ok) {
+				// restore comment locally
+				setCurrentAnnouncement((prev) => {
+					const comments = prev.comments || [];
+					// insert at original index if possible
+					const before = comments.slice(0, idx);
+					const after = comments.slice(idx);
+					return { ...prev, comments: [...before, priorComment, ...after] };
+				});
+				try { updateCacheItem && updateCacheItem('announcements', 'id', currentAnnouncement.id, { comments: (currentAnnouncement.comments || []).concat([priorComment]) }); } catch (e) { try { pushToCache('announcements', { ...currentAnnouncement, comments: (currentAnnouncement.comments || []).concat([priorComment]) }, true); } catch (e) { /* ignore */ } }
+				Modal.alert('Error', 'Failed to delete comment. Your comment was restored.', [{
+					text: 'OK'
+				}]);
+				return priorComment;
+			};
+			return true;
+		} catch (e) {
+			// restore comment locally on network/error
+			setCurrentAnnouncement((prev) => {
+				const comments = prev.comments || [];
+				const before = comments.slice(0, idx);
+				const after = comments.slice(idx);
+				return { ...prev, comments: [...before, priorComment, ...after] };
+			});
+			try { updateCacheItem && updateCacheItem('announcements', 'id', currentAnnouncement.id, { comments: (currentAnnouncement.comments || []).concat([priorComment]) }); } catch (e) { try { pushToCache('announcements', { ...currentAnnouncement, comments: (currentAnnouncement.comments || []).concat([priorComment]) }, true); } catch (e) { /* ignore */ } }
+			console.error('Failed to delete comment', e);
+			Modal.alert('Error', 'Failed to delete comment. Your comment was restored.', [{
+				text: 'OK'
+			}]);
+			return priorComment;
+		}
+	};
 
 	const postComment = async () => {
 		if (!commentText || commentText.trim().length === 0) return;
@@ -162,62 +202,25 @@ const ViewAnnouncement = ({ route }) => {
 		};
 	};
 
-	const deleteComment = async (commentId) => {
-		if (!cache.user || !currentAnnouncement) return;
-
-		// Find the comment and its index so we can restore it if needed
-		const priorComments = currentAnnouncement.comments || [];
-		const idx = priorComments.findIndex((c) => String(c.id) === String(commentId));
-		if (idx === -1) return;
-		const priorComment = priorComments[idx];
-
-		// Optimistically remove locally
-		setCurrentAnnouncement((prev) => ({
-			...prev,
-			comments: (prev.comments || []).filter((c) => String(c.id) !== String(commentId))
-		}));
-		try {
-			updateCacheItem && updateCacheItem('announcements', 'id', currentAnnouncement.id, { comments: (currentAnnouncement.comments || []).filter(c => String(c.id) !== String(commentId)) });
-		} catch (e) {
-			try { pushToCache('announcements', { ...currentAnnouncement, comments: (currentAnnouncement.comments || []).filter(c => String(c.id) !== String(commentId)) }, true); } catch (e) { /* ignore */ }
-		};
-
-		// Send delete request; assume success. If it fails, restore the comment and return it.
-		try {
-			const response = await authFetch(`${API_Route}/announcements/${currentAnnouncement.id}/comments/${commentId}`, {
-				method: 'DELETE'
-			});
-			if (!response || !response.ok) {
-				// restore comment locally
-				setCurrentAnnouncement((prev) => {
-					const comments = prev.comments || [];
-					// insert at original index if possible
-					const before = comments.slice(0, idx);
-					const after = comments.slice(idx);
-					return { ...prev, comments: [...before, priorComment, ...after] };
-				});
-				try { updateCacheItem && updateCacheItem('announcements', 'id', currentAnnouncement.id, { comments: (currentAnnouncement.comments || []).concat([priorComment]) }); } catch (e) { try { pushToCache('announcements', { ...currentAnnouncement, comments: (currentAnnouncement.comments || []).concat([priorComment]) }, true); } catch (e) { /* ignore */ } }
-				Modal.alert('Error', 'Failed to delete comment. Your comment was restored.', [{
-					text: 'OK'
-				}]);
-				return priorComment;
-			};
-			return true;
-		} catch (e) {
-			// restore comment locally on network/error
-			setCurrentAnnouncement((prev) => {
-				const comments = prev.comments || [];
-				const before = comments.slice(0, idx);
-				const after = comments.slice(idx);
-				return { ...prev, comments: [...before, priorComment, ...after] };
-			});
-			try { updateCacheItem && updateCacheItem('announcements', 'id', currentAnnouncement.id, { comments: (currentAnnouncement.comments || []).concat([priorComment]) }); } catch (e) { try { pushToCache('announcements', { ...currentAnnouncement, comments: (currentAnnouncement.comments || []).concat([priorComment]) }, true); } catch (e) { /* ignore */ } }
-			console.error('Failed to delete comment', e);
-			Modal.alert('Error', 'Failed to delete comment. Your comment was restored.', [{
-				text: 'OK'
-			}]);
-			return priorComment;
-		}
+	if (!announcement) {
+		return (
+			<View
+				style={{
+					flex: 1,
+					justifyContent: 'center',
+					alignItems: 'center',
+					padding: 16,
+					backgroundColor: theme.fill_base
+				}}
+			>
+				<Text style={{ fontSize: theme.font_size_heading, fontWeight: '600', marginBottom: 8 }}>
+					No Announcement Data
+				</Text>
+				<Text style={{ fontSize: theme.font_size_subhead, textAlign: 'center' }}>
+					Unable to display announcement details. Please go back and select a valid announcement.
+				</Text>
+			</View>
+		);
 	};
 
 	return (
@@ -255,116 +258,123 @@ const ViewAnnouncement = ({ route }) => {
 					align='stretch'
 					style={{
 						width: '100%',
-						backgroundColor: theme.fill_base,
+						backgroundColor: theme.fill_body,
 						gap: theme.v_spacing_md
 					}}
 				>
-					<Image
-						source={{ uri: announcement.cover }}
+					<Flex
+						direction='column'
+						justify='center'
+						align='stretch'
 						style={{
 							width: '100%',
-							height: 256,
-							marginTop: theme.v_spacing_md
+							backgroundColor: theme.fill_base,
+							gap: theme.v_spacing_md
 						}}
-						resizeMode='cover'
-					/>
-					<Title level={3} style={{ paddingHorizontal: theme.h_spacing_md }}>{announcement.title}</Title>
-
-					<View style={{ paddingHorizontal: theme.h_spacing_md }}>
-						<Markdown>{announcement.content}</Markdown>
-					</View>
-
-					<Flex
-						direction='row'
-						justify='between'
-						align='center'
-						style={{ paddingHorizontal: theme.h_spacing_md }}
 					>
-						<Flex direction='row' align='center' gap={8}>
-							<Avatar
-								size='small'
-								uri={announcement.author.profilePicture}
-							/>
-							<Text>
-								{announcement.author.name.first} {announcement.author.name.last}
-							</Text>
-						</Flex>
-						<Text>
-							{new Date(announcement.created_at).toLocaleDateString()}
-						</Text>
-					</Flex>
-
-					<Flex direction='row' justify='between' align='center' gap={16} style={{ marginBottom: theme.v_spacing_md }}>
-						<Pressable
-							onPress={like}
-							android_ripple={{
-								color: theme.fill_mask,
-								borderless: false
-							}}
+						<Image
+							source={{ uri: announcement.cover }}
+							width={Dimensions.get('window').width}
 							style={{
-								flex: 1,
-								backgroundColor: 'transparent',
-								paddingHorizontal: theme.h_spacing_md,
-								paddingBottom: theme.v_spacing_sm
+								marginTop: theme.v_spacing_md
 							}}
-						>
-							<Flex
-								direction='row'
-								justify='start'
-								align='center'
-								gap={8}
-							>
-								<Ionicons
-									name={
-										currentAnnouncement.likes?.find(
-											(like) => like.author.id === cache.user?.id
-										)
-											? 'heart'
-											: 'heart-outline'
-									}
-									color={
-										currentAnnouncement.likes?.find(
-											(like) => like.author.id === cache.user?.id
-										)
-											? theme.brand_primary
-											: theme.text_color_base
-									}
-								/>
-								<Text>
-									{currentAnnouncement.likes?.length} like
-									{currentAnnouncement.likes?.length !== 1 && 's'}
-								</Text>
-							</Flex>
-						</Pressable>
-						<Pressable
-							android_ripple={{
-								color: theme.fill_mask,
-								borderless: false
-							}}
-							style={{
-								flex: 1,
-								backgroundColor: 'transparent',
-								paddingHorizontal: theme.h_spacing_md,
-								paddingVertical: theme.v_spacing_sm
-							}}
-						>
+							resizeMode='cover'
+						/>
+						<Title level={3} style={{ paddingHorizontal: theme.h_spacing_md }}>{announcement.title}</Title>
+						<View style={{ paddingHorizontal: theme.h_spacing_md }}>
+							<Markdown>{announcement.content}</Markdown>
+						</View>
 						<Flex
 							direction='row'
-								justify='end'
+							justify='between'
 							align='center'
-							gap={8}
+							style={{ paddingHorizontal: theme.h_spacing_md }}
 						>
-							<Ionicons name='chatbubble-outline' />
-							<Text>
-									{currentAnnouncement.comments?.length} comment
-									{currentAnnouncement.comments?.length !== 1 && 's'}
+							<Flex direction='row' align='center' gap={8}>
+								<Avatar
+									size='small'
+									uri={announcement.author.profilePicture}
+								/>
+								<Text>
+									{announcement.author.name.first} {announcement.author.name.last}
 								</Text>
 							</Flex>
-						</Pressable>
+							<Text>
+								{new Date(announcement.created_at).toLocaleDateString()}
+							</Text>
+						</Flex>
+						<Flex direction='row' justify='between' align='center' gap={16} style={{ marginBottom: theme.v_spacing_md }}>
+							<Pressable
+								onPress={like}
+								android_ripple={{
+									color: theme.fill_mask,
+									borderless: false
+								}}
+								style={{
+									flex: 1,
+									backgroundColor: 'transparent',
+									paddingHorizontal: theme.h_spacing_md,
+									paddingBottom: theme.v_spacing_sm
+								}}
+							>
+								<Flex
+									direction='row'
+									justify='start'
+									align='center'
+									gap={8}
+								>
+									<Ionicons
+										name={
+											currentAnnouncement.likes?.find(
+												(like) => like.author.id === cache.user?.id
+											)
+												? 'heart'
+												: 'heart-outline'
+										}
+										color={
+											currentAnnouncement.likes?.find(
+												(like) => like.author.id === cache.user?.id
+											)
+												? theme.brand_primary
+												: theme.text_color_base
+										}
+									/>
+									<Text>
+										{currentAnnouncement.likes?.length} like
+										{currentAnnouncement.likes?.length !== 1 && 's'}
+									</Text>
+								</Flex>
+							</Pressable>
+							<Pressable
+								android_ripple={{
+									color: theme.fill_mask,
+									borderless: false
+								}}
+								style={{
+									flex: 1,
+									backgroundColor: 'transparent',
+									paddingHorizontal: theme.h_spacing_md,
+									paddingVertical: theme.v_spacing_sm
+								}}
+							>
+								<Flex
+									direction='row'
+									justify='end'
+									align='center'
+									gap={8}
+								>
+									<Ionicons name='chatbubble-outline' />
+									<Text>
+										{currentAnnouncement.comments?.length} comment
+										{currentAnnouncement.comments?.length !== 1 && 's'}
+									</Text>
+								</Flex>
+							</Pressable>
+						</Flex>
 					</Flex>
 
 					{currentAnnouncement?.comments && currentAnnouncement.comments.length > 0 && (
-						<Flex direction='column' align='stretch' gap={theme.v_spacing_md} style={{ width: '100%', paddingHorizontal: theme.h_spacing_md, marginBottom: theme.v_spacing_md }}>
+						<Flex direction='column' align='stretch' gap={theme.v_spacing_md} style={{ width: '100%', paddingHorizontal: theme.h_spacing_md, backgroundColor: theme.fill_base }}>
 							<Title level={4}>Comments</Title>
 							{currentAnnouncement.comments.map((comment) => (
 								<Pressable
@@ -407,6 +417,7 @@ const ViewAnnouncement = ({ route }) => {
 						placeholder='Write a comment...'
 						value={commentText}
 						multiline
+						autoFocus={focusComment === true}
 						onChangeText={setCommentText}
 						editable={!postingComment}
 						wrapperStyle={{ flex: 1 }}
