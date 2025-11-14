@@ -487,7 +487,7 @@ const SignUp = () => {
 								}) => (
 									<Input
 										placeholder='Password'
-										type={showPassword ? 'text' : 'password'}
+										secureTextEntry={!showPassword}
 										name='password'
 										required
 										onBlur={onBlur}
@@ -520,7 +520,7 @@ const SignUp = () => {
 								}) => (
 									<Input
 										placeholder='Confirm Password'
-										type={showPassword ? 'text' : 'password'}
+										secureTextEntry={!showPassword}
 										name='confirmPassword'
 										required
 										onBlur={onBlur}
