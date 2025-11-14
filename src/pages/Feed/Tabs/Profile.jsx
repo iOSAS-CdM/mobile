@@ -27,7 +27,7 @@ import ITE from '../../../../assets/public/institutes/ite.jpg';
 import IBE from '../../../../assets/public/institutes/ibe.jpg';
 
 const Profile = () => {
-	const { cache, updateCache } = useCache();
+	const { cache } = useCache();
 	const { setRefresh } = useRefresh();
 
 	const [signingOut, setSigningOut] = React.useState(false);
@@ -47,7 +47,7 @@ const Profile = () => {
 			if (!permission.granted) {
 				Toast.fail('Permission to access media library denied', 2);
 				return;
-			}
+			};
 
 			// Launch image picker
 			const result = await ImagePicker.launchImageLibraryAsync({
@@ -57,9 +57,7 @@ const Profile = () => {
 				quality: 0.8
 			});
 
-			if (result.canceled || !result.assets || result.assets.length === 0) {
-				return;
-			}
+			if (result.canceled || !result.assets || result.assets.length === 0) return;
 
 			const asset = result.assets[0];
 			const uri = asset.uri;
@@ -92,7 +90,7 @@ const Profile = () => {
 					Toast.fail('Failed to update profile picture', 2);
 					setUploadingPicture(false);
 					return;
-				}
+				};
 
 				// Parse response
 				let data = null;
@@ -100,15 +98,17 @@ const Profile = () => {
 					data = JSON.parse(uploadResult.body || 'null');
 				} catch (e) {
 					console.error('Failed to parse response', e);
-				}
+				};
 
 				if (data && data.profilePicture) {
-					// Update cache with new profile picture
-					updateCache('user', { ...cache.user, profilePicture: data.profilePicture });
 					Toast.success('Profile picture updated successfully', 2);
+					setRefresh({
+						key: 'user',
+						timestamp: new Date().toISOString()
+					});
 				} else {
 					Toast.fail('Failed to update profile picture', 2);
-				}
+				};
 			} catch (uploadErr) {
 				console.error('FileSystem.uploadAsync error', uploadErr);
 
@@ -128,28 +128,31 @@ const Profile = () => {
 				if (response?.status === 0) {
 					setUploadingPicture(false);
 					return;
-				}
+				};
 
 				if (!response?.ok) {
 					Toast.fail(`Failed to update profile picture: ${response?.statusText || 'Unknown'}`, 2);
 					setUploadingPicture(false);
 					return;
-				}
+				};
 
 				const data = await response.json().catch(() => null);
 				if (data && data.profilePicture) {
-					updateCache('user', { ...cache.user, profilePicture: data.profilePicture });
 					Toast.success('Profile picture updated successfully', 2);
+					setRefresh({
+						key: 'user',
+						timestamp: new Date().toISOString()
+					});
 				} else {
 					Toast.fail('Failed to update profile picture', 2);
-				}
+				};
 			}
 		} catch (error) {
 			console.error('Error updating profile picture:', error);
 			Toast.fail('Failed to update profile picture', 2);
 		} finally {
 			setUploadingPicture(false);
-		}
+		};
 	};
 
 	return (
