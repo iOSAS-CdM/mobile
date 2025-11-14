@@ -96,7 +96,6 @@ const ContentPage = ({
 	// Initial load and refresh
 	React.useEffect(() => {
 		if (refresh?.key === 'all' || refresh?.key === cacheKey || refresh == null) {
-			alert(JSON.stringify(refresh, null, 2));
 			setOffset(0);
 			fetchItems(0, false);
 		};
