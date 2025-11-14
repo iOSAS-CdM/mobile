@@ -1,9 +1,9 @@
 import React from 'react';
 import { ScrollView, Image, View, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 
-import { Flex, Toast } from '@ant-design/react-native';
+import { Flex, Toast, DatePicker } from '@ant-design/react-native';
 
 import Text from '../../../../components/Text';
 import Button from '../../../../components/Button';
@@ -26,6 +26,9 @@ const NewAnnouncement = ({ route }) => {
 	const [coverPreview, setCoverPreview] = React.useState(null);
 	const [coverAsset, setCoverAsset] = React.useState(null);
 	const [submitting, setSubmitting] = React.useState(false);
+
+	// Watch the type field to conditionally show date picker
+	const announcementType = useWatch({ control, name: 'type', defaultValue: 'information' });
 
 	const pickImage = async () => {
 		try {
@@ -58,6 +61,7 @@ const NewAnnouncement = ({ route }) => {
 		if (!organization) return;
 		setSubmitting(true);
 		try {
+			console.log('Form values on submit:', values);
 			const formData = new FormData();
 			formData.append('title', values.title);
 			formData.append('content', values.content);
@@ -67,6 +71,7 @@ const NewAnnouncement = ({ route }) => {
 
 			if (values.type === 'event' && values.event_date) {
 				const iso = values.event_date instanceof Date ? values.event_date.toISOString() : String(values.event_date);
+				console.log('Event date being sent:', iso);
 				formData.append('event_date', iso);
 			};
 
@@ -174,8 +179,70 @@ const NewAnnouncement = ({ route }) => {
 					)} />
 
 					<Controller control={control} name='type' render={({ field: { onChange, value } }) => (
-						<Picker data={[{ label: 'Information', value: 'information' }, { label: 'Event', value: 'event' }]} labelField='label' valueField='value' value={value} onChange={(item) => onChange(item.value)} />
+						<Picker
+							data={[{ label: 'Information', value: 'information' }, { label: 'Event', value: 'event' }]}
+							labelField='label'
+							valueField='value'
+							value={value}
+							onChange={(item) => {
+								onChange(item.value);
+								// Clear event_date when switching away from event
+								if (item.value !== 'event') {
+									setValue('event_date', null);
+								}
+							}}
+						/>
 					)} />
+
+					{announcementType === 'event' && (
+						<View>
+							<Text style={{ fontSize: theme.font_size_base, marginBottom: 8, color: theme.color_text_base }}>
+								Event Date & Time
+							</Text>
+							<Controller
+								control={control}
+								name='event_date'
+								rules={{
+									required: announcementType === 'event' ? 'Please select event date and time' : false,
+									validate: (value) => {
+										if (announcementType === 'event' && value) {
+											const selectedDate = new Date(value);
+											const today = new Date();
+											today.setHours(0, 0, 0, 0);
+											if (selectedDate < today) {
+												return 'Event date cannot be in the past';
+											}
+										}
+										return true;
+									}
+								}}
+								render={({ field: { onChange, value } }) => {
+									const handleDateChange = (date) => {
+										console.log('DatePicker onChange received:', date);
+										if (date) {
+											const isoString = date instanceof Date ? date.toISOString() : date;
+											console.log('Setting event_date to:', isoString);
+											onChange(isoString);
+										}
+									};
+
+									return (
+										<DatePicker
+											mode="datetime"
+											value={value ? new Date(value) : undefined}
+											minDate={new Date()}
+											onChange={handleDateChange}
+											format="YYYY-MM-DD HH:mm"
+										>
+											<Button type='default' icon='calendar'>
+												{value ? new Date(value).toLocaleString() : 'Select Event Date & Time'}
+											</Button>
+										</DatePicker>
+									);
+								}}
+							/>
+						</View>
+					)}
 
 					<View>
 						<Button type='default' icon='camera' onPress={pickImage}>{coverPreview ? 'Change Cover' : 'Pick Cover Image'}</Button>

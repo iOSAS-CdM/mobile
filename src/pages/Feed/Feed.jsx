@@ -165,7 +165,7 @@ const Feed = () => {
 						style={{ width: 64, height: 32, objectFit: 'contain' }}
 						contentFit='contain'
 					/>
-					<Flex direction='row' align='center' gap={8}>
+					{/* <Flex direction='row' align='center' gap={8}>
 						{user?.role === 'student' && user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
 						)}
@@ -173,7 +173,7 @@ const Feed = () => {
 							<IconButton size='small' name='camera' />
 						)}
 						<IconButton size='small' name='robot' />
-					</Flex>
+					</Flex> */}
 				</Flex>
 			</TouchableWithoutFeedback>
 

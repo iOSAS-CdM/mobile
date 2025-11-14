@@ -63,16 +63,29 @@ const Calendar = () => {
 				// Normalize events to { id, type, title, date, raw, cover? }
 				const normalized = [];
 				for (const a of announcements) {
-					const d = a.event_date || a.date || a.created_at || a.createdAt || a.created;
+					// Use event_date for event-type announcements, created_at for information-type
+					let d;
+					if (a.type === 'event' && a.event_date) {
+						d = a.event_date;
+					} else {
+						d = a.created_at || a.createdAt || a.created || a.date;
+					};
 					if (!d) continue;
-					// If the server already provides a date-only string (YYYY-MM-DD), use it directly.
+					// Parse the date string and extract date in local timezone
 					let iso;
 					if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+						// Already in YYYY-MM-DD format
 						iso = d;
 					} else {
+						// Handle timestamps like "2025-11-14 04:37:45.870675+00" or "2025-11-17 16:00:00+00"
 						const dt = new Date(d);
+						if (isNaN(dt.getTime())) {
+							console.warn('Invalid date for announcement:', a.id, d);
+							continue;
+						}
+						// Use UTC date to avoid timezone shifts
 						const pad = (n) => String(n).padStart(2, '0');
-						iso = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+						iso = `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
 					};
 					normalized.push({ id: a.id, type: 'announcement', title: a.title || a.description || 'Announcement', date: iso, raw: a, cover: a.cover ? { uri: a.cover } : null });
 				};
@@ -84,8 +97,13 @@ const Calendar = () => {
 						iso = d;
 					} else {
 						const dt = new Date(d);
+						if (isNaN(dt.getTime())) {
+							console.warn('Invalid date for record:', r.id, d);
+							continue;
+						}
+						// Use UTC date to avoid timezone shifts
 						const pad = (n) => String(n).padStart(2, '0');
-						iso = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+						iso = `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
 					};
 					normalized.push({ id: r.id, type: 'record', title: r.title || r.violation || 'Record', date: iso, raw: r });
 				};
