@@ -51,8 +51,9 @@ const Main = () => {
 		// an exception won't crash the app on startup.
 		let subscription = null;
 		(async () => {
-			(async () => {
-			try {
+			// Check for updates only in production builds
+			if (!__DEV__) {
+				try {
 					const update = await Updates.checkForUpdateAsync();
 					if (update.isAvailable) {
 						await Updates.fetchUpdateAsync();
@@ -64,11 +65,11 @@ const Main = () => {
 								}
 							}
 						]);
-					};
+					}
 				} catch (e) {
 					console.log('Update check failed:', e);
-				};
-			})();
+				}
+			}
 
 			try {
 				const { data: { session: currentSession }, error } = await supabase.auth.getSession();
