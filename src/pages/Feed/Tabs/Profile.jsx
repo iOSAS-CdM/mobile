@@ -27,7 +27,7 @@ import ITE from '../../../../assets/public/institutes/ite.jpg';
 import IBE from '../../../../assets/public/institutes/ibe.jpg';
 
 const Profile = () => {
-	const { cache } = useCache();
+	const { cache, updateCache } = useCache();
 	const { setRefresh } = useRefresh();
 
 	const [signingOut, setSigningOut] = React.useState(false);
@@ -38,6 +38,24 @@ const Profile = () => {
 		await supabase.auth.signOut();
 		setSigningOut(false);
 		navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+	};
+
+	
+	const fetchUser = async () => {
+		const response = await authFetch(`${API_Route}/auth/me`, {
+			signal: controller.signal
+		}).catch((error) => {
+			console.error('Error fetching user data:', error);
+			fetchUser();
+		});
+		if (response?.status === 0) return;
+
+		const data = await response.json();
+		if (!data) {
+			Toast.fail('Invalid user data received', 1);
+			return;
+		};
+		updateCache('user', data);
 	};
 
 	const handleProfilePictureChange = async () => {
@@ -102,10 +120,7 @@ const Profile = () => {
 
 				if (data && data.profilePicture) {
 					Toast.success('Profile picture updated successfully', 2);
-					setRefresh({
-						key: 'user',
-						timestamp: new Date().toISOString()
-					});
+					fetchUser();
 				} else {
 					Toast.fail('Failed to update profile picture', 2);
 				};
@@ -139,10 +154,7 @@ const Profile = () => {
 				const data = await response.json().catch(() => null);
 				if (data && data.profilePicture) {
 					Toast.success('Profile picture updated successfully', 2);
-					setRefresh({
-						key: 'user',
-						timestamp: new Date().toISOString()
-					});
+					fetchUser();
 				} else {
 					Toast.fail('Failed to update profile picture', 2);
 				};
