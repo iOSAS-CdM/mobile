@@ -11,7 +11,6 @@ import ContentPage from '../../../components/ContentPage';
 
 import { useCache } from '../../../contexts/CacheContext';
 import { useRefresh } from '../../../contexts/useRefresh';
-import { useWebSocketRefresh } from '../../../contexts/useWebSocketRefresh';
 
 import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
@@ -31,14 +30,8 @@ const Cases = () => {
 	React.useEffect(() => {
 		if (refresh?.key === 'cases' || refresh?.key === 'all') {
 			fetchCases();
-		}
+		};
 	}, [refresh]);
-
-	// Listen for WebSocket refresh events
-	useWebSocketRefresh('cases', ({ resource, timestamp }) => {
-		console.log('WebSocket refresh received for cases:', { resource, timestamp });
-		fetchCases();
-	});
 
 	const fetchCases = async () => {
 		try {

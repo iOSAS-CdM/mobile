@@ -46,18 +46,18 @@ const Calendar = () => {
 						const data = await res.json();
 						announcements = data?.announcements || data || [];
 						pushToCache('announcements', announcements, false);
-					}
-				}
+					};
+				};
 
 				if ((!records || records.length === 0)) {
-					const res = await authFetch(`${API_Route}/records`, { signal: controller.signal });
+					const res = await authFetch(`${API_Route}/users/student/${cache.user?.id}/records`, { signal: controller.signal });
 					if (res?.status === 0) return;
 					if (res?.ok) {
 						const data = await res.json();
 						// API might return { records: [...] } or an array directly
 						records = data?.records || data || [];
 						pushToCache('records', records, false);
-					}
+					};
 				};
 
 				// Normalize events to { id, type, title, date, raw, cover? }
