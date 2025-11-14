@@ -122,7 +122,7 @@ const SignIn = () => {
 
 		if (userData?.user) {
 			Toast.success('Successfully Signed In!', 0.5);
-			navigationRef.current?.navigate('Feed');
+			// Navigation will be handled by onAuthStateChange listener in main.jsx
 		} else {
 			Toast.fail('Failed to Sign In.', 0.5);
 		};
@@ -259,7 +259,7 @@ const SignIn = () => {
 									const session = await performOAuth();
 									if (session) {
 										Toast.success('Successfully Signed In!', 0.5);
-										navigationRef.current?.navigate('Feed');
+										// Navigation will be handled by onAuthStateChange listener in main.jsx
 									} else {
 										Toast.fail('Failed to Sign In.', 0.5);
 									};

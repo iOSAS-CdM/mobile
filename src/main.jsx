@@ -89,10 +89,29 @@ const Main = () => {
 			};
 
 			try {
-				const res = supabase.auth.onAuthStateChange((_event, newSession) => {
+				const res = supabase.auth.onAuthStateChange((event, newSession) => {
 					setSession(newSession);
 					setSessionChecked(true);
 					try { SplashScreen.hide(); } catch (e) { /* ignore */ }
+
+					// Handle navigation based on auth events
+					if (event === 'SIGNED_IN' && newSession) {
+						// Navigate to Feed when user signs in
+						setTimeout(() => {
+							navigationRef.current?.reset({
+								index: 0,
+								routes: [{ name: 'Feed' }]
+							});
+						}, 100);
+					} else if (event === 'SIGNED_OUT') {
+						// Navigate to SignIn when user signs out
+						setTimeout(() => {
+							navigationRef.current?.reset({
+								index: 0,
+								routes: [{ name: 'SignIn' }]
+							});
+						}, 100);
+					};
 				});
 				subscription = res?.data?.subscription ?? null;
 			} catch (err) {

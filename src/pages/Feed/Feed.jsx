@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
-import { Flex, Icon, Toast, Badge } from '@ant-design/react-native';
+import { Flex, Icon, Toast, Badge, ActivityIndicator } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
 import Text from '../../components/Text';
@@ -56,7 +56,7 @@ const Feed = () => {
 				signal: controller.signal
 			}).catch((error) => {
 				console.error('Error fetching user data:', error);
-				Toast.fail('Network error. Please try again.', 1);
+				fetchUser();
 			});
 			if (response?.status === 0) return;
 
@@ -71,7 +71,7 @@ const Feed = () => {
 			tabNavigatorRef.current?.reset({ index: 0, routes: [{ name: 'Home' }] });
 		};
 		fetchUser();
-		return () => { controller.abort(); };
+		return () => controller.abort();
 	}, [refresh, tabNavigatorRef]);
 
 	const [organizations, setOrganizations] = React.useState([]);
@@ -113,6 +113,7 @@ const Feed = () => {
 				style={{ width: 128, height: 128, objectFit: 'contain' }}
 				contentFit='contain'
 			/>
+			<ActivityIndicator size='large' style={{ marginTop: theme.v_spacing_lg }} />
 		</Flex>
 	);
 

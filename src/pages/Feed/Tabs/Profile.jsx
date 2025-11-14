@@ -232,12 +232,13 @@ const Profile = () => {
 									}[cache.user?.institute?.toLowerCase() || 'ics'] || ICS}
 									style={{
 										position: 'absolute',
-										right: (size / 2) / -2,
+										left: (size / 2) / -2,
 										top: ((128 + (theme.v_spacing_lg * 2)) / 2) - (size / 2),
 										width: size,
 										height: size,
 										borderRadius: 10000,
-										opacity: 0.1
+										opacity: 0.75,
+										zIndex: -1
 									}}
 								/>
 							);

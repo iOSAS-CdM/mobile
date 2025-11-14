@@ -3,7 +3,7 @@
     "name": "iOSAS",
     "slug": "iOSAS",
     "scheme": "com.danieljohnbyns.iosas",
-    "version": "1.0.75",
+    "version": "1.0.76",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -73,7 +73,7 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/5e83bcd4-20b8-43a2-998d-934ca4c89ca1"
     },
-    "runtimeVersion": "1.0.75",
+    "runtimeVersion": "1.0.76",
     "experiments": {},
     "extra": {
       "eas": {
