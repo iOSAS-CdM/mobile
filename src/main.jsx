@@ -287,4 +287,4 @@ export default Entry;
  * }}
  */
 export const navigationRef = React.createRef();
-export const API_Route = __DEV__ ? 'http://10.242.192.28:3001' : 'https://iosas.online/api';
+export const API_Route = __DEV__ ? 'http://10.242.192.28:3001' : 'https://api.iosas.online';
