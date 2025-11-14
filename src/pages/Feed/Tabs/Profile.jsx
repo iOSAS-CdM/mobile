@@ -214,7 +214,7 @@ const Profile = () => {
 						>
 							<Avatar
 								size={128}
-								source={{ uri: cache.user?.profilePicture }}
+								source={{ uri: `${cache.user?.profilePicture}?random=${Math.random()}` }}
 								alt='User Avatar'
 								style={{
 									borderWidth: 4,
@@ -223,7 +223,7 @@ const Profile = () => {
 								}}
 							/>
 							<Icon
-								name={uploadingPicture ? 'loading' : 'camera'}
+								name='camera'
 								size={32}
 								style={{
 									position: 'absolute',
