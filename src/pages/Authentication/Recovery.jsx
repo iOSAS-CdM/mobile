@@ -171,9 +171,6 @@ const Recovery = () => {
 						align='center'
 						gap={8}
 					>
-						<Text center style={{ fontSize: theme.font_size_base }}>
-							We're here to help you{step > 1 ? ',' : ''}
-						</Text>
 						<Title center level={1} style={{ color: theme.brand_primary, fontWeight: 'bold' }}>
 							{step === 1 ? 'Reset Password' : user?.name?.first || 'Reset Password'}
 						</Title>
