@@ -1,7 +1,5 @@
-import React from 'react';
-import { RefreshControl, Dimensions } from 'react-native';
 import Image from 'react-native-scalable-image';
-import { Pressable } from 'react-native';
+import { Pressable, Dimensions } from 'react-native';
 
 import { Flex } from '@ant-design/react-native';
 
@@ -30,12 +28,6 @@ const Organizations = () => {
 			contentPadding={0}
 			renderItem={(org) => (
 				<Organization organization={org} onPress={(org) => navigationRef.current?.navigate('ViewOrganization', { organization: org })} />
-			)}
-			refreshControl={(
-				<RefreshControl
-					refreshing={false}
-					onRefresh={() => setRefresh({ key: 'organizations', seeds: Date.now() })}
-				/>
 			)}
 		/>
 	);

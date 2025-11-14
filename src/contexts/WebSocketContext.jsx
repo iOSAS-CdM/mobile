@@ -25,6 +25,7 @@ const WebSocketContext = React.createContext(null);
 export const WebSocketProvider = ({ children, url }) => {
 	const [isConnected, setIsConnected] = React.useState(false);
 	const [lastMessage, setLastMessage] = React.useState(null);
+	/** @type {React.RefObject<WebSocket | null>} */
 	const ws = React.useRef(null);
 	const reconnectTimeout = React.useRef(null);
 	const reconnectAttempts = React.useRef(0);

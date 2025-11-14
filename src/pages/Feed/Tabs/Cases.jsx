@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, ScrollView as RNScrollView, Dimensions } from 'react-native';
-import { RefreshControl } from 'react-native-gesture-handler';
 
 import { Flex, Icon, Tag, Modal } from '@ant-design/react-native';
 
@@ -185,17 +184,6 @@ const Cases = () => {
 				contentGap={0}
 				contentPadding={0}
 				renderItem={(record) => <Case key={record.id} record={record} />}
-				refreshControl={(
-					<RefreshControl
-						refreshing={loadingCases}
-						onRefresh={() => {
-							setRefresh({
-								key: 'records',
-								seeds: Date.now()
-							});
-						}}
-					/>
-				)}
 			/>
 		</View>
 	);

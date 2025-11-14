@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 import Text from './Text';
 import Skeleton from './Skeleton';
@@ -13,7 +14,6 @@ import theme from '../styles/theme';
  * @param {{
  *  fetchUrl: string;
  * 	header: React.ReactNode;
- * 	refreshControl: React.ReactNode;
  * 	limit?: number;
  * 	transformItem?: (item: any) => any;
  * 	cacheKey?: keyof import('../contexts/CacheContext').Cache;
@@ -28,7 +28,6 @@ import theme from '../styles/theme';
 const ContentPage = ({
 	fetchUrl,
 	header,
-	refreshControl,
 	limit = 10,
 	transformItem = (item) => item,
 	cacheKey,
@@ -44,7 +43,7 @@ const ContentPage = ({
 	const [offset, setOffset] = React.useState(0);
 	const [totalLength, setTotalLength] = React.useState(0);
 	const { updateCache } = useCache();
-	const { refresh } = useRefresh();
+	const { refresh, setRefresh } = useRefresh();
 
 	const fetchItems = React.useCallback(async (currentOffset, isLoadingMore = false) => {
 		if (isLoadingMore)
@@ -96,9 +95,12 @@ const ContentPage = ({
 
 	// Initial load and refresh
 	React.useEffect(() => {
-		setOffset(0);
-		fetchItems(0, false);
-	}, [fetchUrl, refresh]);
+		if (refresh?.key === 'all' || refresh?.key === cacheKey || refresh == null) {
+			alert(JSON.stringify(refresh, null, 2));
+			setOffset(0);
+			fetchItems(0, false);
+		};
+	}, [refresh]);
 
 	// Handle infinite scroll
 	const handleScroll = React.useCallback((event) => {
@@ -114,7 +116,17 @@ const ContentPage = ({
 
 	return (
 		<ScrollView
-			refreshControl={refreshControl}
+			refreshControl={
+				<RefreshControl
+					refreshing={loading}
+					onRefresh={() => {
+						setRefresh({
+							key: cacheKey,
+							seeds: Date.now()
+						});
+					}}
+				/>
+			}
 			style={{ flex: 1 }}
 			contentContainerStyle={{ gap: headerGap }}
 			onScroll={handleScroll}

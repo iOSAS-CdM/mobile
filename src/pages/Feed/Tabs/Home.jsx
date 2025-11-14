@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, Dimensions, Image, View } from 'react-native';
-import { RefreshControl } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -76,17 +75,6 @@ const Home = () => {
 						viewComments={() => viewComments(announcement)}
 					/>
 				)}
-				refreshControl={
-					<RefreshControl
-						refreshing={false}
-						onRefresh={() => {
-							setRefresh({
-								key: 'announcements',
-								seeds: Date.now()
-							});
-						}}
-					/>
-				}
 			/>
 
 			<BottomSheet

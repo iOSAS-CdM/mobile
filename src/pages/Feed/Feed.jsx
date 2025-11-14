@@ -67,7 +67,6 @@ const Feed = () => {
 			};
 			updateCache('user', data);
 			setUser(data);
-			setRefresh(null);
 			sendMessage({ type: 'introduce', payload: { id: data.id } });
 			tabNavigatorRef.current?.reset({ index: 0, routes: [{ name: 'Home' }] });
 		};

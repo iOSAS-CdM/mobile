@@ -27,7 +27,7 @@ export const RefreshProvider = ({ children }) => {
 					timestamp: timestamp || new Date().toISOString(),
 					source: 'websocket'
 				});
-			}
+			};
 		});
 
 		return unsubscribe;
