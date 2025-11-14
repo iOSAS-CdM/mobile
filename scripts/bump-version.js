@@ -46,8 +46,9 @@ try {
 	// Update expo.version
 	appJson.expo.version = newVersion;
 
-	// Update expo.runtimeVersion
-	appJson.expo.runtimeVersion = newVersion;
+	// Keep runtimeVersion stable for OTA updates to work
+	// Only change runtimeVersion when native code changes (breaking changes)
+	// appJson.expo.runtimeVersion = newVersion; // Commented out - keep at 1.0.0
 
 	// Write back app.json
 	fs.writeFileSync(appJsonPath, JSON.stringify(appJson, null, 2) + '\n');

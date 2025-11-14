@@ -7,7 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import supabase from './utils/supabase';
 import * as Updates from 'expo-updates';
 
-import { Platform, KeyboardAvoidingView, Dimensions, LogBox, StatusBar } from 'react-native';
+import { Platform, KeyboardAvoidingView, Dimensions, LogBox, StatusBar, AppState } from 'react-native';
 
 import { useFonts } from 'expo-font';
 
@@ -43,6 +43,37 @@ import theme from './styles/theme';
 const Main = () => {
 	const [session, setSession] = React.useState(null);
 	const [sessionChecked, setSessionChecked] = React.useState(false);
+
+	// Function to check for updates
+	const checkForUpdates = React.useCallback(async () => {
+		if (__DEV__) return; // Skip in development
+
+		try {
+			console.log('Checking for updates...');
+			const update = await Updates.checkForUpdateAsync();
+			if (update.isAvailable) {
+				console.log('Update available, fetching...');
+				await Updates.fetchUpdateAsync();
+				Modal.alert('Update Available', 'A new version is available. Restart the app to apply the latest updates.', [
+					{
+						text: 'Restart Now',
+						onPress: async () => {
+							await Updates.reloadAsync();
+						}
+					},
+					{
+						text: 'Later',
+						style: 'cancel'
+					}
+				]);
+			} else {
+				console.log('No updates available');
+			}
+		} catch (e) {
+			console.log('Update check failed:', e);
+		}
+	}, []);
+
 	React.useEffect(() => {
 		StatusBar.setBarStyle('dark-content');
 		StatusBar.setBackgroundColor('#ffffff');
@@ -50,26 +81,11 @@ const Main = () => {
 		// Run startup work inside an async IIFE with robust error handling so
 		// an exception won't crash the app on startup.
 		let subscription = null;
+		let appStateSubscription = null;
+
 		(async () => {
-			// Check for updates only in production builds
-			if (!__DEV__) {
-				try {
-					const update = await Updates.checkForUpdateAsync();
-					if (update.isAvailable) {
-						await Updates.fetchUpdateAsync();
-						Modal.alert('Update Available', 'Restarting the app to apply the latest updates.', [
-							{
-								text: 'OK',
-								onPress: async () => {
-									await Updates.reloadAsync();
-								}
-							}
-						]);
-					}
-				} catch (e) {
-					console.log('Update check failed:', e);
-				}
-			}
+			// Check for updates on app launch
+			await checkForUpdates();
 
 			try {
 				const { data: { session: currentSession }, error } = await supabase.auth.getSession();
@@ -119,14 +135,29 @@ const Main = () => {
 			};
 		})();
 
+		// Set up AppState listener to check for updates when app comes to foreground
+		if (!__DEV__) {
+			appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+				if (nextAppState === 'active') {
+					// Check for updates when app becomes active
+					checkForUpdates();
+				}
+			});
+		}
+
 		return () => {
 			try {
 				if (subscription && typeof subscription.unsubscribe === 'function') subscription.unsubscribe();
 			} catch (err) {
 				console.warn('Failed to unsubscribe auth subscription:', err);
 			};
+
+			// Clean up AppState listener
+			if (appStateSubscription) {
+				appStateSubscription.remove();
+			}
 		};
-	}, []);
+	}, [checkForUpdates]);
 
 	const [fontsLoaded] = useFonts({
 		antoutline: require('@ant-design/icons-react-native/fonts/antoutline.ttf'),

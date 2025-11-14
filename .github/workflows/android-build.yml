@@ -143,7 +143,9 @@ jobs:
               EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
               CI: true
             run: |
-              echo "Authenticated with Expo token: $EXPO_TOKEN"
+              echo "Publishing OTA update with runtime version from app.json"
+              RUNTIME_VERSION=$(node -p "require('./app.json').expo.runtimeVersion")
+              echo "Runtime version: $RUNTIME_VERSION"
               npx --yes eas whoami
               npx --yes eas update --branch production --message "Auto OTA update from GitHub CI ($GITHUB_SHA)" --platform android --non-interactive
 
