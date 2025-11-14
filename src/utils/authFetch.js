@@ -8,25 +8,59 @@ import { navigationRef } from '../main';
  */
 const authFetch = async (...args) => {
 	// Use Supabase client's session instead of AsyncStorage
-	const { data: { session } = {} } = await supabase.auth.getSession();
+	const { data: { session } = {}, error: sessionError } = await supabase.auth.getSession();
 
-	if (session?.access_token) {
+	// Log warning if session retrieval failed
+	if (sessionError)
+		console.warn('authFetch: Failed to retrieve session:', sessionError.message);
+
+	// Validate that we have a valid session with access token
+	if (!session?.access_token) {
+		const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || 'unknown';
+		console.warn('authFetch: No access token available for request to:', url);
+
+		// Return a response indicating authentication is required
+		return {
+			ok: false,
+			status: 401,
+			statusText: 'Unauthorized - No access token',
+			headers: {
+				get: () => null
+			},
+			json: async () => ({ message: 'No authentication token available' }),
+			text: async () => 'No authentication token available',
+			clone: () => ({
+				ok: false,
+				status: 401,
+				json: async () => ({ message: 'No authentication token available' }),
+				text: async () => 'No authentication token available'
+			})
+		};
+	};
+
+	// Add Authorization header to the request
+	try {
 		// First arg is the resource/URL, second arg is options
 		if (args[1] && typeof args[1] === 'object') {
 			// If headers already exist, add to them
-			args[1].headers = {
-				...args[1].headers,
-				'Authorization': `Bearer ${session.access_token}`
+			args[1] = {
+				...args[1],
+				headers: {
+					...(args[1].headers || {}),
+					'Authorization': `Bearer ${session.access_token}`
+				}
 			};
 		} else {
-			// Create headers object if options doesn't exist
+			// Create options object with headers if it doesn't exist
 			args[1] = {
-				...(args[1] || {}),
 				headers: {
 					'Authorization': `Bearer ${session.access_token}`
 				}
 			};
 		};
+	} catch (headerError) {
+		console.error('authFetch: Failed to add Authorization header:', headerError);
+		throw headerError;
 	};
 
 	try {
