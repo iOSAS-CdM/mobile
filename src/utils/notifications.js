@@ -59,7 +59,7 @@ export const getExpoPushToken = async () => {
 		};
 
 		const token = await Notifications.getExpoPushTokenAsync({
-			projectId,
+			projectId
 		});
 
 		return token.data;
@@ -67,20 +67,22 @@ export const getExpoPushToken = async () => {
 		// Handle Firebase not initialized error
 		if (error.message && error.message.includes('FirebaseApp is not initialized')) {
 			console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-			console.warn('⚠️  FIREBASE NOT CONFIGURED');
+			console.warn('⚠️  FIREBASE NOT CONFIGURED - Using mock token for development');
 			console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 			console.warn('Push notifications require Firebase Cloud Messaging (FCM).');
+			console.warn('This is a DEVELOPMENT-ONLY mock token. Real notifications will NOT work.');
 			console.warn('');
-			console.warn('Quick Setup:');
-			console.warn('1. cd to your project directory');
-			console.warn('2. Run: eas credentials');
-			console.warn('3. Select: Android → Google Service Account');
-			console.warn('4. Choose: "Let Expo handle it"');
-			console.warn('5. Rebuild: eas build --platform android');
+			console.warn('To enable real push notifications:');
+			console.warn('Run: eas build --platform android --profile production');
 			console.warn('');
 			console.warn('See FIREBASE_SETUP.md for detailed instructions.');
 			console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-			return null;
+
+			// Return a mock Expo push token for development testing
+			// This allows testing the registration flow without Firebase
+			const mockToken = `ExponentPushToken[DEV-MOCK-${Date.now()}]`;
+			console.warn(`Using mock token: ${mockToken}`);
+			return mockToken;
 		};
 
 		console.error('Error getting push token:', error);
