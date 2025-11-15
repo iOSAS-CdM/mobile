@@ -39,10 +39,17 @@ const height = Dimensions.get('window').height;
 SystemUI.setBackgroundColorAsync('#ffffff');
 SplashScreen.preventAutoHideAsync();
 
+import { setupPushNotifications, unregisterPushToken } from './utils/notifications';
+import * as Notifications from 'expo-notifications';
+
 import theme from './styles/theme';
 const Main = () => {
 	const [session, setSession] = React.useState(null);
 	const [sessionChecked, setSessionChecked] = React.useState(false);
+
+	// Notification listeners
+	const notificationListener = React.useRef();
+	const responseListener = React.useRef();
 
 	// Function to check for updates
 	const checkForUpdates = React.useCallback(async () => {
@@ -68,10 +75,10 @@ const Main = () => {
 				]);
 			} else {
 				console.log('No updates available');
-			}
+			};
 		} catch (e) {
 			console.log('Update check failed:', e);
-		}
+		};
 	}, []);
 
 	React.useEffect(() => {
@@ -105,13 +112,22 @@ const Main = () => {
 			};
 
 			try {
-				const res = supabase.auth.onAuthStateChange((event, newSession) => {
+				const res = supabase.auth.onAuthStateChange(async (event, newSession) => {
 					setSession(newSession);
 					setSessionChecked(true);
 					try { SplashScreen.hide(); } catch (e) { /* ignore */ }
 
 					// Handle navigation based on auth events
 					if (event === 'SIGNED_IN' && newSession) {
+						// Set up push notifications after sign in
+						try {
+							const token = await setupPushNotifications(newSession.access_token);
+							if (token)
+								console.log('Push notifications set up successfully');
+						} catch (err) {
+							console.error('Error setting up push notifications:', err);
+						};
+
 						// Navigate to Feed when user signs in
 						setTimeout(() => {
 							navigationRef.current?.reset({
@@ -120,6 +136,15 @@ const Main = () => {
 							});
 						}, 100);
 					} else if (event === 'SIGNED_OUT') {
+						// Unregister push token on sign out
+						if (newSession?.access_token) {
+							try {
+								await unregisterPushToken(newSession.access_token);
+							} catch (err) {
+								console.error('Error unregistering push token:', err);
+							};
+						};
+
 						// Navigate to SignIn when user signs out
 						setTimeout(() => {
 							navigationRef.current?.reset({
@@ -143,7 +168,22 @@ const Main = () => {
 					checkForUpdates();
 				}
 			});
-		}
+		};
+
+		// Set up notification listeners
+		notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+			console.log('Notification received in foreground:', notification);
+			// You can show a custom UI here or use Modal.alert
+		});
+
+		responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+			console.log('Notification tapped:', response);
+			const data = response.notification.request.content.data;
+
+			// Handle navigation based on notification data
+			if (data?.screen)
+				navigationRef.current?.navigate(data.screen, data.params || {});
+		});
 
 		return () => {
 			try {
@@ -152,10 +192,15 @@ const Main = () => {
 				console.warn('Failed to unsubscribe auth subscription:', err);
 			};
 
+			// Clean up notification listeners
+			if (notificationListener.current)
+				Notifications.removeNotificationSubscription(notificationListener.current);
+			if (responseListener.current)
+				Notifications.removeNotificationSubscription(responseListener.current);
+
 			// Clean up AppState listener
-			if (appStateSubscription) {
+			if (appStateSubscription)
 				appStateSubscription.remove();
-			}
 		};
 	}, [checkForUpdates]);
 
@@ -165,8 +210,6 @@ const Main = () => {
 	});
 
 	const keyboardVisible = useKeyboard();
-
-	if (!fontsLoaded || !sessionChecked) return null;
 
 	LogBox.ignoreAllLogs(true);
 

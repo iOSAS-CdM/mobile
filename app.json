@@ -3,7 +3,7 @@
     "name": "iOSAS",
     "slug": "iOSAS",
     "scheme": "com.danieljohnbyns.iosas",
-    "version": "1.0.88",
+    "version": "1.0.89",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -34,7 +34,10 @@
         "resizeMode": "cover",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.danieljohnbyns.iosas"
+      "package": "com.danieljohnbyns.iosas",
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -65,6 +68,14 @@
         "expo-updates",
         {
           "username": "iosas-cdm"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "sounds": []
         }
       ]
     ],
