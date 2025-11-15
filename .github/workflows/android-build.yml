@@ -101,6 +101,37 @@ jobs:
                   echo "⚠️ google-services.json not found in project root"
                 fi
 
+          - name: Verify and configure Google Services plugin
+            run: |
+                echo "Checking if Google Services plugin is configured..."
+                
+                # Check project-level build.gradle
+                if grep -q "com.google.gms:google-services" android/build.gradle; then
+                  echo "✅ Google Services plugin dependency found"
+                else
+                  echo "⚠️ Google Services plugin dependency NOT found - this might cause issues"
+                fi
+                
+                # Check if plugin is applied in app/build.gradle
+                if grep -q "com.google.gms.google-services" android/app/build.gradle; then
+                  echo "✅ Google Services plugin applied"
+                else
+                  echo "⚠️ Google Services plugin NOT applied"
+                  echo "Adding Google Services plugin to android/app/build.gradle..."
+                  echo "" >> android/app/build.gradle
+                  echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
+                  echo "✅ Google Services plugin added"
+                fi
+                
+                # Verify google-services.json is in place
+                if [ -f android/app/google-services.json ]; then
+                  echo "✅ google-services.json confirmed in android/app/"
+                  cat android/app/google-services.json | head -10
+                else
+                  echo "❌ google-services.json NOT found in android/app/"
+                  exit 1
+                fi
+
           - name: Build Android (Gradle assembleRelease)
             run: |
                 cd android
