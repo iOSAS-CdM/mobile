@@ -101,36 +101,46 @@ jobs:
                   echo "⚠️ google-services.json not found in project root"
                 fi
 
-          - name: Verify and configure Google Services plugin
+          - name: Configure Google Services plugin for Firebase
             run: |
-                echo "Checking if Google Services plugin is configured..."
+                echo "Configuring Google Services plugin..."
                 
-                # Check project-level build.gradle
+                # Add Google Services plugin dependency to project-level build.gradle
                 if grep -q "com.google.gms:google-services" android/build.gradle; then
-                  echo "✅ Google Services plugin dependency found"
+                  echo "✅ Google Services plugin dependency already exists"
                 else
-                  echo "⚠️ Google Services plugin dependency NOT found - this might cause issues"
+                  echo "Adding Google Services plugin dependency to android/build.gradle..."
+                  # Add the classpath to buildscript dependencies
+                  sed -i "/dependencies {/a\\        classpath 'com.google.gms:google-services:4.4.0'" android/build.gradle
+                  echo "✅ Google Services plugin dependency added"
                 fi
                 
-                # Check if plugin is applied in app/build.gradle
+                # Apply the plugin in app/build.gradle
                 if grep -q "com.google.gms.google-services" android/app/build.gradle; then
-                  echo "✅ Google Services plugin applied"
+                  echo "✅ Google Services plugin already applied"
                 else
-                  echo "⚠️ Google Services plugin NOT applied"
-                  echo "Adding Google Services plugin to android/app/build.gradle..."
+                  echo "Applying Google Services plugin in android/app/build.gradle..."
                   echo "" >> android/app/build.gradle
                   echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
-                  echo "✅ Google Services plugin added"
+                  echo "✅ Google Services plugin applied"
                 fi
                 
                 # Verify google-services.json is in place
                 if [ -f android/app/google-services.json ]; then
                   echo "✅ google-services.json confirmed in android/app/"
-                  cat android/app/google-services.json | head -10
+                  echo "File contents (first 5 lines):"
+                  head -5 android/app/google-services.json
                 else
                   echo "❌ google-services.json NOT found in android/app/"
                   exit 1
                 fi
+                
+                echo ""
+                echo "=== Firebase Configuration Summary ==="
+                echo "✅ google-services.json: present"
+                echo "✅ Plugin dependency: configured"
+                echo "✅ Plugin applied: configured"
+                echo "======================================"
 
           - name: Build Android (Gradle assembleRelease)
             run: |
