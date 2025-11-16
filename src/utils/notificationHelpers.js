@@ -9,9 +9,10 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
  * @param {string} options.title - Notification title
  * @param {string} options.body - Notification body
  * @param {Object} [options.data] - Custom data (e.g., screen to navigate to)
+ * @param {string} [options.sound] - Custom sound file name (e.g., 'notification.wav')
  * @returns {Promise<Object>}
  */
-export const sendNotificationToUsers = async ({ userIds, title, body, data }) => {
+export const sendNotificationToUsers = async ({ userIds, title, body, data, sound }) => {
 	try {
 		const response = await authFetch(`${API_URL}/push-tokens/send`, {
 			method: 'POST',
@@ -22,7 +23,8 @@ export const sendNotificationToUsers = async ({ userIds, title, body, data }) =>
 				userIds,
 				title,
 				body,
-				data: data || {}
+				data: data || {},
+				sound: sound || 'default'
 			})
 		});
 
@@ -45,9 +47,10 @@ export const sendNotificationToUsers = async ({ userIds, title, body, data }) =>
  * @param {string} options.title - Notification title
  * @param {string} options.body - Notification body
  * @param {Object} [options.data] - Custom data (e.g., screen to navigate to)
+ * @param {string} [options.sound] - Custom sound file name (e.g., 'notification.wav')
  * @returns {Promise<Object>}
  */
-export const sendNotificationToRoles = async ({ roles, title, body, data }) => {
+export const sendNotificationToRoles = async ({ roles, title, body, data, sound }) => {
 	try {
 		const response = await authFetch(`${API_URL}/push-tokens/send`, {
 			method: 'POST',
@@ -58,6 +61,7 @@ export const sendNotificationToRoles = async ({ roles, title, body, data }) => {
 				roles,
 				title,
 				body,
+				sound: sound || 'default',
 				data: data || {}
 			})
 		});
