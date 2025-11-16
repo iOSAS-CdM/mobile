@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
-import { Flex, Icon, Toast, Badge, ActivityIndicator } from '@ant-design/react-native';
+import { Flex, Icon, Toast, Badge, ActivityIndicator, Tooltip } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
 import Text from '../../components/Text';
@@ -40,7 +40,7 @@ const Feed = () => {
 	const keyboardShown = useKeyboard();
 
 	const { cache, updateCache } = useCache();
-	const { refresh, setRefresh } = useRefresh();
+	const { refresh } = useRefresh();
 	const { sendMessage } = useWebSocket();
 	/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef | null>} */
 	const tabNavigatorRef = React.useRef(null);
@@ -166,15 +166,21 @@ const Feed = () => {
 						style={{ width: 64, height: 32, objectFit: 'contain' }}
 						contentFit='contain'
 					/>
-					{/* <Flex direction='row' align='center' gap={8}>
-						{user?.role === 'student' && user?.organizations?.length > 0 && (
+					<Flex direction='row' align='center' gap={8}>
+						{/* {user?.role === 'student' && user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
-						)}
-						{['head', 'guidance', 'prefect', 'student-affairs'].includes(user?.role) && (
-							<IconButton size='small' name='camera' />
-						)}
+						)} */}
 						<IconButton size='small' name='robot' />
-					</Flex> */}
+						{user?.role === 'unverified-student' && (
+							<Tooltip
+								placement='bottom'
+								crossOffset={0}
+								content='Your account is pending verification and has limited access. Please wait for an administrator to verify your account.'
+							>
+								<IconButton size='small' name='info-circle' />
+							</Tooltip>
+						)}
+					</Flex>
 				</Flex>
 			</TouchableWithoutFeedback>
 

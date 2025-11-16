@@ -13,7 +13,6 @@ import Avatar from '../../../components/Avatar';
 import ContentPage from '../../../components/ContentPage';
 
 import { useCache } from '../../../contexts/CacheContext';
-import { useRefresh } from '../../../contexts/useRefresh';
 
 import { API_Route, navigationRef } from '../../../main';
 
@@ -28,7 +27,6 @@ const Home = () => {
 	}, []);
 
 	const { cache } = useCache();
-	const { setRefresh } = useRefresh();
 
 	const [likers, setLikers] = React.useState([]);
 
@@ -41,7 +39,7 @@ const Home = () => {
 		>
 			<Text>{greeting ? `Good ${greeting},` : 'Hello,'}</Text>
 			<Flex direction='row' align='center' gap={8}>
-				<Avatar size='large' uri={cache.user?.profilePicture} />
+				<Avatar size='large' uri={cache.user?.profilePicture + `?random=${Math.random()}`} />
 				<Title level={2}>{cache.user?.name?.first || ''}</Title>
 			</Flex>
 		</Flex>
@@ -202,7 +200,7 @@ const Announcement = ({
 				>
 					<Flex direction='row' align='center' gap={8}>
 						<Avatar
-							uri={announcement.author.profilePicture}
+							uri={announcement.author.profilePicture + `?random=${Math.random()}`}
 						/>
 						<Flex direction='column' justify='center' align='start'>
 							<Text style={{ fontWeight: '500' }}>
