@@ -214,7 +214,7 @@ const Profile = () => {
 						>
 							<Avatar
 								size={128}
-								source={{ uri: `${cache.user?.profilePicture}?random=${Math.random()}` }}
+								source={{ uri: cache.user?.profilePicture + `?random=${Math.random()}` }}
 								alt='User Avatar'
 								style={{
 									borderWidth: 4,

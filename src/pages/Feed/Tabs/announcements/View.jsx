@@ -291,7 +291,7 @@ const ViewAnnouncement = ({ route }) => {
 						>
 							<Flex direction='row' align='center' gap={8}>
 								<Avatar
-									uri={announcement.author.profilePicture}
+									uri={announcement.author.profilePicture + `?random=${Math.random()}`}
 								/>
 								<Flex direction='column' justify='center' align='start'>
 									<Text style={{ fontWeight: '500' }}>
@@ -399,7 +399,7 @@ const ViewAnnouncement = ({ route }) => {
 									<Flex direction='column' align='stretch' gap={4}>
 										<Flex direction='row' justify='between' align='center' gap={8}>
 											<Flex direction='row' align='center' gap={8}>
-												<Avatar size='small' uri={comment.author.profilePicture} />
+												<Avatar size='small' uri={comment.author.profilePicture + `?random=${Math.random()}`} />
 												<Text style={{ fontWeight: '600' }}>
 													{comment.author.name.first} {comment.author.name.last}
 												</Text>

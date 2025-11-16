@@ -89,7 +89,7 @@ const Home = () => {
 					) : (
 						likers.map((like) => (
 							<Flex key={like.author.id} direction='row' align='center' gap={8} style={{ marginBottom: 8 }}>
-								<Avatar size='small' uri={like.author.profilePicture} />
+								<Avatar size='small' uri={like.author.profilePicture + `?random=${Math.random()}`} />
 								<Text>{like.author.name.first} {like.author.name.last}</Text>
 							</Flex>
 						))

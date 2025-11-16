@@ -134,7 +134,7 @@ const ViewOrganization = ({ route }) => {
 									align='center'
 									style={{ gap: theme.h_spacing_sm }}
 								>
-									<Avatar size={32} uri={member.student.profilePicture} />
+									<Avatar size={32} uri={member.student.profilePicture + `?random=${Math.random()}`} />
 									<Flex direction='column' justify='flex-start' align='stretch'>
 										<Text style={{ fontSize: theme.font_size_caption_sm, fontWeight: '600' }}>{`${member.student.name.first} ${member.student.name.last}`}</Text>
 										<Text style={{ color: theme.color_text_secondary }}>{member.role}</Text>
