@@ -179,12 +179,11 @@ const ViewAnnouncement = ({ route }) => {
 			});
 
 			// If a parent passed a setter (e.g., Home or Calendar), update it too
-			if (typeof setAnnouncement === 'function') {
+			if (typeof setAnnouncement === 'function')
 				setAnnouncement(prev => {
 					const updatedPrev = typeof prev === 'function' ? prev(currentAnnouncement) : prev || currentAnnouncement;
 					return { ...updatedPrev, comments: [...(updatedPrev.comments || []), newComment] };
 				});
-			}
 
 			// Update cache: try to update existing announcement in cache
 			try {
@@ -288,7 +287,7 @@ const ViewAnnouncement = ({ route }) => {
 							direction='row'
 							justify='between'
 							align='start'
-							style={{ paddingHorizontal: theme.h_spacing_md }}
+							style={{ paddingHorizontal: theme.h_spacing_md, paddingBottom: cache.user?.role === 'student' ? 0 : theme.v_spacing_md }}
 						>
 							<Flex direction='row' align='center' gap={8}>
 								<Avatar
@@ -314,69 +313,71 @@ const ViewAnnouncement = ({ route }) => {
 								{new Date(announcement.created_at).toLocaleDateString()}
 							</Text>
 						</Flex>
-						<Flex direction='row' justify='between' align='center' gap={16} style={{ marginBottom: theme.v_spacing_md }}>
-							<Pressable
-								onPress={like}
-								android_ripple={{
-									color: theme.fill_mask,
-									borderless: false
-								}}
-								style={{
-									flex: 1,
-									backgroundColor: 'transparent',
-									paddingHorizontal: theme.h_spacing_md,
-									paddingBottom: theme.v_spacing_sm
-								}}
-							>
-								<Flex
-									direction='row'
-									justify='start'
-									align='center'
-									gap={8}
+						{cache.user?.role === 'student' && (
+							<Flex direction='row' justify='between' align='center' gap={16} style={{ marginBottom: theme.v_spacing_md }}>
+								<Pressable
+									onPress={like}
+									android_ripple={{
+										color: theme.fill_mask,
+										borderless: false
+									}}
+									style={{
+										flex: 1,
+										backgroundColor: 'transparent',
+										paddingHorizontal: theme.h_spacing_md,
+										paddingBottom: theme.v_spacing_sm
+									}}
 								>
-									<Ionicons
-										name={
-											currentAnnouncement.likes?.find(
-												(like) => like.author.id === cache.user?.id
-											)
-												? 'heart'
-												: 'heart-outline'
-										}
-										color={
-											currentAnnouncement.likes?.find(
-												(like) => like.author.id === cache.user?.id
-											)
-												? theme.brand_primary
-												: theme.text_color_base
-										}
-									/>
-									<Text>
-										{currentAnnouncement.likes?.length} like
-										{currentAnnouncement.likes?.length !== 1 && 's'}
-									</Text>
-								</Flex>
-							</Pressable>
-							<Pressable
-								style={{
-									flex: 1,
-									backgroundColor: 'transparent',
-									paddingHorizontal: theme.h_spacing_md,
-									paddingVertical: theme.v_spacing_sm
-								}}
-							>
-								<Flex
-									direction='row'
-									justify='end'
-									align='center'
-									gap={8}
+									<Flex
+										direction='row'
+										justify='start'
+										align='center'
+										gap={8}
+									>
+										<Ionicons
+											name={
+												currentAnnouncement.likes?.find(
+													(like) => like.author.id === cache.user?.id
+												)
+													? 'heart'
+													: 'heart-outline'
+											}
+											color={
+												currentAnnouncement.likes?.find(
+													(like) => like.author.id === cache.user?.id
+												)
+													? theme.brand_primary
+													: theme.text_color_base
+											}
+										/>
+										<Text>
+											{currentAnnouncement.likes?.length} like
+											{currentAnnouncement.likes?.length !== 1 && 's'}
+										</Text>
+									</Flex>
+								</Pressable>
+								<Pressable
+									style={{
+										flex: 1,
+										backgroundColor: 'transparent',
+										paddingHorizontal: theme.h_spacing_md,
+										paddingVertical: theme.v_spacing_sm
+									}}
 								>
-									<Text>
-										{currentAnnouncement.comments?.length} comment
-										{currentAnnouncement.comments?.length !== 1 && 's'}
-									</Text>
-								</Flex>
-							</Pressable>
-						</Flex>
+									<Flex
+										direction='row'
+										justify='end'
+										align='center'
+										gap={8}
+									>
+										<Text>
+											{currentAnnouncement.comments?.length} comment
+											{currentAnnouncement.comments?.length !== 1 && 's'}
+										</Text>
+									</Flex>
+								</Pressable>
+							</Flex>
+						)}
 					</Flex>
 
 					{currentAnnouncement?.comments && currentAnnouncement.comments.length > 0 && (
@@ -417,26 +418,28 @@ const ViewAnnouncement = ({ route }) => {
 			</ScrollView>
 
 			{/* Comment composer */}
-			<View style={{ padding: theme.h_spacing_md, borderTopWidth: 0.5, borderTopColor: theme.border_color_base, backgroundColor: theme.fill_base }}>
-				<Flex direction='row' align='center' gap={8}>
-					<Input
-						placeholder='Write a comment...'
-						value={commentText}
-						multiline
-						autoFocus={focusComment === true}
-						onChangeText={setCommentText}
-						editable={!postingComment}
-						wrapperStyle={{ flex: 1 }}
-					/>
-					<IconButton
-						name='send'
-						size={32}
-						type={postingComment || !commentText.trim() ? 'default' : 'primary'}
-						onPress={postComment}
-						disabled={postingComment || !commentText.trim()}
-					/>
-				</Flex>
-			</View>
+			{cache.user?.role === 'student' && (
+				<View style={{ padding: theme.h_spacing_md, borderTopWidth: 0.5, borderTopColor: theme.border_color_base, backgroundColor: theme.fill_base }}>
+					<Flex direction='row' align='center' gap={8}>
+						<Input
+							placeholder='Write a comment...'
+							value={commentText}
+							multiline
+							autoFocus={focusComment === true}
+							onChangeText={setCommentText}
+							editable={!postingComment}
+							wrapperStyle={{ flex: 1 }}
+						/>
+						<IconButton
+							name='send'
+							size={32}
+							type={postingComment || !commentText.trim() ? 'default' : 'primary'}
+							onPress={postComment}
+							disabled={postingComment || !commentText.trim()}
+						/>
+					</Flex>
+				</View>
+			)}
 		</>
 	);
 };

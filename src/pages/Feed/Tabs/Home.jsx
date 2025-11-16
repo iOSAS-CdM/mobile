@@ -198,7 +198,7 @@ const Announcement = ({
 					direction='row'
 					justify='between'
 					align='center'
-					style={{ paddingHorizontal: theme.h_spacing_md }}
+					style={{ paddingHorizontal: theme.h_spacing_md, paddingBottom: cache.user?.role === 'student' ? 0 : theme.v_spacing_md }}
 				>
 					<Flex direction='row' align='center' gap={8}>
 						<Avatar
@@ -224,76 +224,78 @@ const Announcement = ({
 						{new Date(announcement.created_at).toLocaleDateString()}
 					</Text>
 				</Flex>
-				<Flex direction='row' justify='between' align='center' gap={16}>
-					<Pressable
-						onPress={like}
-						android_ripple={{
-							color: theme.fill_mask,
-							borderless: false
-						}}
-						style={{
-							flex: 1,
-							backgroundColor: 'transparent',
-							paddingHorizontal: theme.h_spacing_md,
-							paddingVertical: theme.v_spacing_sm
-						}}
-						onLongPress={viewLikers}
-					>
-						<Flex
-							direction='row'
-							justify='start'
-							align='center'
-							gap={8}
+				{cache.user?.role === 'student' && (
+					<Flex direction='row' justify='between' align='center' gap={16}>
+						<Pressable
+							onPress={like}
+							android_ripple={{
+								color: theme.fill_mask,
+								borderless: false
+							}}
+							style={{
+								flex: 1,
+								backgroundColor: 'transparent',
+								paddingHorizontal: theme.h_spacing_md,
+								paddingVertical: theme.v_spacing_sm
+							}}
+							onLongPress={viewLikers}
 						>
-							<Ionicons
-								name={
-									announcement.likes?.find(
-										(like) => like.author.id === cache.user?.id
-									)
-										? 'heart'
-										: 'heart-outline'
-								}
-								color={
-									announcement.likes?.find(
-										(like) => like.author.id === cache.user?.id
-									)
-										? theme.brand_primary
-										: theme.text_color_base
-								}
-							/>
-							<Text>
-								{announcement.likes?.length} like
-								{announcement.likes?.length !== 1 && 's'}
-							</Text>
-						</Flex>
-					</Pressable>
-					<Pressable
-						android_ripple={{
-							color: theme.fill_mask,
-							borderless: false
-						}}
-						style={{
-							flex: 1,
-							backgroundColor: 'transparent',
-							paddingHorizontal: theme.h_spacing_md,
-							paddingVertical: theme.v_spacing_sm
-						}}
-						onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement, focusComment: true })}
-					>
-						<Flex
-							direction='row'
-							justify='end'
-							align='center'
-							gap={8}
+							<Flex
+								direction='row'
+								justify='start'
+								align='center'
+								gap={8}
+							>
+								<Ionicons
+									name={
+										announcement.likes?.find(
+											(like) => like.author.id === cache.user?.id
+										)
+											? 'heart'
+											: 'heart-outline'
+									}
+									color={
+										announcement.likes?.find(
+											(like) => like.author.id === cache.user?.id
+										)
+											? theme.brand_primary
+											: theme.text_color_base
+									}
+								/>
+								<Text>
+									{announcement.likes?.length} like
+									{announcement.likes?.length !== 1 && 's'}
+								</Text>
+							</Flex>
+						</Pressable>
+						<Pressable
+							android_ripple={{
+								color: theme.fill_mask,
+								borderless: false
+							}}
+							style={{
+								flex: 1,
+								backgroundColor: 'transparent',
+								paddingHorizontal: theme.h_spacing_md,
+								paddingVertical: theme.v_spacing_sm
+							}}
+							onPress={() => navigationRef.current?.navigate('ViewAnnouncement', { announcement, setAnnouncement, focusComment: true })}
 						>
-							<Ionicons name='chatbubble-outline' />
-							<Text>
-								{announcement.comments?.length} comment
-								{announcement.comments?.length !== 1 && 's'}
-							</Text>
-						</Flex>
-					</Pressable>
-				</Flex>
+							<Flex
+								direction='row'
+								justify='end'
+								align='center'
+								gap={8}
+							>
+								<Ionicons name='chatbubble-outline' />
+								<Text>
+									{announcement.comments?.length} comment
+									{announcement.comments?.length !== 1 && 's'}
+								</Text>
+							</Flex>
+						</Pressable>
+					</Flex>
+				)}
 			</Flex>
 		</Pressable>
 	);

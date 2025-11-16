@@ -182,7 +182,7 @@ const Feed = () => {
 				<Tab.Navigator
 					ref={tabNavigatorRef}
 					tabBarPosition={Platform.OS === 'ios' ? 'bottom' : 'top'}
-					initialRouteName={user?.role === 'student' ? 'Home' : 'Cases'}
+					initialRouteName='Home'
 					swipeEnabled={!keyboardShown}
 					style={{
 						position: 'relative',
@@ -213,25 +213,23 @@ const Feed = () => {
 						animationEnabled: false
 					}}
 				>
-					{user?.role === 'student' && (
-						<Tab.Screen
-							name='Home'
-							component={Home}
-							options={{
-								tabBarIcon: ({ focused }) => (
-									<Icon
-										name='home'
-										size={theme.icon_size_sm}
-										color={
-											focused
-												? theme.brand_primary
-												: theme.color_icon_base
-										}
-									/>
-								)
-							}}
-						/>
-					)}
+					<Tab.Screen
+						name='Home'
+						component={Home}
+						options={{
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='home'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
+						}}
+					/>
 					<Tab.Screen
 						name='Cases'
 						component={Cases}
@@ -253,25 +251,23 @@ const Feed = () => {
 							)
 						}}
 					/>
-					{user?.role === 'student' && (
-						<Tab.Screen
-							name='Calendar'
-							component={Calendar}
-							options={{
-								tabBarIcon: ({ focused }) => (
-									<Icon
-										name='calendar'
-										size={theme.icon_size_sm}
-										color={
-											focused
-												? theme.brand_primary
-												: theme.color_icon_base
-										}
-									/>
-								)
-							}}
-						/>
-					)}
+					<Tab.Screen
+						name='Calendar'
+						component={Calendar}
+						options={{
+							tabBarIcon: ({ focused }) => (
+								<Icon
+									name='calendar'
+									size={theme.icon_size_sm}
+									color={
+										focused
+											? theme.brand_primary
+											: theme.color_icon_base
+									}
+								/>
+							)
+						}}
+					/>
 					{organizations?.length > 0 && (
 						<Tab.Screen
 							name='Organizations'
