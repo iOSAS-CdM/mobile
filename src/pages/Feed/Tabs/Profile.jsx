@@ -210,7 +210,7 @@ const Profile = () => {
 						<TouchableOpacity
 							onPress={handleProfilePictureChange}
 							disabled={uploadingPicture}
-							style={{ position: 'relative', width: 128, height: 128 }}
+							style={{ position: 'relative', width: 128, height: 128, zIndex: 2 }}
 						>
 							<Avatar
 								size={128}
@@ -247,13 +247,12 @@ const Profile = () => {
 									}[cache.user?.institute?.toLowerCase() || 'ics'] || ICS}
 									style={{
 										position: 'absolute',
-										left: (size / 2) / -2,
+										left: ((size / 2) / -2) + theme.h_spacing_lg,
 										top: ((128 + (theme.v_spacing_lg * 2)) / 2) - (size / 2),
 										width: size,
 										height: size,
-										borderRadius: 10000,
-										opacity: 0.75,
-										zIndex: -1
+										borderRadius: 100000,
+										zIndex: 1
 									}}
 								/>
 							);
@@ -263,12 +262,12 @@ const Profile = () => {
 							<Text
 								style={{
 									position: 'absolute',
-									bottom: 0,
+									top: 0,
 									right: 0,
 									paddingVertical: theme.v_spacing_sm,
 									paddingHorizontal: theme.h_spacing_md,
 									backgroundColor: theme.brand_warning,
-									borderTopLeftRadius: theme.radius_lg,
+									borderBottomLeftRadius: theme.radius_lg,
 									fontSize: theme.font_size_icontext,
 									color: theme.fill_base
 								}}

@@ -67,11 +67,7 @@ const authFetch = async (...args) => {
 		const response = await fetch(...args);
 
 		// If we have a session but get a 403/401 response, sign out
-		if (response.status === 403 || response.status === 401) {
-			await supabase.auth.signOut();
-			console.log('unauthorized');
-			navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
-		};
+		if (response.status === 403 || response.status === 401) { };
 		return response;
 	} catch (err) {
 		// Suppress AbortError (fetch aborted) so callers don't get noisy errors.

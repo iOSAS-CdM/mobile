@@ -136,7 +136,6 @@ const Feed = () => {
 					type='primary'
 					onPress={async () => {
 						await supabase.auth.signOut();
-						navigationRef.current?.reset({ index: 0, routes: [{ name: 'SignIn' }] });
 						updateCache('user', null);
 						setUser(null);
 					}}
