@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
-import { Flex, Icon, Toast, Badge, ActivityIndicator, Tooltip } from '@ant-design/react-native';
+import { Flex, Icon, Toast, Badge, ActivityIndicator, Modal } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
 import Text from '../../components/Text';
@@ -172,13 +172,27 @@ const Feed = () => {
 						)} */}
 						<IconButton size='small' name='robot' />
 						{user?.role === 'unverified-student' && (
-							<Tooltip
-								placement='bottom'
-								crossOffset={0}
-								content='Your account is pending verification and has limited access. Please wait for an administrator to verify your account.'
-							>
-								<IconButton size='small' name='info-circle' />
-							</Tooltip>
+							<Badge dot>
+								<IconButton
+									size='small'
+									name='idcard'
+									onPress={() => Modal.alert(
+										'Account Unverified',
+										(
+											<Flex direction='column' gap={theme.v_spacing_md}>
+												<Text>
+													We use the Supreme Student Government's (SSG) membership due to verify student accounts. Please ensure your SSG membership is current so we can verify your account. If you believe this is an error, contact support at{' '}
+													<Anchor href='mailto:danieljohnbyns@gmail.com'>
+														danieljohnbyns@gmail.com
+													</Anchor>
+													. Additional features includes the privilage to interact with announcements (liking and commenting).
+												</Text>
+											</Flex>
+										),
+										[{ text: 'OK' }]
+									)}
+								/>
+							</Badge>
 						)}
 					</Flex>
 				</Flex>
