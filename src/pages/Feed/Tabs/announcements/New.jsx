@@ -125,7 +125,7 @@ const NewAnnouncement = ({ route }) => {
 				let data = null;
 				try { data = JSON.parse(uploadResult.body || 'null'); } catch (e) { /* ignore */ }
 				if (data) pushToCache('announcements', data, true);
-				Toast.success('Announcement published', 2);
+				Toast.success('Announcement posted and pending approval', 2);
 				navigationRef.current?.goBack();
 				setSubmitting(false);
 				return;
@@ -209,10 +209,9 @@ const NewAnnouncement = ({ route }) => {
 											const selectedDate = new Date(value);
 											const today = new Date();
 											today.setHours(0, 0, 0, 0);
-											if (selectedDate < today) {
+											if (selectedDate < today)
 												return 'Event date cannot be in the past';
-											}
-										}
+										};
 										return true;
 									}
 								}}
