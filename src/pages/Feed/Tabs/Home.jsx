@@ -62,7 +62,7 @@ const Home = () => {
 				fetchUrl={`${API_Route}/announcements`}
 				cacheKey='announcements'
 				transformItem={(items) => items.announcements || []}
-				limit={10}
+				limit={3}
 				contentGap={theme.v_spacing_sm}
 				contentPadding={0}
 				renderItem={(announcement) => (
