@@ -35,15 +35,12 @@ import theme from '../../styles/theme';
 /** @typedef {{ key: keyof import('../../contexts/CacheContext').Cache, seed: number }} Refresh */
 import { useRefresh } from '../../contexts/useRefresh';
 
-
 const Feed = () => {
 	const keyboardShown = useKeyboard();
 
 	const { cache, updateCache } = useCache();
 	const { refresh } = useRefresh();
 	const { sendMessage } = useWebSocket();
-	/** @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef | null>} */
-	const tabNavigatorRef = React.useRef(null);
 
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
@@ -169,7 +166,13 @@ const Feed = () => {
 						{/* {user?.role === 'student' && user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
 						)} */}
-						<IconButton size='small' name='robot' />
+						{user?.role === 'student' && (
+							<IconButton
+								size='small'
+								name='robot'
+								onPress={() => navigationRef.current?.navigate('AmBot')}
+							/>
+						)}
 						{user?.role === 'unverified-student' && (
 							<Badge dot>
 								<IconButton
@@ -329,4 +332,8 @@ const Feed = () => {
 	);
 };
 
+/**
+ * @type {React.RefObject<import('@react-navigation/native').NavigationContainerRef | null>}
+ */
+export const tabNavigatorRef = React.createRef();
 export default Feed;

@@ -1,6 +1,6 @@
 {
   "name": "iosas",
-  "version": "1.0.113",
+  "version": "1.0.114",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

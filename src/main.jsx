@@ -32,6 +32,8 @@ import ViewAnnouncement from './pages/Feed/Tabs/announcements/View';
 import ViewOrganization from './pages/Feed/Tabs/organizations/View';
 import NewAnnouncement from './pages/Feed/Tabs/announcements/New';
 
+import AmBot from './pages/Feed/AmBot';
+
 import { CacheProvider } from './contexts/CacheContext';
 
 const height = Dimensions.get('window').height;
@@ -319,6 +321,14 @@ const Main = () => {
 						<Stack.Screen
 							name='ViewOrganization'
 							component={ViewOrganization}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
+						<Stack.Screen
+							name='AmBot'
+							component={AmBot}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'

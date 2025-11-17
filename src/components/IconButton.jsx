@@ -16,6 +16,7 @@ import theme from '../styles/theme';
  * @param {{
  * 	type: 'primary' | 'default';
  * 	size: 'small' | 'large' | 'default' | number;
+ * 	disabled?: boolean;
  * } & IconProps} props
  * @returns {import('react').JSX.Element}
  */
@@ -55,6 +56,7 @@ const IconButton = (props) => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				zIndex: 10,
+				opacity: rest.disabled ? 0.5 : 1,
 				...style
 			}}
 			{...rest}

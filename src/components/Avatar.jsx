@@ -8,11 +8,12 @@ import theme from '../styles/theme';
 /**
  * @param {{
  * 	size: 'small' | 'large' | 'default' | number;
+ * 	icon?: import('@ant-design/icons-react-native').IconOutlineProps['name'];
  * 	uri: string;
  * } & ImageProps} props
  */
 const Avatar = (props) => {
-	const { size, uri, style, ...rest } = props;
+	const { size, uri, icon, style, ...rest } = props;
 
 	const sizeIsnumber = typeof size === 'number';
 	const newSize = sizeIsnumber
@@ -41,7 +42,7 @@ const Avatar = (props) => {
 				/>
 			) : (
 				<IconOutline
-					name='user'
+					name={props.icon || 'user'}
 					style={{
 						width: newSize,
 						height: newSize,

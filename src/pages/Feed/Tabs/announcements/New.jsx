@@ -119,7 +119,7 @@ const NewAnnouncement = ({ route }) => {
 					Toast.fail('Failed to publish announcement (upload failed)', 2);
 					setSubmitting(false);
 					return;
-				}
+				};
 
 				// server returns JSON in body
 				let data = null;
@@ -165,7 +165,7 @@ const NewAnnouncement = ({ route }) => {
 			<Flex direction='row' justify='space-between' align='center' style={{ width: '100%', padding: theme.v_spacing_md, borderBottomWidth: 0.25, borderBottomColor: theme.border_color_base, backgroundColor: theme.fill_base }}>
 				<Button size='small' icon='left' onPress={() => navigationRef.current?.goBack()} />
 				<Text style={{ fontSize: theme.font_size_subhead, fontWeight: '600' }}>Publish Announcement</Text>
-				<View style={{ width: 40 }} />
+				<Button size='small' icon='left' style={{ opacity: 0 }} />
 			</Flex>
 
 			<ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps='handled'>
