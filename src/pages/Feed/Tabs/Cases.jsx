@@ -126,7 +126,7 @@ const Cases = () => {
 				]}
 			>
 				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm }}>
-					<Flex direction='column' align='stretch' style={{ gap: theme.v_spacing_sm }}>
+					<Flex direction='column' align='stretch'>
 						{cache.cases.sort((a, b) => {
 							if (a.status === 'open' && b.status !== 'open') return -1;
 							if (b.status === 'open' && a.status !== 'open') return 1;
@@ -135,40 +135,65 @@ const Cases = () => {
 						}).map((caseItem) => (
 							<Flex
 								key={caseItem.id}
-								direction='row'
-								align='start'
-								justify='between'
+								direction='column'
+								align='stretch'
 								style={{
 									width: '100%',
 									padding: theme.v_spacing_sm,
 									backgroundColor: caseItem.status !== 'closed' && theme.fill_base,
-									borderRadius: theme.v_spacing_sm,
-									opacity: caseItem.status === 'closed' ? 0.25 : 1
+									opacity: caseItem.status === 'closed' ? 0.25 : 1,
+									gap: theme.v_spacing_sm,
+									opacity: 0.5,
+									...caseItem.status === 'dismissed' ? {
+										borderLeftWidth: 3,
+										borderLeftColor: theme.brand_error
+									} : caseItem.status === 'proceeded' ? {
+										borderLeftWidth: 3,
+										borderLeftColor: theme.brand_success
+									} : {
+										backgroundColor: theme.fill_background,
+										opacity: 1
+									}
 								}}
 								onPress={() => {
 									setModalVisible(false);
 									navigationRef.current?.navigate('ViewCase', { caseData: caseItem });
 								}}
 							>
-								<Flex direction='column' align='start'>
-									<Text
-										style={{
-											fontSize: theme.font_size_base,
-											fontWeight: '600'
-										}}
+								<Flex direction='row' align='start' justify='between'>
+									<Flex direction='column' align='start' style={{ flex: 1 }}>
+										<Text
+											style={{
+												fontSize: theme.font_size_base,
+												fontWeight: '600'
+											}}
+										>
+											{caseItem.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+										</Text>
+										<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
+											{caseItem.content}
+										</Text>
+									</Flex>
+									<Flex direction='column' align='end' justify='center' style={{ gap: theme.v_spacing_sm }}>
+										<Tag small selected>{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}</Tag>
+										<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
+											{new Date(caseItem.created_at).toLocaleDateString()}
+										</Text>
+									</Flex>
+								</Flex>
+								{caseItem.status === 'dismissed' && caseItem.dismissal_reason && (
+									<Flex
+										direction='column'
+										align='stretch'
 									>
-										{caseItem.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-									</Text>
-									<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
-										{caseItem.content}
-									</Text>
-								</Flex>
-								<Flex direction='column' align='end' justify='center' style={{ gap: theme.v_spacing_sm }}>
-									<Button type='ghost' size='small'>{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}</Button>
-									<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_icon_base }}>
-										{new Date(caseItem.created_at).toLocaleDateString()}
-									</Text>
-								</Flex>
+										<Text style={{ fontSize: theme.font_size_icontext, fontWeight: '600', color: theme.brand_error }}>
+											Dismissal Reason
+										</Text>
+										<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
+											{caseItem.dismissal_reason}
+										</Text>
+									</Flex>
+								)}
 							</Flex>
 						))}
 					</Flex>
@@ -244,7 +269,7 @@ const Case = ({ record }) => (
 				{{
 					minor: '',
 					major: <Icon name='warning' color={theme.brand_warning} size={theme.font_size_heading} />,
-					severe: <Icon name='close-circle' color={theme.brand_error} size={theme.font_size_heading} />
+					grave: <Icon name='close-circle' color={theme.brand_error} size={theme.font_size_heading} />
 				}[record.tags.severity]}{record.title}
 			</Text>
 			<Text style={{ fontSize: theme.font_size_base }}>

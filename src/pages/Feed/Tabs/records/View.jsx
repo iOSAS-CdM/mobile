@@ -211,12 +211,12 @@ const New = ({ route }) => {
 								backgroundColor: {
 									minor: `${theme.brand_wait}1f`,
 									major: `${theme.brand_warning}1f`,
-									severe: `${theme.brand_danger}1f`
+									grave: `${theme.brand_danger}1f`
 								}[recordData.tags.severity] || theme.fill_body,
 								borderColor: {
 									minor: theme.brand_wait,
 									major: theme.brand_warning,
-									severe: theme.brand_danger
+									grave: theme.brand_danger
 								}[recordData.tags.severity] || theme.border_color_base,
 								color: theme.text_color_inverse
 							}}>

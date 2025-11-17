@@ -132,6 +132,28 @@ const New = ({ route }) => {
 							<Text>No attachments provided.</Text>
 						)}
 					</Flex>
+
+					{caseData.status === 'dismissed' && caseData.dismissal_reason && (
+						<Flex
+							direction='column'
+							align='stretch'
+							gap={theme.v_spacing_sm}
+							style={{
+								backgroundColor: theme.fill_body,
+								padding: theme.v_spacing_md,
+								borderRadius: theme.v_spacing_sm,
+								borderLeftWidth: 4,
+								borderLeftColor: theme.brand_error
+							}}
+						>
+							<Text style={{ fontSize: theme.font_size_subhead, fontWeight: '600', color: theme.brand_error }}>
+								Dismissal Reason
+							</Text>
+							<Text style={{ color: theme.color_text_secondary }}>
+								{caseData.dismissal_reason}
+							</Text>
+						</Flex>
+					)}
 				</Flex>
 			</ScrollView>
 		</>
