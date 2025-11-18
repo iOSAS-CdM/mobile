@@ -1,8 +1,8 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import { Keyboard, TouchableWithoutFeedback, Image, Platform } from 'react-native';
-import { Flex, Icon, Toast, Badge, ActivityIndicator, Modal } from '@ant-design/react-native';
+import { Keyboard, TouchableWithoutFeedback, Image, Platform, ScrollView, View, Pressable, Dimensions, ScrollView as RNScrollView } from 'react-native';
+import { Flex, Icon, Toast, Badge, ActivityIndicator, Modal, Tag } from '@ant-design/react-native';
 
 import IconButton from '../../components/IconButton';
 import Text from '../../components/Text';
@@ -45,6 +45,10 @@ const Feed = () => {
 	/** @typedef {import('../../contexts/CacheContext').UserProps} UserProps */
 	/** @type {[UserProps, React.Dispatch<React.SetStateAction<UserProps | null>>]} */
 	const [user, setUser] = React.useState(null);
+	const [requestsModalVisible, setRequestsModalVisible] = React.useState(false);
+	const [requests, setRequests] = React.useState([]);
+	const [loadingRequests, setLoadingRequests] = React.useState(false);
+
 	React.useEffect(() => {
 		const controller = new AbortController();
 
@@ -97,6 +101,35 @@ const Feed = () => {
 		fetchOrganizations();
 		return () => controller.abort();
 	}, [refresh, user]);
+
+	const fetchRequests = async () => {
+		if (!user) return;
+
+		setLoadingRequests(true);
+		try {
+			const response = await authFetch(`${API_Route}/requests`);
+			if (response?.status === 0) return;
+
+			const data = await response.json();
+			if (!data) {
+				Toast.fail('Failed to load requests', 1);
+				return;
+			};
+			setRequests(data.requests || []);
+			updateCache('requests', data.requests || []);
+		} catch (error) {
+			console.error('Error fetching requests:', error);
+			Toast.fail('Network error. Please try again.', 1);
+		} finally {
+			setLoadingRequests(false);
+		};
+	};
+
+	React.useEffect(() => {
+		if (requestsModalVisible) {
+			fetchRequests();
+		};
+	}, [requestsModalVisible, refresh]);
 
 	if (!user) return (
 		<Flex
@@ -166,6 +199,11 @@ const Feed = () => {
 						{/* {user?.role === 'student' && user?.organizations?.length > 0 && (
 							<IconButton size='small' name='qrcode' />
 						)} */}
+						<IconButton
+							size='small'
+							name='paper-clip'
+							onPress={() => setRequestsModalVisible(true)}
+						/>
 						{user?.role === 'student' && (
 							<IconButton
 								size='small'
@@ -328,6 +366,110 @@ const Feed = () => {
 					/>
 				</Tab.Navigator>
 			</TouchableWithoutFeedback>
+
+			{/* Requests Modal */}
+			<Modal
+				visible={requestsModalVisible}
+				transparent
+				title='Your requests'
+				animateAppear
+				animationType='fade'
+				onClose={() => setRequestsModalVisible(false)}
+				style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8 }}
+				footer={[
+					{ text: 'Close', onPress: () => setRequestsModalVisible(false) },
+					{
+						text: 'Create', onPress: () => {
+							setRequestsModalVisible(false);
+							navigationRef.current?.navigate('NewRequest');
+						}
+					}
+				]}
+			>
+				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm }}>
+					<Flex direction='column' align='stretch'>
+						{loadingRequests ? (
+							<Flex justify='center' align='center' style={{ padding: 32 }}>
+								<ActivityIndicator size='large' />
+							</Flex>
+						) : requests.length === 0 ? (
+							<Flex direction='column' justify='center' align='center' style={{ padding: 32, gap: 8 }}>
+								<Icon name='file-text' size={48} color={theme.color_icon_base} />
+								<Text style={{ textAlign: 'center', color: theme.color_text_caption }}>
+									No requests yet
+								</Text>
+								<Text style={{ textAlign: 'center', color: theme.color_text_caption, fontSize: theme.font_size_caption }}>
+									Tap 'Create' to submit your first request
+								</Text>
+							</Flex>
+						) : (
+							requests.sort((a, b) => {
+								if (a.status === 'open' && b.status !== 'open') return -1;
+								if (b.status === 'open' && a.status !== 'open') return 1;
+								return new Date(b.created_at) - new Date(a.created_at);
+							}).map((request) => (
+								<Flex
+									key={request.id}
+									direction='column'
+									align='stretch'
+									style={{
+										width: '100%',
+										padding: theme.v_spacing_sm,
+										backgroundColor: request.status === 'open' ? theme.fill_base : theme.fill_background,
+										opacity: request.status === 'open' ? 1 : 0.5,
+										gap: theme.v_spacing_sm,
+										...request.status === 'rejected' ? {
+											borderLeftWidth: 3,
+											borderLeftColor: theme.brand_error
+										} : request.status === 'accepted' ? {
+											borderLeftWidth: 3,
+											borderLeftColor: theme.brand_success
+										} : {}
+									}}
+									onPress={() => {
+										setRequestsModalVisible(false);
+										navigationRef.current?.navigate('ViewRequest', { requestData: request });
+									}}
+								>
+									<Flex direction='row' align='start' justify='between'>
+										<Flex direction='column' align='start' style={{ flex: 1 }}>
+											<Text
+												style={{
+													fontSize: theme.font_size_base,
+													fontWeight: '600'
+												}}
+											>
+												{request.type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+											</Text>
+											{request.message && (
+												<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
+													{request.message}
+												</Text>
+											)}
+										</Flex>
+										<Flex direction='column' align='end' justify='center' style={{ gap: theme.v_spacing_sm }}>
+											<Tag small selected>{request.status.charAt(0).toUpperCase() + request.status.slice(1)}</Tag>
+											<Text style={{ fontSize: theme.font_size_base, color: theme.color_icon_base }}>
+												{new Date(request.created_at).toLocaleDateString()}
+											</Text>
+										</Flex>
+									</Flex>
+									{request.response && (
+										<Flex direction='column' align='stretch'>
+											<Text style={{ fontSize: theme.font_size_icontext, fontWeight: '600', color: request.status === 'accepted' ? theme.brand_success : theme.brand_error }}>
+												Staff Response
+											</Text>
+											<Text style={{ fontSize: theme.font_size_caption_sm, color: theme.color_text_secondary }}>
+												{request.response}
+											</Text>
+										</Flex>
+									)}
+								</Flex>
+							))
+						)}
+					</Flex>
+				</RNScrollView>
+			</Modal>
 		</>
 	);
 };

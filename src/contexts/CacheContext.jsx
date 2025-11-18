@@ -53,6 +53,7 @@ export const CacheProvider = ({ children }) => {
 		repositories: [],
 		announcements: [],
 		organizations: [],
+		requests: [],
 		peers: null
 	});
 

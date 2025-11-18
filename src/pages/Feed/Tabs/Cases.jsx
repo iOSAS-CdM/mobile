@@ -95,19 +95,12 @@ const Cases = () => {
 				</Text>
 
 				<Flex direction='row' justify='center' align='center' style={{ gap: theme.h_spacing_sm }}>
-					<IconButton
-						name='ellipsis'
-						type='primary'
-						size='small'
-						onPress={() => setModalVisible(true)}
-						/>
-					<Button size='small' type='primary' onPress={() => {
-							navigationRef.current?.navigate('NewCase');
-						}}>
-							Report a Case
-						</Button>
-					</Flex>
+
+					<Button size='small' type='primary' onPress={() => setModalVisible(true)}>
+						Reports
+					</Button>
 				</Flex>
+			</Flex>
 		</Flex>
 	);
 
@@ -122,7 +115,12 @@ const Cases = () => {
 				onresponseClose={() => setModalVisible(false)}
 				style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8 }}
 				footer={[
-					{ text: 'Close', onPress: () => setModalVisible(false) }
+					{ text: 'Close', onPress: () => setModalVisible(false) },
+					{
+						text: 'Create', onPress: () => {
+							setModalVisible(false); navigationRef.current?.navigate('NewCase');
+						}
+					}
 				]}
 			>
 				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm }}>

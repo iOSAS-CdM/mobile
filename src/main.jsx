@@ -31,6 +31,8 @@ import ViewRecord from './pages/Feed/Tabs/records/View';
 import ViewAnnouncement from './pages/Feed/Tabs/announcements/View';
 import ViewOrganization from './pages/Feed/Tabs/organizations/View';
 import NewAnnouncement from './pages/Feed/Tabs/announcements/New';
+import NewRequest from './pages/Feed/Tabs/requests/New';
+import ViewRequest from './pages/Feed/Tabs/requests/View';
 
 import AmBot from './pages/Feed/AmBot';
 
@@ -329,6 +331,22 @@ const Main = () => {
 						<Stack.Screen
 							name='AmBot'
 							component={AmBot}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
+						<Stack.Screen
+							name='NewRequest'
+							component={NewRequest}
+							options={{
+								headerShown: false,
+								animation: 'slide_from_right'
+							}}
+						/>
+						<Stack.Screen
+							name='ViewRequest'
+							component={ViewRequest}
 							options={{
 								headerShown: false,
 								animation: 'slide_from_right'
