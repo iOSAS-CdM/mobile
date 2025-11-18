@@ -92,21 +92,8 @@ jobs:
 
           - name: Fix Android repository configuration for cameraview
             run: |
-                echo "Fixing repository order to prioritize Google Maven over JitPack..."
-                echo "" >> android/build.gradle
-                echo "allprojects {" >> android/build.gradle
-                echo "    repositories {" >> android/build.gradle
-                echo "        google()" >> android/build.gradle
-                echo "        mavenCentral()" >> android/build.gradle
-                echo "        maven {" >> android/build.gradle
-                echo "            url \"https://www.jitpack.io\"" >> android/build.gradle
-                echo "            content {" >> android/build.gradle
-                echo "                includeGroupByRegex \"com\\\\.github\\\\..*\"" >> android/build.gradle
-                echo "            }" >> android/build.gradle
-                echo "        }" >> android/build.gradle
-                echo "    }" >> android/build.gradle
-                echo "}" >> android/build.gradle
-                echo "✅ Repository configuration updated"
+                chmod +x .github/workflows/fix-gradle-repos.sh
+                .github/workflows/fix-gradle-repos.sh
 
           - name: Copy google-services.json to android/app directory
             run: |
