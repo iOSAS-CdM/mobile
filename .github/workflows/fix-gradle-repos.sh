@@ -24,7 +24,7 @@ new_allprojects = '''allprojects {
         maven {
             url "https://www.jitpack.io"
             content {
-                includeGroupByRegex("com\\\\.github\\\\..*")
+                includeGroupByRegex('com\\\\.github\\\\..*')
             }
         }
     }
