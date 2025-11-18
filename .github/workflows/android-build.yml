@@ -90,11 +90,6 @@ jobs:
           - name: Prebuild Android (expo prebuild)
             run: npx expo prebuild -p android --no-install
 
-          - name: Fix Android repository configuration for cameraview
-            run: |
-                chmod +x .github/workflows/fix-gradle-repos.sh
-                .github/workflows/fix-gradle-repos.sh
-
           - name: Copy google-services.json to android/app directory
             run: |
                 if [ -f google-services.json ]; then
@@ -151,28 +146,7 @@ jobs:
             run: |
                 cd android
                 chmod +x ./gradlew
-                
-                # Build with retry logic for transient network issues
-                MAX_ATTEMPTS=3
-                ATTEMPT=1
-                
-                while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-                  echo "Build attempt $ATTEMPT of $MAX_ATTEMPTS..."
-                  
-                  if ./gradlew assembleRelease --no-daemon --refresh-dependencies; then
-                    echo "✅ Build succeeded on attempt $ATTEMPT"
-                    exit 0
-                  else
-                    EXIT_CODE=$?
-                    if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-                      echo "❌ Build failed after $MAX_ATTEMPTS attempts"
-                      exit $EXIT_CODE
-                    fi
-                    echo "⚠️ Build failed, retrying in 10 seconds..."
-                    sleep 10
-                    ATTEMPT=$((ATTEMPT + 1))
-                  fi
-                done
+                ./gradlew assembleRelease --no-daemon
 
           - name: Conditionally sign APK (if keystore secret provided)
             # uses the repository secrets you said you already have:
