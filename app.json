@@ -3,7 +3,7 @@
     "name": "iOSAS",
     "slug": "iOSAS",
     "scheme": "com.danieljohnbyns.iosas",
-    "version": "1.0.118",
+    "version": "1.0.119",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

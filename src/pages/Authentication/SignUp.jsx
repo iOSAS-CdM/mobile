@@ -370,7 +370,7 @@ const SignUp = () => {
 								}) => (
 									<Picker
 										data={[
-											{ label: 'Institute of Computer Studies', value: 'ics' },
+											{ label: 'Institute of Computing Studies', value: 'ics' },
 											{ label: 'Institute of Teacher Education', value: 'ite' },
 											{ label: 'Institute of Business Education', value: 'ibe' }
 										]}
