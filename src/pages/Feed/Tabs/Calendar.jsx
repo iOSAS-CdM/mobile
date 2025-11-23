@@ -123,7 +123,7 @@ const Calendar = () => {
 			mounted = false;
 			controller.abort();
 		};
-	}, [cache]);
+	}, []);
 
 	const buildMarkedDates = React.useMemo(() => {
 		const map = {};
