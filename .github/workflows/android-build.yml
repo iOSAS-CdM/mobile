@@ -221,3 +221,34 @@ jobs:
                 generateReleaseNotes: true
                 artifacts: android/app/build/outputs/**/*.apk
                 token: ${{ secrets.GITHUB_TOKEN }}
+
+          - name: Notify students of update
+            if: github.ref == 'refs/heads/release'
+            env:
+              SUPERAPI_KEY: ${{ secrets.SUPERAPI_KEY }}
+            run: |
+              echo "Sending notification to students..."
+              
+              response=$(curl -s -w "\n%{http_code}" -X POST "https://api.iosas.online/push-tokens/send" \
+                -H "Content-Type: application/json" \
+                -H "X-Superapi-Key: $SUPERAPI_KEY" \
+                -d '{
+                  "roles": ["student", "unverified-student"],
+                  "title": "New Update Available",
+                  "body": "A new version of the app is available. Please update to the latest version.",
+                  "data": {
+                    "type": "app-update"
+                  }
+                }')
+              
+              http_code=$(echo "$response" | tail -n1)
+              body=$(echo "$response" | sed '$d')
+              
+              if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                echo "✅ Notification sent successfully"
+              else
+                echo "❌ Failed to send notification. HTTP code: $http_code"
+                echo "Response: $body"
+                # Don't fail the build if notification fails, just warn
+                echo "::warning::Failed to send notification"
+              fi
