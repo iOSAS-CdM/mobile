@@ -1,6 +1,7 @@
 import React from 'react';
 import packageJson from '../../../package.json';
 import { useForm, Controller } from 'react-hook-form';
+import * as WebBrowser from 'expo-web-browser';
 
 import { ScrollView } from 'react-native';
 import { Image } from 'expo-image';
@@ -541,6 +542,32 @@ const SignUp = () => {
 							>
 								Show Passwords
 							</Checkbox>
+							<Controller
+								control={control}
+								name='terms'
+								rules={{
+									required: 'You must agree to the Terms of Service and Privacy Policy'
+								}}
+								render={({
+									field: { onChange, value }
+								}) => (
+									<Flex direction='column' align='start'>
+										<Checkbox
+											checked={value}
+											onChange={(e) => onChange(e.target.checked)}
+										>
+											<Text>
+												I agree to the <Text style={{ color: theme.brand_primary }} onPress={() => WebBrowser.openBrowserAsync('https://iosas.online/terms-of-service')}>Terms of Service</Text> and <Text style={{ color: theme.brand_primary }} onPress={() => WebBrowser.openBrowserAsync('https://iosas.online/privacy-policy')}>Privacy Policy</Text>
+											</Text>
+										</Checkbox>
+										{errors?.terms && (
+											<Text style={{ color: theme.brand_error, marginLeft: 24 }}>
+												{errors.terms.message}
+											</Text>
+										)}
+									</Flex>
+								)}
+							/>
 						</Flex>
 
 						<Button
