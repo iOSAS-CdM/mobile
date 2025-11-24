@@ -221,11 +221,11 @@ const Feed = () => {
 										(
 											<Flex direction='column' gap={theme.v_spacing_md}>
 												<Text>
-													We use the Supreme Student Government's (SSG) membership due to verify student accounts. Please ensure your SSG membership is current so we can verify your account. If you believe this is an error, contact support at{' '}
+													Everyone can sign up and use the app, whether you're inside or outside the school. To provide better identification and promote the Supreme Student Government's (SSG) initiatives, we've partnered with them to help identify users who are currently enrolled students at Colegio de Montalban. Account verification through SSG membership is <Text style={{ fontWeight: '600' }}>not required</Text> to use the app, and you can access most features without verification. However, to recognize those who support the SSG through their membership dues, verified students gain access to exclusive features including the ability to like and comment on announcements in the Feed, and access to AmBot, our AI assistant. To get verified, ensure your SSG membership is current—our team will verify your account based on SSG membership records. If you believe this is an error or need assistance, contact support at{' '}
 													<Anchor href='mailto:danieljohnbyns@gmail.com'>
 														danieljohnbyns@gmail.com
 													</Anchor>
-													. Additional features includes the privilage to interact with announcements (liking and commenting).
+													.
 												</Text>
 											</Flex>
 										),
