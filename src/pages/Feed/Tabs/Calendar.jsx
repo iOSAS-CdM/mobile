@@ -16,6 +16,85 @@ const colors = {
 	record: theme.brand_warning || '#fa8c16'
 };
 
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+const toISODate = (input) => {
+	if (!input) return null;
+	if (typeof input === 'string' && ISO_DATE_REGEX.test(input.trim()))
+		return input.trim().slice(0, 10);
+
+	const dt = new Date(input);
+	if (Number.isNaN(dt.getTime())) return null;
+	const pad = (n) => String(n).padStart(2, '0');
+	return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+};
+
+const normalizeEvents = (announcements = [], records = []) => {
+	const normalized = [];
+
+	for (const a of announcements) {
+		let sourceDate;
+		if (a?.type === 'event' && a?.event_date) {
+			sourceDate = a.event_date;
+		} else {
+			sourceDate = a?.created_at || a?.createdAt || a?.created || a?.date;
+		}
+
+		const iso = toISODate(sourceDate);
+		if (!iso) {
+			console.warn('Invalid date for announcement:', a?.id, sourceDate);
+			continue;
+		}
+
+		normalized.push({
+			id: a?.id,
+			type: 'announcement',
+			title: a?.title || a?.description || 'Announcement',
+			date: iso,
+			raw: a,
+			cover: a?.cover ? { uri: a.cover } : null
+		});
+	}
+
+	for (const r of records) {
+		const iso = toISODate(r?.date || r?.created_at || r?.createdAt || r?.created);
+		if (!iso) {
+			console.warn('Invalid date for record:', r?.id, r?.date || r?.created_at || r?.createdAt || r?.created);
+			continue;
+		}
+
+		normalized.push({
+			id: r?.id,
+			type: 'record',
+			title: r?.title || r?.violation || 'Record',
+			date: iso,
+			raw: r
+		});
+	}
+
+	return normalized;
+};
+
+const areEventsEqual = (prev = [], next = []) => {
+	if (prev === next) return true;
+	if (!Array.isArray(prev) || !Array.isArray(next) || prev.length !== next.length)
+		return false;
+
+	for (let i = 0; i < prev.length; i += 1) {
+		const a = prev[i];
+		const b = next[i];
+		if (!a || !b) return false;
+		if (a.id !== b.id || a.type !== b.type || a.date !== b.date || a.title !== b.title)
+			return false;
+		const coverA = a.cover?.uri ?? null;
+		const coverB = b.cover?.uri ?? null;
+		if (coverA !== coverB) return false;
+		if (a.raw !== b.raw) return false;
+	}
+
+	return true;
+};
+
 const Calendar = () => {
 	const { cache, pushToCache, updateCacheItem } = useCache();
 	const { refresh, setRefresh } = useRefresh();
@@ -28,93 +107,74 @@ const Calendar = () => {
 	});
 	const [events, setEvents] = React.useState([]);
 
+	const pushToCacheRef = React.useRef(pushToCache);
+	React.useEffect(() => {
+		pushToCacheRef.current = pushToCache;
+	}, [pushToCache]);
+
+	const announcements = cache.announcements || [];
+	const records = cache.records || [];
+	const userId = cache.user?.id;
+
+	const commitEvents = React.useCallback((nextEvents) => {
+		setEvents((prev) => (areEventsEqual(prev, nextEvents) ? prev : nextEvents));
+	}, []);
+
 	React.useEffect(() => {
 		let mounted = true;
 		const controller = new AbortController();
 
 		const load = async () => {
-			setLoading(true);
-			try {
-				// Try to reuse cache when available
-				let announcements = cache.announcements || [];
-				let records = cache.records || [];
+			const refreshKey = refresh?.key;
+			const shouldForceRefresh = (() => {
+				if (!refresh) return false;
+				if (!refreshKey || refreshKey === 'all') return true;
+				return ['calendar', 'announcements', 'records'].includes(refreshKey);
+			})();
 
-				if ((!announcements || announcements.length === 0)) {
+			const needsAnnouncements = shouldForceRefresh || announcements.length === 0;
+			const needsRecords = shouldForceRefresh || (records.length === 0 && !!userId);
+
+			if (!needsAnnouncements && !needsRecords) {
+				if (mounted) {
+					commitEvents(normalizeEvents(announcements, records));
+					setLoading(false);
+				};
+				return;
+			};
+
+			if (mounted) setLoading(true);
+
+			let nextAnnouncements = announcements;
+			let nextRecords = records;
+			try {
+				if (needsAnnouncements) {
 					const res = await authFetch(`${API_Route}/announcements`, { signal: controller.signal });
 					if (res?.status === 0) return;
 					if (res?.ok) {
 						const data = await res.json();
-						announcements = data?.announcements || data || [];
-						pushToCache('announcements', announcements, false);
+						nextAnnouncements = data?.announcements || data || [];
+						pushToCacheRef.current?.('announcements', nextAnnouncements, false);
 					};
 				};
 
-				if ((!records || records.length === 0)) {
-					const res = await authFetch(`${API_Route}/users/student/${cache.user?.id}/records`, { signal: controller.signal });
+				if (needsRecords && userId) {
+					const res = await authFetch(`${API_Route}/users/student/${userId}/records`, { signal: controller.signal });
 					if (res?.status === 0) return;
 					if (res?.ok) {
 						const data = await res.json();
-						// API might return { records: [...] } or an array directly
-						records = data?.records || data || [];
-						pushToCache('records', records, false);
+						nextRecords = data?.records || data || [];
+						pushToCacheRef.current?.('records', nextRecords, false);
 					};
 				};
-
-				// Normalize events to { id, type, title, date, raw, cover? }
-				const normalized = [];
-				for (const a of announcements) {
-					// Use event_date for event-type announcements, created_at for information-type
-					let d;
-					if (a.type === 'event' && a.event_date) {
-						d = a.event_date;
-					} else {
-						d = a.created_at || a.createdAt || a.created || a.date;
-					};
-					if (!d) continue;
-					// Parse the date string and extract date in local timezone
-					let iso;
-					if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
-						// Already in YYYY-MM-DD format
-						iso = d;
-					} else {
-						// Handle timestamps like "2025-11-14 04:37:45.870675+00" or "2025-11-17 16:00:00+00"
-						const dt = new Date(d);
-						if (isNaN(dt.getTime())) {
-							console.warn('Invalid date for announcement:', a.id, d);
-							continue;
-						}
-						// Use UTC date to avoid timezone shifts
-						const pad = (n) => String(n).padStart(2, '0');
-						iso = `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
-					};
-					normalized.push({ id: a.id, type: 'announcement', title: a.title || a.description || 'Announcement', date: iso, raw: a, cover: a.cover ? { uri: a.cover } : null });
-				};
-				for (const r of records) {
-					const d = r.date || r.created_at || r.createdAt || r.created;
-					if (!d) continue;
-					let iso;
-					if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
-						iso = d;
-					} else {
-						const dt = new Date(d);
-						if (isNaN(dt.getTime())) {
-							console.warn('Invalid date for record:', r.id, d);
-							continue;
-						}
-						// Use UTC date to avoid timezone shifts
-						const pad = (n) => String(n).padStart(2, '0');
-						iso = `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
-					};
-					normalized.push({ id: r.id, type: 'record', title: r.title || r.violation || 'Record', date: iso, raw: r });
-				};
-
-				if (mounted)
-					setEvents(normalized);
 			} catch (err) {
 				if (String(err).toLowerCase().includes('aborted')) return;
 				console.error('Calendar load error:', err);
 			} finally {
-				if (mounted) setLoading(false);
+				if (mounted) {
+					commitEvents(normalizeEvents(nextAnnouncements, nextRecords));
+					setLoading(false);
+				}
 			};
 		};
 
@@ -123,7 +183,7 @@ const Calendar = () => {
 			mounted = false;
 			controller.abort();
 		};
-	}, []);
+	}, [announcements, records, userId, refresh, commitEvents]);
 
 	const buildMarkedDates = React.useMemo(() => {
 		const map = {};
