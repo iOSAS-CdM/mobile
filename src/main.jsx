@@ -74,7 +74,7 @@ const Main = () => {
 					},
 					{
 						text: 'Later',
-						style: 'cancel'
+						style: { color: theme.color_text_caption }
 					}
 				]);
 			} else {

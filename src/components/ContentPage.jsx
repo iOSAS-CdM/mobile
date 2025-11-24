@@ -42,10 +42,40 @@ const ContentPage = ({
 	const [loadingMore, setLoadingMore] = React.useState(false);
 	const [offset, setOffset] = React.useState(0);
 	const [totalLength, setTotalLength] = React.useState(0);
+	const [hasMore, setHasMore] = React.useState(true);
 	const { updateCache } = useCache();
 	const { refresh, setRefresh } = useRefresh();
+	const updateCacheRef = React.useRef(updateCache);
+	const transformItemRef = React.useRef(transformItem);
+	const loadingRef = React.useRef(false);
+	const loadingMoreRef = React.useRef(false);
+	const abortControllerRef = React.useRef(null);
+
+	React.useEffect(() => {
+		updateCacheRef.current = updateCache;
+	}, [updateCache]);
+
+	React.useEffect(() => {
+		transformItemRef.current = transformItem;
+	}, [transformItem]);
+
+	React.useEffect(() => () => {
+		if (abortControllerRef.current)
+			abortControllerRef.current.abort();
+	}, []);
 
 	const fetchItems = React.useCallback(async (currentOffset, isLoadingMore = false) => {
+		console.log(`Fetching items for ${cacheKey} at offset ${currentOffset}, isLoadingMore: ${isLoadingMore}`);
+		const loadingFlag = isLoadingMore ? loadingMoreRef : loadingRef;
+		if (loadingFlag.current) return;
+		loadingFlag.current = true;
+
+		if (abortControllerRef.current)
+			abortControllerRef.current.abort();
+
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
+
 		if (isLoadingMore)
 			setLoadingMore(true);
 		else
@@ -53,65 +83,131 @@ const ContentPage = ({
 
 		try {
 			const response = await authFetch(`${fetchUrl}?limit=${limit}&offset=${currentOffset}`, {
-				signal: new AbortController().signal
+				signal: controller.signal
 			});
 			if (response?.status === 0) return;
-
-			const data = await response.json();
-			if (!data || !data.length) {
-				if (isLoadingMore) setLoadingMore(false);
-				else setLoading(false);
+			if (!response?.ok) {
+				console.error('ContentPage: fetch failed', response?.status, response?.statusText);
+				setHasMore(false);
 				return;
 			};
 
-			const transformedData = transformItem(data) || [];
-
-			if (isLoadingMore) {
-				// Append new items to existing items
-				setItems((prevItems) => [...prevItems, ...transformedData]);
-			} else {
-				// Reset items for initial load or refresh
-				setItems(transformedData);
+			const data = await response.json().catch(() => null);
+			if (!data) {
+				setHasMore(false);
+				if (!isLoadingMore) {
+					setItems([]);
+					if (cacheKey && typeof updateCacheRef.current === 'function')
+						updateCacheRef.current(cacheKey, []);
+				};
+				return;
 			};
 
-			setTotalLength(data.length);
-			updateCache(cacheKey, transformedData);
+			const transformed = transformItemRef.current ? transformItemRef.current(data) : data;
+			const normalized = Array.isArray(transformed)
+				? transformed
+				: Array.isArray(transformed?.records)
+					? transformed.records
+					: Array.isArray(data?.records)
+						? data.records
+						: Array.isArray(data?.items)
+							? data.items
+							: Array.isArray(data)
+								? data
+								: [];
+
+			const reportedTotal = typeof data?.total === 'number'
+				? data.total
+				: typeof data?.count === 'number'
+					? data.count
+					: null;
+			const nextTotal = reportedTotal != null
+				? reportedTotal
+				: isLoadingMore
+					? currentOffset + normalized.length
+					: normalized.length;
+			setTotalLength(nextTotal);
+			const nextHasMore = reportedTotal != null
+				? currentOffset + normalized.length < reportedTotal
+				: normalized.length === limit;
+			setHasMore(nextHasMore);
+
+			if (!normalized.length) {
+				if (!isLoadingMore) {
+					setItems([]);
+					if (cacheKey && typeof updateCacheRef.current === 'function')
+						updateCacheRef.current(cacheKey, []);
+				};
+				return;
+			};
+
+			const nextItems = normalized;
+
+			if (isLoadingMore) {
+				setItems((prevItems) => {
+					if (!nextItems.length) return prevItems;
+					const seen = new Set(prevItems.map((item) => item?.id ?? item?.key ?? JSON.stringify(item)));
+					const merged = [...prevItems];
+					for (const item of nextItems) {
+						const key = item?.id ?? item?.key ?? JSON.stringify(item);
+						if (!seen.has(key)) {
+							seen.add(key);
+							merged.push(item);
+						};
+					};
+					return merged;
+				});
+			} else {
+				setItems(nextItems);
+			};
+
+			if (cacheKey && typeof updateCacheRef.current === 'function')
+				updateCacheRef.current(cacheKey, nextItems);
 
 			console.log({
-				totalLength: data.length,
-				transformedData: transformedData.length,
+				totalLength: nextTotal,
+				transformedData: nextItems.length,
 				offset: currentOffset,
 				isLoadingMore
 			});
-
-			if (isLoadingMore) setLoadingMore(false);
-			else setLoading(false);
 		} catch (error) {
 			console.error('Error fetching items data:', error);
-			if (isLoadingMore) setLoadingMore(false);
-			else setLoading(false);
+			setHasMore(false);
+		} finally {
+			if (isLoadingMore) {
+				loadingMoreRef.current = false;
+				setLoadingMore(false);
+			} else {
+				loadingRef.current = false;
+				setLoading(false);
+			}
+			if (abortControllerRef.current === controller)
+				abortControllerRef.current = null;
 		};
-	}, [fetchUrl, limit, transformItem, cacheKey, updateCache]);
+	}, [fetchUrl, limit, cacheKey]);
 
 	// Initial load and refresh
 	React.useEffect(() => {
 		if (refresh?.key === 'all' || refresh?.key === cacheKey || refresh == null) {
 			setOffset(0);
+			setHasMore(true);
 			fetchItems(0, false);
 		};
-	}, [refresh]);
+	}, [refresh, cacheKey, fetchItems]);
 
 	// Handle infinite scroll
 	const handleScroll = React.useCallback((event) => {
 		const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
 		const isNearEnd = layoutMeasurement.height + contentOffset.y >= contentSize.height - 1024;
 
-		if (isNearEnd && !loading && !loadingMore && items.length < totalLength) {
-			const nextOffset = offset + limit;
-			setOffset(nextOffset);
-			fetchItems(nextOffset, true);
+		if (isNearEnd && hasMore && !loadingRef.current && !loadingMoreRef.current) {
+			setOffset((prev) => {
+				const nextOffset = prev + limit;
+				fetchItems(nextOffset, true);
+				return nextOffset;
+			});
 		};
-	}, [offset, limit, items.length, totalLength, loading, loadingMore, fetchItems]);
+	}, [limit, hasMore, fetchItems]);
 
 	return (
 		<ScrollView

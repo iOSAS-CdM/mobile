@@ -115,6 +115,13 @@ const Calendar = () => {
 	const announcements = cache.announcements || [];
 	const records = cache.records || [];
 	const userId = cache.user?.id;
+	const attemptedAnnouncementsRef = React.useRef(false);
+	const attemptedRecordsRef = React.useRef(false);
+
+	React.useEffect(() => {
+		attemptedAnnouncementsRef.current = false;
+		attemptedRecordsRef.current = false;
+	}, [userId]);
 
 	const commitEvents = React.useCallback((nextEvents) => {
 		setEvents((prev) => (areEventsEqual(prev, nextEvents) ? prev : nextEvents));
@@ -132,8 +139,20 @@ const Calendar = () => {
 				return ['calendar', 'announcements', 'records'].includes(refreshKey);
 			})();
 
-			const needsAnnouncements = shouldForceRefresh || announcements.length === 0;
-			const needsRecords = shouldForceRefresh || (records.length === 0 && !!userId);
+			const needsAnnouncements = shouldForceRefresh || (!attemptedAnnouncementsRef.current && announcements.length === 0);
+			const needsRecords = !!userId && (shouldForceRefresh || (!attemptedRecordsRef.current && records.length === 0));
+
+			if (!shouldForceRefresh) {
+				const hasAnnouncements = announcements.length > 0;
+				if (!hasAnnouncements && attemptedAnnouncementsRef.current) {
+					attemptedAnnouncementsRef.current = false;
+				}
+
+				const hasRecords = records.length > 0;
+				if (!hasRecords && attemptedRecordsRef.current) {
+					attemptedRecordsRef.current = false;
+				}
+			}
 
 			if (!needsAnnouncements && !needsRecords) {
 				if (mounted) {
@@ -144,13 +163,18 @@ const Calendar = () => {
 			};
 
 			if (mounted) setLoading(true);
+			if (needsAnnouncements) attemptedAnnouncementsRef.current = true;
+			if (needsRecords && userId) attemptedRecordsRef.current = true;
 
 			let nextAnnouncements = announcements;
 			let nextRecords = records;
 			try {
 				if (needsAnnouncements) {
 					const res = await authFetch(`${API_Route}/announcements`, { signal: controller.signal });
-					if (res?.status === 0) return;
+					if (res?.status === 0) {
+						attemptedAnnouncementsRef.current = false;
+						return;
+					};
 					if (res?.ok) {
 						const data = await res.json();
 						nextAnnouncements = data?.announcements || data || [];
@@ -160,7 +184,10 @@ const Calendar = () => {
 
 				if (needsRecords && userId) {
 					const res = await authFetch(`${API_Route}/users/student/${userId}/records`, { signal: controller.signal });
-					if (res?.status === 0) return;
+					if (res?.status === 0) {
+						attemptedRecordsRef.current = false;
+						return;
+					};
 					if (res?.ok) {
 						const data = await res.json();
 						nextRecords = data?.records || data || [];
@@ -168,13 +195,17 @@ const Calendar = () => {
 					};
 				};
 			} catch (err) {
-				if (String(err).toLowerCase().includes('aborted')) return;
+				if (String(err).toLowerCase().includes('aborted')) {
+					if (needsAnnouncements) attemptedAnnouncementsRef.current = false;
+					if (needsRecords) attemptedRecordsRef.current = false;
+					return;
+				};
 				console.error('Calendar load error:', err);
 			} finally {
 				if (mounted) {
 					commitEvents(normalizeEvents(nextAnnouncements, nextRecords));
 					setLoading(false);
-				}
+				};
 			};
 		};
 
@@ -183,7 +214,7 @@ const Calendar = () => {
 			mounted = false;
 			controller.abort();
 		};
-	}, [announcements, records, userId, refresh, commitEvents]);
+	}, [userId, refresh]);
 
 	const buildMarkedDates = React.useMemo(() => {
 		const map = {};

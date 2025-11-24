@@ -20,68 +20,82 @@ import { navigationRef } from '../../../main';
 import IconButton from '../../../components/IconButton';
 
 const Cases = () => {
+	const { cache } = useCache();
+
+	return (
+		<View style={{ flex: 1 }}>
+			<ContentPage
+				header={<Header />}
+				fetchUrl={`${API_Route}/users/student/${cache.user?.id}/records`}
+				cacheKey='records'
+				transformItem={(item) => item.records || []}
+				limit={10}
+				contentGap={0}
+				contentPadding={0}
+				renderItem={(record) => <Case key={record.id} record={record} />}
+			/>
+		</View>
+	);
+};
+
+const Header = () => {
 	const { cache, updateCache } = useCache();
-	const { refresh, setRefresh } = useRefresh();
 	const [modalVisible, setModalVisible] = React.useState(false);
+	const { refresh } = useRefresh();
 	const [loadingCases, setLoadingCases] = React.useState(false);
-
-	// Listen for refresh events from manual refresh
-	React.useEffect(() => {
-		if (refresh?.key === 'cases' || refresh?.key === 'all') {
-			fetchCases();
-		};
-	}, [refresh]);
-
-	const fetchCases = async () => {
-		try {
-			setLoadingCases(true);
-			const response = await authFetch(API_Route + '/cases');
-			const data = await response.json();
-			if (response?.status === 0) return;
-
-			if (response.ok) {
-				updateCache(prev => ({
-					...prev,
-					cases: data
-				}));
-			};
-		} catch (error) {
-			console.error('Error fetching cases:', error);
-		} finally {
-			setLoadingCases(false);
-		};
-	};
-
-	React.useEffect(() => { console.log(cache.records.length) }, [cache.records]);
+	const userId = cache.user?.id;
+	const updateCacheRef = React.useRef(updateCache);
 
 	React.useEffect(() => {
+		updateCacheRef.current = updateCache;
+	}, [updateCache]);
+
+	const sortedCases = React.useMemo(() => {
+		if (!Array.isArray(cache.cases)) return [];
+		return [...cache.cases].sort((a, b) => {
+			if (a.status === 'open' && b.status !== 'open') return -1;
+			if (b.status === 'open' && a.status !== 'open') return 1;
+			return new Date(b.created_at) - new Date(a.created_at);
+		});
+	}, [cache.cases]);
+
+	React.useEffect(() => {
+		if (!userId || typeof updateCache !== 'function') return;
 		const controller = new AbortController();
 
 		const fetchCases = async () => {
 			setLoadingCases(true);
-			const response = await authFetch(`${API_Route}/users/student/${cache.user?.id}/cases`, {
-				signal: controller.signal
-			}).catch((error) => {
+			try {
+				const response = await authFetch(`${API_Route}/users/student/${userId}/cases`, {
+					signal: controller.signal
+				});
+				if (response?.status === 0) return;
+				if (!response?.ok) {
+					console.error('Error fetching cases data:', response?.status, response?.statusText);
+					return;
+				};
+
+				const data = await response.json().catch(() => null);
+				if (!data) {
+					console.error('Invalid cases data received');
+					return;
+				};
+
+				const nextCases = Array.isArray(data?.cases) ? data.cases : Array.isArray(data) ? data : [];
+				updateCacheRef.current?.('cases', nextCases);
+			} catch (error) {
+				if (String(error).toLowerCase().includes('aborted')) return;
 				console.error('Error fetching cases data:', error);
-			});
-			if (response?.status === 0) return;
-
-			const data = await response.json();
-			if (!data) {
-				console.error('Invalid cases data received');
+			} finally {
 				setLoadingCases(false);
-				return;
-			};
-
-			updateCache('cases', data.cases || []);
-			setLoadingCases(false);
+			}
 		};
 
 		fetchCases();
 		return () => controller.abort();
-	}, [refresh]);
+	}, [refresh, userId]);
 
-	const header = (
+	return (
 		<Flex direction='column' align='stretch' style={{ padding: 16, backgroundColor: theme.fill_base }}>
 			<Text>You have</Text>
 			<Flex direction='row' justify='between' align='center'>
@@ -101,11 +115,7 @@ const Cases = () => {
 					</Button>
 				</Flex>
 			</Flex>
-		</Flex>
-	);
 
-	return (
-		<View style={{ flex: 1 }}>
 			<Modal
 				visible={modalVisible}
 				transparent
@@ -115,7 +125,7 @@ const Cases = () => {
 				onresponseClose={() => setModalVisible(false)}
 				style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8 }}
 				footer={[
-					{ text: 'Close', onPress: () => setModalVisible(false) },
+					{ text: 'Close', onPress: () => setModalVisible(false), style: { color: theme.color_text_caption } },
 					{
 						text: 'Create', onPress: () => {
 							setModalVisible(false); navigationRef.current?.navigate('NewCase');
@@ -125,12 +135,18 @@ const Cases = () => {
 			>
 				<RNScrollView style={{ maxHeight: 512, padding: theme.v_spacing_sm }}>
 					<Flex direction='column' align='stretch'>
-						{cache.cases.sort((a, b) => {
-							if (a.status === 'open' && b.status !== 'open') return -1;
-							if (b.status === 'open' && a.status !== 'open') return 1;
-							// fallback: newest first
-							return new Date(b.created_at) - new Date(a.created_at);
-						}).map((caseItem) => (
+						{sortedCases.length === 0 && (
+							<Flex direction='column' justify='center' align='center' style={{ padding: 32, gap: 8 }}>
+								<Icon name='file-text' size={48} color={theme.color_icon_base} />
+								<Text style={{ textAlign: 'center', color: theme.color_text_caption }}>
+									No reports yet
+								</Text>
+								<Text style={{ textAlign: 'center', color: theme.color_text_caption, fontSize: theme.font_size_caption }}>
+									Tap 'Create' to submit your first report
+								</Text>
+							</Flex>
+						)}
+						{sortedCases.map((caseItem) => (
 							<Flex
 								key={caseItem.id}
 								direction='column'
@@ -138,10 +154,9 @@ const Cases = () => {
 								style={{
 									width: '100%',
 									padding: theme.v_spacing_sm,
-									backgroundColor: caseItem.status !== 'closed' && theme.fill_base,
-									opacity: caseItem.status === 'closed' ? 0.25 : 1,
+									backgroundColor: caseItem.status !== 'closed' ? theme.fill_base : theme.fill_background,
+									opacity: caseItem.status === 'closed' ? 0.5 : 1,
 									gap: theme.v_spacing_sm,
-									opacity: 0.5,
 									...caseItem.status === 'dismissed' ? {
 										borderLeftWidth: 3,
 										borderLeftColor: theme.brand_error
@@ -197,18 +212,7 @@ const Cases = () => {
 					</Flex>
 				</RNScrollView>
 			</Modal>
-
-			<ContentPage
-				header={header}
-				fetchUrl={`${API_Route}/users/student/${cache.user?.id}/records`}
-				cacheKey='records'
-				transformItem={(item) => item.records || []}
-				limit={10}
-				contentGap={0}
-				contentPadding={0}
-				renderItem={(record) => <Case key={record.id} record={record} />}
-			/>
-		</View>
+		</Flex>
 	);
 };
 

@@ -229,7 +229,7 @@ const Feed = () => {
 												</Text>
 											</Flex>
 										),
-										[{ text: 'OK' }]
+										[{ text: 'OK', style: { color: theme.color_text_caption } }]
 									)}
 								/>
 							</Badge>
@@ -377,7 +377,7 @@ const Feed = () => {
 				onClose={() => setRequestsModalVisible(false)}
 				style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8 }}
 				footer={[
-					{ text: 'Close', onPress: () => setRequestsModalVisible(false) },
+					{ text: 'Close', onPress: () => setRequestsModalVisible(false), style: { color: theme.color_text_caption } },
 					{
 						text: 'Create', onPress: () => {
 							setRequestsModalVisible(false);
