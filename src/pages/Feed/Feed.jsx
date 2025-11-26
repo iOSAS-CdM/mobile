@@ -1,8 +1,11 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import { Keyboard, TouchableWithoutFeedback, Image, Platform, ScrollView, View, Pressable, Dimensions, ScrollView as RNScrollView } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, Image, Platform, Dimensions, ScrollView as RNScrollView, StyleSheet, View } from 'react-native';
 import { Flex, Icon, Toast, Badge, ActivityIndicator, Modal, Tag } from '@ant-design/react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import Svg, { Polygon } from 'react-native-svg';
+import dayjs from 'dayjs';
 
 import IconButton from '../../components/IconButton';
 import Text from '../../components/Text';
@@ -22,7 +25,7 @@ import Sadbot from '../../../assets/public/sadbot.png';
 import AppIcon from '../../../assets/icon.png';
 
 import { useCache } from '../../contexts/CacheContext';
-import { WebSocketProvider, useWebSocket } from '../../contexts/WebSocketContext';
+import { useWebSocket } from '../../contexts/WebSocketContext';
 import authFetch from '../../utils/authFetch';
 import supabase from '../../utils/supabase';
 
@@ -54,6 +57,10 @@ const Feed = ({ navigation, route }) => {
 	const [requestsModalVisible, setRequestsModalVisible] = React.useState(false);
 	const [requests, setRequests] = React.useState([]);
 	const [loadingRequests, setLoadingRequests] = React.useState(false);
+	const [scannerModalVisible, setScannerModalVisible] = React.useState(false);
+	const [permission, requestPermission] = useCameraPermissions();
+	const [scanned, setScanned] = React.useState(false);
+	const [qrBounds, setQrBounds] = React.useState(null);
 
 	React.useEffect(() => {
 		const controller = new AbortController();
@@ -183,6 +190,7 @@ const Feed = ({ navigation, route }) => {
 
 	return (
 		<>
+
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Flex
 					direction='row'
@@ -201,9 +209,13 @@ const Feed = ({ navigation, route }) => {
 						contentFit='contain'
 					/>
 					<Flex direction='row' align='center' gap={8}>
-						{/* {user?.role === 'student' && user?.organizations?.length > 0 && (
-							<IconButton size='small' name='qrcode' />
-						)} */}
+						{user?.role === 'student' && user?.organizations?.length > 0 && (
+							<IconButton
+								size='small'
+								name='qrcode'
+								onPress={() => setScannerModalVisible(true)}
+							/>
+						)}
 						<IconButton
 							size='small'
 							name='paper-clip'
@@ -475,6 +487,100 @@ const Feed = ({ navigation, route }) => {
 					</Flex>
 				</RNScrollView>
 			</Modal>
+
+			{/* Scanner Modal */}
+			{user?.role === 'student' && user?.organizations?.length > 0 && (
+				<Modal
+					visible={scannerModalVisible}
+					transparent
+					title='QR Code Scanner'
+					animateAppear
+					animationType='fade'
+					onClose={() => {
+						setScannerModalVisible(false);
+						setScanned(false);
+						setQrBounds(null);
+					}}
+					style={{ padding: 0, backgroundColor: theme.fill_body, width: Dimensions.get('window').width - 32, borderRadius: 8, overflow: 'hidden' }}
+					footer={[
+						{
+							text: 'Close', onPress: () => {
+								setScannerModalVisible(false);
+								setScanned(false);
+								setQrBounds(null);
+							}, style: { color: theme.color_text_caption }
+						}
+					]}
+				>
+					{!permission ? (
+						<Flex justify='center' align='center' style={{ padding: 32 }}>
+							<ActivityIndicator size='large' />
+						</Flex>
+					) : !permission.granted ? (
+						<Flex direction='column' justify='center' align='center' style={{ padding: 32, gap: theme.v_spacing_md }}>
+							<Icon name='camera' size={48} color={theme.color_icon_base} />
+							<Text style={{ textAlign: 'center' }}>
+								Camera permission is required to scan QR codes
+							</Text>
+							<Button type='primary' onPress={requestPermission}>
+								Grant Permission
+							</Button>
+						</Flex>
+					) : (
+						<View style={{ width: '100%', aspectRatio: 1, overflow: 'hidden', borderRadius: 8 }}>
+							<CameraView
+								style={StyleSheet.absoluteFillObject}
+								facing='back'
+								barcodeScannerSettings={{
+									barcodeTypes: ['qr']
+								}}
+								onBarcodeScanned={scanned ? undefined : async ({ data, cornerPoints }) => {
+									setScanned(true);
+									if (cornerPoints)
+										setQrBounds(cornerPoints);
+
+									const response = await authFetch(`${API_Route}/users/student/${data}/verify`);
+									setScanned(false);
+									setQrBounds(null);
+
+									if (!response?.ok) return;
+
+									// Check for verifiedSince
+									const result = await response.json();
+									if (result.verifiedSince)
+										Toast.success(`User ${data} is verified\nsince ${dayjs(result.verifiedSince).format('MMMM D, YYYY')}`, 2);
+									else
+										Toast.fail(`User ${data} is not verified`, 2);
+								}}
+							/>
+							<View style={{
+								...StyleSheet.absoluteFillObject,
+								justifyContent: 'center',
+								alignItems: 'center'
+							}}>
+								<View style={{
+									width: 256,
+									height: 256,
+									borderWidth: 2,
+									borderColor: 'white',
+									borderRadius: theme.border_width_lg,
+									backgroundColor: 'transparent'
+								}} />
+							</View>
+							{qrBounds && (
+								<Svg style={StyleSheet.absoluteFillObject}>
+									<Polygon
+										points={qrBounds.map(point => `${point.x},${point.y}`).join(' ')}
+										fill='rgba(0, 0, 0, 0)'
+										stroke={theme.brand_primary}
+										strokeWidth='1'
+									/>
+								</Svg>
+							)}
+						</View>
+					)}
+				</Modal>
+			)}
 		</>
 	);
 };
