@@ -319,7 +319,7 @@ const SignUp = () => {
 							gap={16}
 							style={{ width: '100%' }}
 						>
-							<Title level={4}>Enter your contact</Title>
+							<Title level={4}>Enter your address</Title>
 							<Controller
 								control={control}
 								name='email'
