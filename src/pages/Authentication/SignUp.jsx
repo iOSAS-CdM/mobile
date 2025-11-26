@@ -228,8 +228,8 @@ const SignUp = () => {
 								rules={{
 									required: 'First Name is required',
 									pattern: {
-										value: /^[a-zA-Z ,.'-]+$/,
-										message: 'Invalid First Name'
+										value: /^[^\d]+$/,
+										message: 'Numbers are not allowed in First Name'
 									}
 								}}
 								render={({
@@ -257,8 +257,8 @@ const SignUp = () => {
 								name='middleName'
 								rules={{
 									pattern: {
-										value: /^[a-zA-Z ,.'-]+$/,
-										message: 'Invalid Middle Name'
+										value: /^[^\d]+$/,
+										message: 'Numbers are not allowed in Middle Name'
 									}
 								}}
 								render={({
@@ -286,8 +286,8 @@ const SignUp = () => {
 								rules={{
 									required: 'Last Name is required',
 									pattern: {
-										value: /^[a-zA-Z ,.'-]+$/,
-										message: 'Invalid Last Name'
+										value: /^[^\d]+$/,
+										message: 'Numbers are not allowed in Last Name'
 									}
 								}}
 								render={({
