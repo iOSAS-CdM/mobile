@@ -55,7 +55,7 @@ const ViewAnnouncement = ({ route }) => {
 					...(prev.likes || []),
 					{ author: cache.user, date: new Date() }
 				];
-			}
+			};
 			return {
 				...prev,
 				likes: updatedLikes

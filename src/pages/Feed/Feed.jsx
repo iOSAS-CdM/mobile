@@ -35,7 +35,13 @@ import theme from '../../styles/theme';
 /** @typedef {{ key: keyof import('../../contexts/CacheContext').Cache, seed: number }} Refresh */
 import { useRefresh } from '../../contexts/useRefresh';
 
-const Feed = () => {
+/**
+ * @type {React.FC<{
+ * 	navigation: import('@react-navigation/native').NavigationProp<any, any>;
+ * 	route: import('@react-navigation/native').RouteProp<any, any>;
+ * }>}
+ */
+const Feed = ({ navigation, route }) => {
 	const keyboardShown = useKeyboard();
 
 	const { cache, updateCache } = useCache();
@@ -126,9 +132,8 @@ const Feed = () => {
 	};
 
 	React.useEffect(() => {
-		if (requestsModalVisible) {
+		if (requestsModalVisible)
 			fetchRequests();
-		};
 	}, [requestsModalVisible, refresh]);
 
 	if (!user) return (
@@ -242,7 +247,7 @@ const Feed = () => {
 				<Tab.Navigator
 					ref={tabNavigatorRef}
 					tabBarPosition={Platform.OS === 'ios' ? 'bottom' : 'top'}
-					initialRouteName='Home'
+					initialRouteName={route.params?.initialTab || 'Home'}
 					swipeEnabled={!keyboardShown}
 					style={{
 						position: 'relative',

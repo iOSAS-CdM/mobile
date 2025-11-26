@@ -71,12 +71,12 @@ const AmBot = () => {
 		setSessionId(null);
 	};
 
-	const handleSendMessage = React.useCallback(async () => {
-		if (!text.trim()) return;
+	const handleSendMessage = React.useCallback(async (message) => {
+		if (!text.trim() && !message) return;
 		const session = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 		if (!sessionId) setSessionId(session);
 
-		const userMessage = text.trim();
+		const userMessage = text.trim() || message;
 		setText('');
 
 		// Add user message to chat
@@ -181,25 +181,15 @@ const AmBot = () => {
 												// Handle internal navigation
 												if (url.startsWith('/')) {
 													// Map API paths to mobile app navigation paths
-													const pathMap = {
-														'/feed': '/Feed/Home',
-														'/cases': '/Feed/Cases',
-														'/calendar': '/Feed/Calendar',
-														'/organizations': '/Feed/Organizations',
-														'/profile': '/Feed/Profile'
-													};
-													console.log('Navigating to internal path:', url);
-
-													// Try to match the path
-													const navigationPath = pathMap[url.toLowerCase()];
-
-													if (navigationPath)
-														// Navigate using linkTo with the proper path
-														linkTo(navigationPath);
-													else
-														// Go back to Feed/Home if path not recognized
-														linkTo('/Feed/Home');
-													return false; // Prevent default browser behavior
+													// '/Home'
+													// '/Cases'
+													// '/Calendar'
+													// '/Organizations'
+													// '/Profile'
+													// Navigate to /Feed with parameter: tab = mapped path
+													const tab = url.slice(1); // e.g., 'Home'
+													navigationRef.current?.navigate('Feed', { initialTab: tab });
+													return false;
 												};
 												// External links open in browser by default
 												return true;
@@ -236,8 +226,7 @@ const AmBot = () => {
 								key={index}
 								size='small'
 								onPress={() => {
-									setText(question);
-									setTimeout(() => handleSendMessage(), 100);
+									handleSendMessage(question);
 								}}
 								disabled={isLoading}
 								style={{ borderWidth: 0.5, borderColor: theme.border_color_base }}
