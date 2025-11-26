@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pressable, Dimensions, Image, View } from 'react-native';
+import { Pressable, Dimensions, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import Image from 'react-native-scalable-image';
 
 import { Flex } from '@ant-design/react-native';
 import Markdown from 'react-native-markdown-display';
@@ -186,10 +187,7 @@ const Announcement = ({
 				<View style={{ overflow: 'hidden' }}>
 					<Image
 						source={{ uri: announcement.cover }}
-						style={{
-							width: Dimensions.get('window').width,
-							height: Dimensions.get('window').width
-						}}
+						width={Dimensions.get('window').width}
 					/>
 				</View>
 				<Flex
