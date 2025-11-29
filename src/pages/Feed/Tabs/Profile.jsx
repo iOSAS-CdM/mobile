@@ -8,7 +8,7 @@ import moment from 'moment';
 import { useCache } from '../../../contexts/CacheContext';
 import { useRefresh } from '../../../contexts/useRefresh';
 
-import { Flex, Icon, Toast } from '@ant-design/react-native';
+import { Flex, Icon, Toast, Tooltip } from '@ant-design/react-native';
 
 import Text from '../../../components/Text';
 import Avatar from '../../../components/Avatar';
@@ -318,12 +318,16 @@ const Profile = () => {
 						align='stretch'
 						justify='start'
 						style={{
+							position: 'relative',
 							width: '100%',
 							padding: 16,
 							gap: 16,
 							backgroundColor: theme.fill_base
 						}}
 					>
+						<Tooltip title='This QR validate your verification as a student at Colegio de Montalban.'>
+							<Icon name='info-circle' size={16} style={{ position: 'absolute', top: 8, right: 8 }} />
+						</Tooltip>
 						<Text style={{ fontWeight: 'bold', fontSize: theme.font_size_subhead, textAlign: 'center' }}>Verified Student</Text>
 						<Image
 							source={{ uri: `https://barcode.orcascan.com/?type=qrcode&data=${cache.user?.id}&fontsize=Fit&format=png&padding=0` }}
