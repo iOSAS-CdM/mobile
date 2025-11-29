@@ -181,7 +181,8 @@ const New = ({ route }) => {
 						style={{
 							width: '100%',
 							padding: 16,
-							backgroundColor: theme.fill_base
+							backgroundColor: theme.fill_base,
+							...(recordData.archived && { opacity: 0.7 })
 						}}
 					>
 						<Text
@@ -203,6 +204,11 @@ const New = ({ route }) => {
 							align='center'
 							gap={8}
 						>
+							{recordData.archived && (
+								<Button size='small' style={{ fontSize: theme.font_size_caption }}>
+									Archived
+								</Button>
+							)}
 							<Button size='small' style={{ fontSize: theme.font_size_caption }}>
 								{recordData.violation}
 							</Button>
