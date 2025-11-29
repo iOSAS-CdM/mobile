@@ -325,7 +325,7 @@ const Profile = () => {
 							backgroundColor: theme.fill_base
 						}}
 					>
-						<Tooltip title='This QR validate your verification as a student at Colegio de Montalban.'>
+						<Tooltip title='This QR code verifies your identity as a student. Show this to school authorities when requested.'>
 							<Icon name='info-circle' size={16} style={{ position: 'absolute', top: 8, right: 8 }} />
 						</Tooltip>
 						<Text style={{ fontWeight: 'bold', fontSize: theme.font_size_subhead, textAlign: 'center' }}>Verified Student</Text>
