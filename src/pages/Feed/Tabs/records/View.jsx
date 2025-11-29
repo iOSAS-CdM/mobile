@@ -205,12 +205,12 @@ const New = ({ route }) => {
 							gap={8}
 						>
 							{recordData.archived && (
-								<Button size='small' style={{ fontSize: theme.font_size_caption }}>
+								<Tag small>
 									Archived
-								</Button>
+								</Tag>
 							)}
 							<Button size='small' style={{ fontSize: theme.font_size_caption }}>
-								{recordData.violation}
+								{recordData.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
 							</Button>
 							<Button size='small' style={{
 								fontSize: theme.font_size_caption,
