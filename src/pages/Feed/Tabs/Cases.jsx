@@ -231,7 +231,8 @@ const Case = ({ record }) => (
 			position: 'relative',
 			padding: 16,
 			backgroundColor: record.tags.status !== 'ongoing' ? theme.fill_base : theme.fill_background,
-			filter: record.tags.status === 'ongoing' ? 'none' : 'grayscale(100%)',
+			// filter: record.tags.status === 'ongoing' ? 'none' : 'grayscale(100%)',
+			opacity: record.tags.status === 'ongoing' ? 1 : 0.75,
 			borderBottomColor: theme.border_color_base,
 			borderBottomWidth: theme.border_width_sm
 		}}
@@ -248,6 +249,9 @@ const Case = ({ record }) => (
 				zIndex: 10
 			}}
 		>
+			{record.archived && (
+				<Tag small>Archived</Tag>
+			)}
 			<Tag small>
 				{record.violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
 			</Tag>
